@@ -22,6 +22,11 @@ public class World : MonoBehaviour
         {
             DestroyImmediate(chunk.gameObject);
         }
+
+        foreach (var chunk in FindObjectsOfType<ChunkRenderer>())
+        {
+            DestroyImmediate(chunk.gameObject);
+        }
         chunkDict.Clear();
         
         for (var x = 0; x < mapSize; x++)

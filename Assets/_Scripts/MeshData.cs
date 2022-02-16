@@ -25,10 +25,10 @@ public class MeshData
     {
         this.vertices.Add(vertices);
 
-        if (generateCollider)
-        {
-            colliderVertices.Add(vertices);
-        }
+        // if (generateCollider)
+        // {
+        //     colliderVertices.Add(vertices);
+        // }
     }
 
     public void AddQuadTriangles(bool generateCollider)
@@ -41,15 +41,16 @@ public class MeshData
         triangles.Add(vertices.Count - 2);
         triangles.Add(vertices.Count - 1);
 
-        if (generateCollider)
-        {
-            colliderTriangles.Add(colliderVertices.Count - 4);
-            colliderTriangles.Add(colliderVertices.Count - 3);
-            colliderTriangles.Add(colliderVertices.Count - 2);
-            
-            colliderTriangles.Add(colliderVertices.Count - 4);
-            colliderTriangles.Add(colliderVertices.Count - 2);
-            colliderTriangles.Add(colliderVertices.Count - 1);
-        }
+        //TODO: enable colliders when needed
+        // if (generateCollider)
+        // {
+        //     colliderTriangles.Add(colliderVertices.Count - 4);
+        //     colliderTriangles.Add(colliderVertices.Count - 3);
+        //     colliderTriangles.Add(colliderVertices.Count - 2);
+        //     
+        //     colliderTriangles.Add(colliderVertices.Count - 4);
+        //     colliderTriangles.Add(colliderVertices.Count - 2);
+        //     colliderTriangles.Add(colliderVertices.Count - 1);
+        // }
     }
 }

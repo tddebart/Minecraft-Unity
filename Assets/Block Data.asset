@@ -45,3 +45,9 @@ MonoBehaviour:
     side: {x: 2, y: 3}
     isSolid: 1
     generateCollider: 1
+  - blockType: 4
+    up: {x: 1, y: 17}
+    down: {x: 1, y: 17}
+    side: {x: 1, y: 17}
+    isSolid: 1
+    generateCollider: 1

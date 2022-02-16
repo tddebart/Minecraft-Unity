@@ -1,10 +1,14 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class BiomeGenerator : MonoBehaviour
 {
-    public int waterThreshold = 50; // water level
     public NoiseSettings settings;
+
+    public BlockLayerHandler startLayerHandler;
+
+    public List<BlockLayerHandler> additionalLayerHandlers;
     
     public ChunkData ProcessChunkColumn(ChunkData data, int x, int z, Vector2Int mapSeedOffset)
     {
@@ -12,31 +16,14 @@ public class BiomeGenerator : MonoBehaviour
         var groundPos = GetSurfaceHeightNoise(data.worldPos.x + x, data.worldPos.z + z,data.chunkHeight);
         for (var y = 0; y < data.chunkHeight; y++)
         {
-            var blockType = BlockType.Dirt;
-            if (y > groundPos)
-            {
-                if (y < waterThreshold)
-                {
-                    blockType = BlockType.Water;
-                }
-                else
-                {
-                    blockType = BlockType.Air;
-                }
-            }
-            else if (y == groundPos && y < waterThreshold)
-            {
-                blockType = BlockType.Sand;
-            }
-            else if(y == groundPos)
-            {
-                blockType = BlockType.Grass;
-            }
-                    
-            Chunk.SetBlock(data, new Vector3Int(x, y, z), blockType);
+            startLayerHandler.Handle(data, new Vector3Int(x,y,z), groundPos, mapSeedOffset);
         }
         
-        
+        foreach (var layer in additionalLayerHandlers)
+        {
+            layer.Handle(data, new Vector3Int(x,data.worldPos.y,z), groundPos, mapSeedOffset);
+        }
+
         return data;
     }
 

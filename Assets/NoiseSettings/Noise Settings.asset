@@ -15,7 +15,7 @@ MonoBehaviour:
   noiseZoom: 0.005
   octaves: 4
   offset: {x: -100, y: -100}
-  worldOffset: {x: 0, y: 0}
+  worldOffset: {x: 1000, y: -10}
   persistence: 0.5
   redistributionModifier: 1.2
   exponent: 2
