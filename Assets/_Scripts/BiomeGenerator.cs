@@ -6,6 +6,10 @@ public class BiomeGenerator : MonoBehaviour
 {
     public NoiseSettings settings;
 
+    public DomainWarping domainWarping;
+
+    public bool useWarping = true;
+
     public BlockLayerHandler startLayerHandler;
 
     public List<BlockLayerHandler> additionalLayerHandlers;
@@ -29,7 +33,15 @@ public class BiomeGenerator : MonoBehaviour
 
     private int GetSurfaceHeightNoise(int x, int z, int chunkHeight)
     {
-        var terrainHeight = MyNoise.OctavePerlin(x, z, settings);
+        float terrainHeight;
+        if (useWarping)
+        {
+            terrainHeight = domainWarping.GenerateDomainNoise(x, z, settings);
+        }
+        else
+        {
+            terrainHeight = MyNoise.OctavePerlin(x, z, settings);
+        }
         terrainHeight = MyNoise.Redistribution(terrainHeight, settings);
         var surfaceHeight = (int)Mathf.Lerp(0, chunkHeight, terrainHeight);
         return surfaceHeight;

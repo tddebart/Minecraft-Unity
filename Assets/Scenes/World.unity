@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 839.42676, g: 796.4873, b: 944.4121, a: 1}
+  m_IndirectSpecularColor: {r: 839.4912, g: 796.7295, b: 944.9238, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -570,6 +570,7 @@ GameObject:
   m_Component:
   - component: {fileID: 975012411}
   - component: {fileID: 975012410}
+  - component: {fileID: 975012412}
   m_Layer: 0
   m_Name: BiomeGenerator
   m_TagString: Untagged
@@ -590,6 +591,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settings: {fileID: 11400000, guid: 8eb4b95ff5c263440861f78887f9a842, type: 2}
+  domainWarping: {fileID: 975012412}
+  useWarping: 1
   startLayerHandler: {fileID: 521203639}
   additionalLayerHandlers:
   - {fileID: 1241654582}
@@ -613,6 +616,21 @@ Transform:
   m_Father: {fileID: 1658937129}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &975012412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 975012409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0af0bb790fa44432a6c0532ba656129d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  noiseDomainX: {fileID: 11400000, guid: de40866a48b42404f99d3af2a65e4170, type: 2}
+  noiseDomainY: {fileID: 11400000, guid: 6a84a9f0574cbed4bb4209a557ba0240, type: 2}
+  amplitude: {x: 80, y: 80}
 --- !u!1 &992165542
 GameObject:
   m_ObjectHideFlags: 0
@@ -737,8 +755,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 0}
-  stoneThreshold: 0.608
+  stoneThreshold: 0.67
   stoneNoiseSettings: {fileID: 11400000, guid: ef9b7dd91fc8565409957908e9138fb1, type: 2}
+  stoneDomainWarping: {fileID: 975012412}
 --- !u!4 &1241654583
 Transform:
   m_ObjectHideFlags: 0
@@ -783,7 +802,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e113280f9ab044168541f6fef84d3095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: 10
+  mapSize: 20
   chunkSize: 16
   chunkHeight: 100
   chunkPrefab: {fileID: 6559892113857526336, guid: 17ca87b4625a0554490f7956581608b2,
