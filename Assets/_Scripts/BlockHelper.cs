@@ -26,7 +26,7 @@ public static class BlockHelper
             Vector3Int neighbourPos = pos + dir.GetVector();
             BlockType neighbourBlockType = Chunk.GetBlock(chunk, neighbourPos);
             
-            if (neighbourBlockType == BlockType.Nothing || !BlockDataManager.textureDataDictionary[neighbourBlockType].isSolid)
+            if (neighbourBlockType != BlockType.Nothing && !BlockDataManager.textureDataDictionary[neighbourBlockType].isSolid)
             {
                 if (blockType == BlockType.Water)
                 {

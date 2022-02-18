@@ -82,6 +82,10 @@ public class World : MonoBehaviour
             {
                 world.chunkDataDict.Clear();
                 world.chunkDict.Clear();
+                foreach (var chunk in FindObjectsOfType<ChunkRenderer>())
+                {
+                    DestroyImmediate(chunk.gameObject);
+                }
             }
             
             base.OnInspectorGUI();
