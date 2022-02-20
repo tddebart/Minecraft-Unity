@@ -54,7 +54,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2014572349180886883}
-  m_LocalRotation: {x: 0.7071068, y: 0, z: -0, w: 0.7071067}
+  m_LocalRotation: {x: 0.70710677, y: 0.00012338163, z: 0.00012338163, w: 0.70710677}
   m_LocalPosition: {x: -0, y: 0, z: -0.0006321812}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -68,7 +68,7 @@ Transform:
   - {fileID: 170384686}
   m_Father: {fileID: 7593250878061051055}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 89.98, y: 90, z: 90}
 --- !u!1 &2178918711677272793
 GameObject:
   m_ObjectHideFlags: 0
@@ -461,6 +461,7 @@ GameObject:
   - component: {fileID: 5271358695257700328}
   - component: {fileID: 5271358695257700335}
   - component: {fileID: 5271358695257700334}
+  - component: {fileID: 1979391916}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -515,9 +516,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sensitivity: 300
-  head: {fileID: 8578214304646107183}
-  body: {fileID: 754787235063055543}
-  moveDirection: {fileID: 170384686}
   playerInput: {fileID: 5271358695257700334}
 --- !u!114 &5271358695257700328
 MonoBehaviour:
@@ -535,9 +533,6 @@ MonoBehaviour:
   playerRunSpeed: 8
   gravity: -32
   flySpeed: 15
-  root: {fileID: 754787235063055543}
-  head: {fileID: 8578214304646107183}
-  moveDirection: {fileID: 170384686}
   groundMask:
     serializedVersion: 2
     m_Bits: 8
@@ -573,6 +568,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3aefc053e4c4b1faa4289f99e1d04f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1979391916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5271358695257700322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 165a7d9f02394de990f305d87bf36a34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  body: {fileID: 754787235063055543}
+  head: {fileID: 8578214304646107183}
+  leftArm: {fileID: 3555842928592231372}
+  rightArm: {fileID: 6649336699257516037}
+  leftLeg: {fileID: 4338453079326773244}
+  rightLeg: {fileID: 5683116489359308776}
+  moveDirection: {fileID: 170384686}
 --- !u!1 &5271358695385896121
 GameObject:
   m_ObjectHideFlags: 0

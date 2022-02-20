@@ -9,10 +9,6 @@ public class PlayerController : MonoBehaviour
     public float playerRunSpeed = 8f;
     public float gravity = -9.81f;
     public float flySpeed = 15f;
-
-    public Transform root;
-    public Transform head;
-    public Transform moveDirection;
     
     private Vector3 playerVelocity;
     
@@ -26,6 +22,8 @@ public class PlayerController : MonoBehaviour
     private long endTime;
 
     private float maxHeightReached;
+    
+    private PlayerObjects objects;
     
     
     // INFO:
@@ -41,11 +39,12 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         controller = GetComponent<CharacterController>();
+        objects = GetComponent<PlayerObjects>();
     }
 
     private Vector3 GetMovementDirection(Vector3 movementInput)
     {
-        return-(moveDirection.right * movementInput.normalized.x + moveDirection.transform.forward * movementInput.normalized.z);
+        return-(objects.moveDirection.right * movementInput.normalized.x + objects.moveDirection.transform.forward * movementInput.normalized.z);
     }
     
     public void Fly(Vector3 movementInput, bool isJumpPressed, bool isRunPressed)
@@ -70,6 +69,17 @@ public class PlayerController : MonoBehaviour
         var movementSpeed = isRunPressed ? playerRunSpeed : playerSpeed;
 
         controller.Move(movementDirection * Time.deltaTime * movementSpeed);
+
+        // if move to the left, rotate the body to the left
+        // if (movementInput.z != 0 && objects.body.localRotation.y != Vector3.SignedAngle(objects.body.forward, objects.moveDirection.forward, Vector3.up))
+        // {
+        //     RotateBody(Vector3.SignedAngle(objects.body.forward, objects.moveDirection.forward, Vector3.up)*(Time.deltaTime*2));
+        // }
+        
+        // var bodyRotation = objects.body.localRotation;
+        // bodyRotation = Quaternion.Euler(objects.moveDirection.localRotation.eulerAngles.y-45, 90, 90);
+        // objects.body.localRotation = bodyRotation;
+        // objects.head.Rotate(Vector3.up, objects.moveDirection.localRotation.eulerAngles.y-45);
     }
 
     public void HandleGravity(bool isJumpPressed)
@@ -90,7 +100,7 @@ public class PlayerController : MonoBehaviour
 
     private void AddJumpForce()
     {
-        playerVelocity.y = 10.1f;
+        playerVelocity.y = 10.15f;
         startTime = DateTime.Now.Ticks;
     }
 
@@ -118,4 +128,20 @@ public class PlayerController : MonoBehaviour
             maxHeightReached = Mathf.Max(maxHeightReached, transform.position.y);
         }
     }
+
+    // When the body is rotated, the head needs to be rotated as well to keep the head in the same position
+    private void RotateBody(float bodyYawRotation)
+    {
+        objects.body.Rotate(objects.body.up, bodyYawRotation);
+
+        var headRotation = objects.head.localRotation.eulerAngles;
+        headRotation += new Vector3(0, -bodyYawRotation, 0);
+        objects.head.localRotation = Quaternion.Euler(headRotation);
+    }
+    
+    // private void SetBodyRotation(float bodyYawRotation)
+    // {
+    //     objects.body.localRotation = Quaternion.Euler(bodyYawRotation, 90, 90);
+    //     objects.head.localRotation = Quaternion.Euler(objects.head.localRotation.x, objects.head.localRotation.y-bodyYawRotation, 0);
+    // }
 }
