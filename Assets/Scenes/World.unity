@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 838.9536, g: 797.56836, b: 949.1328, a: 1}
+  m_IndirectSpecularColor: {r: 839.4131, g: 795.63184, b: 941.5137, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -837,13 +837,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e113280f9ab044168541f6fef84d3095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: 10
+  renderDistance: 8
   chunkSize: 16
   chunkHeight: 100
   chunkPrefab: {fileID: 6559892113857526336, guid: 17ca87b4625a0554490f7956581608b2,
     type: 3}
   terrainGenerator: {fileID: 1658937128}
-  mapOffset: {x: 1000, y: -10}
+  mapOffset: {x: 1160, y: 150}
   OnWorldCreated:
     m_PersistentCalls:
       m_Calls:

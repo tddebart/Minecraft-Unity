@@ -2,66 +2,100 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 public class World : MonoBehaviour
 {
-    public int mapSize = 6;
+    public int renderDistance = 6;
     public int chunkSize = 16; // 16x16 chunks
     public int chunkHeight = 100; // 100 blocks high
     public GameObject chunkPrefab;
     
     public TerrainGenerator terrainGenerator;
     public Vector2Int mapOffset;
-    
-    Dictionary<Vector3Int, ChunkData> chunkDataDict = new Dictionary<Vector3Int, ChunkData>();
-    Dictionary<Vector3Int, ChunkRenderer> chunkDict = new Dictionary<Vector3Int, ChunkRenderer>();
 
     public UnityEvent OnWorldCreated;
     public UnityEvent OnNewChunksGenerated;
 
+    public WorldData worldData { get; private set; }
+    private void OnValidate()
+    {
+        worldData = new WorldData
+        {
+            chunkHeight = this.chunkHeight,
+            chunkSize = this.chunkSize,
+            chunkDataDict = new Dictionary<Vector3Int, ChunkData>(),
+            chunkDict = new Dictionary<Vector3Int, ChunkRenderer>()
+        };
+    }
+
     public void GenerateWorld()
     {
-        chunkDataDict.Clear();
-        foreach (ChunkRenderer chunk in chunkDict.Values)
+        // chunkDataDict.Clear();
+        // foreach (ChunkRenderer chunk in chunkDict.Values)
+        // {
+        //     DestroyImmediate(chunk.gameObject);
+        // }
+        //
+        // foreach (var chunk in FindObjectsOfType<ChunkRenderer>())
+        // {
+        //     DestroyImmediate(chunk.gameObject);
+        // }
+        // chunkDict.Clear();
+        
+        WorldGenerationData worldGenerationData = GetPositionsInRenderDistance(Vector3Int.zero);
+
+        
+        // Generate data chunks
+        foreach (var pos in worldGenerationData.chunkDataPositionsToCreate)
         {
-            DestroyImmediate(chunk.gameObject);
+            var data = new ChunkData(chunkSize, chunkHeight, this, pos);
+            var newData = terrainGenerator.GenerateChunkData(data, mapOffset);
+            worldData.chunkDataDict.Add(newData.worldPos, newData);
         }
 
-        foreach (var chunk in FindObjectsOfType<ChunkRenderer>())
+        // Generate visual chunks
+        foreach (var pos in worldGenerationData.chunkPositionsToCreate)
         {
-            DestroyImmediate(chunk.gameObject);
-        }
-        chunkDict.Clear();
-        
-        for (var x = 0; x < mapSize; x++)
-        {
-            for (var z = 0; z < mapSize; z++)
-            {
-                var data = new ChunkData(chunkSize, chunkHeight, this, new Vector3Int(x*chunkSize, 0,z*chunkSize));
-                // GenerateChunkBlocks(data);
-                var newData = terrainGenerator.GenerateChunkData(data, mapOffset);
-                chunkDataDict.Add(newData.worldPos, newData);
-            }
-        }
-        
-        foreach (var data in chunkDataDict.Values)
-        {
+            var data = worldData.chunkDataDict[pos];
             var meshData = Chunk.GetChunkMeshData(data);
             var chunkObj = Instantiate(chunkPrefab, data.worldPos, Quaternion.identity);
             var chunkRenderer = chunkObj.GetComponent<ChunkRenderer>();
-            chunkDict.Add(data.worldPos, chunkRenderer);
+            worldData.chunkDict.Add(data.worldPos, chunkRenderer);
             chunkRenderer.Initialize(data);
             chunkRenderer.UpdateChunk(meshData);
         }
+
+        if (Application.isPlaying)
+        {
+            OnWorldCreated?.Invoke();
+        }
+    }
+
+    private WorldGenerationData GetPositionsInRenderDistance(Vector3Int playerPos)
+    {
+        var allChunkPositionsNeeded = WorldDataHelper.GetChunkPositionsInRenderDistance(this, playerPos);
+        var allChunkDataPositionsNeeded = WorldDataHelper.GetDataPositionsInRenderDistance(this, playerPos);
         
-        OnWorldCreated?.Invoke();
+        var chunkPositionsToCreate = WorldDataHelper.GetPositionsToCreate(worldData, allChunkPositionsNeeded,playerPos);
+        var chunkDataPositionsToCreate = WorldDataHelper.GetDataPositionsToCreate(worldData, allChunkDataPositionsNeeded,playerPos);
+
+        var data = new WorldGenerationData
+        {
+            chunkPositionsToCreate = chunkPositionsToCreate,
+            chunkDataPositionsToCreate = chunkDataPositionsToCreate,
+            chunkPositionsToRemove = new List<Vector3Int>(),
+            chunkDataToRemove = new List<Vector3Int>()
+        };
+        
+        return data;
     }
 
     public BlockType GetBlock(ChunkData chunkData, Vector3Int pos)
     {
         var chunkPos = Chunk.ChunkPosFromBlockCoords(this, pos);
 
-        chunkDataDict.TryGetValue(chunkPos, out var containerChunk);
+        worldData.chunkDataDict.TryGetValue(chunkPos, out var containerChunk);
         
         if (containerChunk == null)
         {
@@ -77,6 +111,25 @@ public class World : MonoBehaviour
         Debug.Log("Loading additional chunks");
         OnNewChunksGenerated?.Invoke();
     }
+    
+    public struct WorldGenerationData
+    {
+        public List<Vector3Int> chunkPositionsToCreate;
+        public List<Vector3Int> chunkDataPositionsToCreate;
+        public List<Vector3Int> chunkPositionsToRemove;
+        public List<Vector3Int> chunkDataToRemove;
+    }
+
+    public struct WorldData
+    {
+        public Dictionary<Vector3Int, ChunkData> chunkDataDict;
+        public Dictionary<Vector3Int, ChunkRenderer> chunkDict;
+        public int chunkSize;
+        public int chunkHeight;
+    }
+    
+
+
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(World))]
@@ -92,8 +145,8 @@ public class World : MonoBehaviour
 
             if (GUILayout.Button("Clear World"))
             {
-                world.chunkDataDict.Clear();
-                world.chunkDict.Clear();
+                world.worldData.chunkDataDict.Clear();
+                world.worldData.chunkDict.Clear();
                 foreach (var chunk in FindObjectsOfType<ChunkRenderer>())
                 {
                     DestroyImmediate(chunk.gameObject);

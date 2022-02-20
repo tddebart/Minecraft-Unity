@@ -34,12 +34,12 @@ public class PlayerCamera : UnityEngine.MonoBehaviour
         verticalRotation += mouseY;
         horizontalRotation += mouseX;
 
-        if (verticalRotation is > 90 and < 200)
-            verticalRotation = 90;
-        else if (verticalRotation is < 270 and > 200)
-            verticalRotation = 270;
-        else
-            verticalRotation = verticalRotation;
+        verticalRotation = verticalRotation switch
+        {
+            > 90 and < 200 => 90,
+            < 270 and > 200 => 270,
+            _ => verticalRotation
+        };
 
         // Right lock
         if (horizontalRotation > 50 && horizontalRotation < 200)
