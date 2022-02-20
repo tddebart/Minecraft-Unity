@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class World : MonoBehaviour
 {
@@ -14,6 +15,9 @@ public class World : MonoBehaviour
     
     Dictionary<Vector3Int, ChunkData> chunkDataDict = new Dictionary<Vector3Int, ChunkData>();
     Dictionary<Vector3Int, ChunkRenderer> chunkDict = new Dictionary<Vector3Int, ChunkRenderer>();
+
+    public UnityEvent OnWorldCreated;
+    public UnityEvent OnNewChunksGenerated;
 
     public void GenerateWorld()
     {
@@ -49,6 +53,8 @@ public class World : MonoBehaviour
             chunkRenderer.Initialize(data);
             chunkRenderer.UpdateChunk(meshData);
         }
+        
+        OnWorldCreated?.Invoke();
     }
 
     public BlockType GetBlock(ChunkData chunkData, Vector3Int pos)
@@ -64,6 +70,12 @@ public class World : MonoBehaviour
 
         var blockPos = Chunk.GetLocalBlockCoords(containerChunk, new Vector3Int(pos.x, pos.y, pos.z));
         return Chunk.GetBlock(containerChunk, blockPos);
+    }
+    
+    public void LoadAdditionalChunks(GameObject localPlayer)
+    {
+        Debug.Log("Loading additional chunks");
+        OnNewChunksGenerated?.Invoke();
     }
 
 #if UNITY_EDITOR

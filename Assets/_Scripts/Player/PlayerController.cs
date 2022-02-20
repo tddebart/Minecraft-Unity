@@ -19,9 +19,6 @@ public class PlayerController : MonoBehaviour
     [field: SerializeField]
     public bool IsGrounded { get; private set; }
 
-    private long startTime;
-    private long endTime;
-
     private float maxHeightReached;
     
     private PlayerObjects objects;
@@ -112,7 +109,6 @@ public class PlayerController : MonoBehaviour
     private void AddJumpForce()
     {
         playerVelocity.y = 10.15f;
-        startTime = DateTime.Now.Ticks;
     }
 
     private void ApplyGravityForce()
@@ -124,15 +120,6 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         IsGrounded = Physics.Raycast(transform.position, Vector3.down, rayDistance, groundMask);
-        if(startTime != 0 && endTime == 0 && IsGrounded)
-        {
-            endTime = DateTime.Now.Ticks;
-            Debug.Log((endTime - startTime) / TimeSpan.TicksPerMillisecond);
-            Debug.Log("maxHeightReached: " + maxHeightReached);
-            startTime = 0;
-            endTime = 0;
-            maxHeightReached = transform.position.y;
-        }
 
         if (!IsGrounded)
         {
