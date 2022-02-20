@@ -5,11 +5,12 @@ public class PlayerController : MonoBehaviour
 {
     private CharacterController controller;
 
-    public float playerSpeed = 5f;
-    public float playerRunSpeed = 8f;
+    public float playerSpeed = 4.317f;
+    public float playerRunSpeed = 5.612f;
     public float gravity = -9.81f;
-    public float flySpeed = 15f;
-    
+    public float flySpeed = 10.92f;
+    public float flyRunSpeed = 21.6f;
+
     private Vector3 playerVelocity;
     
     [Header("Grounded check parameters")]
@@ -70,16 +71,23 @@ public class PlayerController : MonoBehaviour
 
         controller.Move(movementDirection * Time.deltaTime * movementSpeed);
 
-        // if move to the left, rotate the body to the left
-        // if (movementInput.z != 0 && objects.body.localRotation.y != Vector3.SignedAngle(objects.body.forward, objects.moveDirection.forward, Vector3.up))
-        // {
-        //     RotateBody(Vector3.SignedAngle(objects.body.forward, objects.moveDirection.forward, Vector3.up)*(Time.deltaTime*2));
-        // }
+        // if we move forward or backwards, we want to rotate the body to face the direction we are moving
+        if (movementInput.z != 0 && objects.body.localRotation.eulerAngles.x != Vector3.SignedAngle(objects.body.forward, objects.moveDirection.forward, Vector3.up))
+        {
+            RotateBody(Vector3.SignedAngle(objects.body.forward, objects.moveDirection.forward, Vector3.up)*(Time.deltaTime*6));
+        }
         
-        // var bodyRotation = objects.body.localRotation;
-        // bodyRotation = Quaternion.Euler(objects.moveDirection.localRotation.eulerAngles.y-45, 90, 90);
-        // objects.body.localRotation = bodyRotation;
-        // objects.head.Rotate(Vector3.up, objects.moveDirection.localRotation.eulerAngles.y-45);
+        // if we move to the left, we want to rotate the body 45 degrees to the left
+        if (movementInput.x < 0 && objects.body.localRotation.eulerAngles.x != Vector3.SignedAngle(objects.body.forward, Vector3.Lerp(-objects.moveDirection.right,objects.moveDirection.forward,0.5f), Vector3.up))
+        {
+            RotateBody(Vector3.SignedAngle(objects.body.forward, Vector3.Lerp(-objects.moveDirection.right,objects.moveDirection.forward,0.46f), Vector3.up)*(Time.deltaTime*10));
+        }
+        
+        // if we move to the right, we want to rotate the body 45 degrees to the right
+        if (movementInput.x > 0 && objects.body.localRotation.eulerAngles.x != Vector3.SignedAngle(objects.body.forward, Vector3.Lerp(objects.moveDirection.right,objects.moveDirection.forward,0.5f), Vector3.up))
+        {
+            RotateBody(Vector3.SignedAngle(objects.body.forward, Vector3.Lerp(objects.moveDirection.right,objects.moveDirection.forward,0.46f), Vector3.up)*(Time.deltaTime*10));
+        }
     }
 
     public void HandleGravity(bool isJumpPressed)
@@ -127,6 +135,8 @@ public class PlayerController : MonoBehaviour
         {
             maxHeightReached = Mathf.Max(maxHeightReached, transform.position.y);
         }
+
+        Debug.Log(controller.velocity.x);
     }
 
     // When the body is rotated, the head needs to be rotated as well to keep the head in the same position
