@@ -25,8 +25,10 @@ public class PlayerController : MonoBehaviour
     private float maxHeightReached;
     
     private PlayerObjects objects;
-    
-    
+    private Animator animator;
+    private static readonly int Speed = Animator.StringToHash("speed");
+
+
     // INFO:
     // 530ms from jumping to landing on the ground
     // 400ms to jump up one block
@@ -41,6 +43,7 @@ public class PlayerController : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         objects = GetComponent<PlayerObjects>();
+        animator = GetComponent<Animator>();
     }
 
     private Vector3 GetMovementDirection(Vector3 movementInput)
@@ -136,7 +139,7 @@ public class PlayerController : MonoBehaviour
             maxHeightReached = Mathf.Max(maxHeightReached, transform.position.y);
         }
 
-        Debug.Log(controller.velocity.x);
+        animator.SetFloat(Speed, controller.velocity.magnitude/playerSpeed);
     }
 
     // When the body is rotated, the head needs to be rotated as well to keep the head in the same position

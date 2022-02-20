@@ -554,9 +554,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCam: {fileID: 5271358695385896068}
   playerReach: 4.5
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 8
   isFlying: 0
 --- !u!114 &5271358695257700334
 MonoBehaviour:
@@ -600,7 +597,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: acf089ec045decf40ac14938a5d787f0, type: 2}
-  m_CullingMode: 0
+  m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
@@ -634,8 +631,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5271358695385896121}
-  m_LocalRotation: {x: 1.4210855e-14, y: -1, z: -0, w: -0.0000003576278}
-  m_LocalPosition: {x: 0, y: 0.010305265, z: 0}
+  m_LocalRotation: {x: 2.0097183e-14, y: -1, z: -0, w: -0.0000005057621}
+  m_LocalPosition: {x: 0, y: 0.0088, z: -0}
   m_LocalScale: {x: 0.035714284, y: 0.035714287, z: 0.035714287}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1030,7 +1027,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6792361677794803495}
   m_LocalRotation: {x: -0.6532815, y: 0.27059805, z: -0.6532815, w: 0.27059805}
-  m_LocalPosition: {x: 0.011052149, y: 0.019710641, z: 0}
+  m_LocalPosition: {x: 0.011052149, y: 0.01981, z: 0.0001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

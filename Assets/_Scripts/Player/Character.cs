@@ -9,8 +9,6 @@ public class Character : MonoBehaviour
     
     public float playerReach = 4.5f;
 
-    public LayerMask groundMask;
-
     public bool isFlying;
 
     private bool waitForJumpDelay;
