@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -18,6 +19,9 @@ public class World : MonoBehaviour
     public UnityEvent OnNewChunksGenerated;
 
     public WorldData worldData { get; private set; }
+    public bool IsWorldCreated { get; set; }
+    
+    
     private void OnValidate()
     {
         worldData = new WorldData
@@ -57,22 +61,44 @@ public class World : MonoBehaviour
         }
 
         // Generate visual chunks
+        Dictionary<Vector3Int, MeshData> meshDataDict = new Dictionary<Vector3Int, MeshData>();
         foreach (var pos in worldGenerationData.chunkPositionsToCreate)
         {
             var data = worldData.chunkDataDict[pos];
             var meshData = Chunk.GetChunkMeshData(data);
-            var chunkObj = Instantiate(chunkPrefab, data.worldPos, Quaternion.identity);
-            var chunkRenderer = chunkObj.GetComponent<ChunkRenderer>();
-            worldData.chunkDict.Add(data.worldPos, chunkRenderer);
-            chunkRenderer.Initialize(data);
-            chunkRenderer.UpdateChunk(meshData);
+            meshDataDict.Add(pos, meshData);
+        }
+        
+        StartCoroutine(ChunkCreationCoroutine(meshDataDict));
+    }
+    
+    IEnumerator ChunkCreationCoroutine(Dictionary<Vector3Int, MeshData> meshDataDict) 
+    {
+        foreach (var item in meshDataDict)
+        {
+            CreateChunk(worldData, item.Key, item.Value);
+            if (Application.isPlaying)
+            {
+                yield return new WaitForEndOfFrame();
+            }
         }
 
-        if (Application.isPlaying)
+        if (!IsWorldCreated && Application.isPlaying)
         {
+            IsWorldCreated = true;
             OnWorldCreated?.Invoke();
         }
     }
+
+    private void CreateChunk(WorldData worldData, Vector3Int pos, MeshData meshData)
+    {
+        var chunkObj = Instantiate(chunkPrefab, pos, Quaternion.identity);
+        var chunkRenderer = chunkObj.GetComponent<ChunkRenderer>();
+        worldData.chunkDict.Add(pos, chunkRenderer);
+        chunkRenderer.Initialize(worldData.chunkDataDict[pos]);
+        chunkRenderer.UpdateChunk(meshData);
+    }
+    
 
     private WorldGenerationData GetPositionsInRenderDistance(Vector3Int playerPos)
     {
