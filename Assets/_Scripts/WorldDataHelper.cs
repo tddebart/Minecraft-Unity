@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -45,17 +46,17 @@ public static class WorldDataHelper
                 chunkPositionsToCreate.Add(chunkPos);
                 
                 // Add the chunks directly around and below the player so they can dig
-                // if(x >= playerPos.x - world.chunkSize && x <= playerPos.x + world.chunkSize)
-                // {
-                //     if(z >= playerPos.z - world.chunkSize && z <= playerPos.z + world.chunkSize)
-                //     {
-                //         for (var y = -world.chunkHeight; y >= playerPos.y - world.chunkHeight*2; y-=world.chunkHeight)
-                //         {
-                //             chunkPos = GetChunkPosition(world, new Vector3Int(x, y, z));
-                //             chunkPositionsToCreate.Add(chunkPos);
-                //         }
-                //     }
-                // }
+                if(x >= playerPos.x - world.chunkSize && x <= playerPos.x + world.chunkSize)
+                {
+                    if(z >= playerPos.z - world.chunkSize && z <= playerPos.z + world.chunkSize)
+                    {
+                        for (var y = -world.chunkHeight; y >= playerPos.y - world.chunkHeight*2; y-=world.chunkHeight)
+                        {
+                            chunkPos = GetChunkPosition(world, new Vector3Int(x, y, z));
+                            chunkPositionsToCreate.Add(chunkPos);
+                        }
+                    }
+                }
             }
         }
         
@@ -76,5 +77,69 @@ public static class WorldDataHelper
             .Where(pos => !worldData.chunkDataDict.ContainsKey(pos))
             .OrderBy(pos => Vector3.Distance(playerPos, pos))
             .ToList();
+    }
+
+    public static List<Vector3Int> GetUnneededChunkPositions(World.WorldData worldData, List<Vector3Int> allChunkPositionsNeeded)
+    {
+        var positionsToRemove = new List<Vector3Int>();
+        foreach (var pos in worldData.chunkDict.Keys.Where(pos => !allChunkPositionsNeeded.Contains(pos)))
+        {
+            positionsToRemove.Add(pos);
+        }
+        
+        return positionsToRemove;
+    }
+
+    public static List<Vector3Int> GetUnneededDataPositions(World.WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded)
+    {
+        return worldData.chunkDataDict.Keys.Where(pos => !allChunkDataPositionsNeeded.Contains(pos) && !worldData.chunkDataDict[pos].modifiedByPlayer).ToList();
+    }
+
+    public static void RemoveChunk(World world, Vector3Int pos)
+    {
+        ChunkRenderer chunk = null;
+        if(world.worldData.chunkDict.TryGetValue(pos, out chunk))
+        {
+            world.RemoveChunk(chunk);
+            world.worldData.chunkDict.Remove(pos);
+        }
+        else
+        { 
+            throw new Exception("Could not find chunk to remove");
+        }
+    }
+
+    public static void RemoveChunkData(World world, Vector3Int pos)
+    {
+        world.worldData.chunkDataDict.Remove(pos);
+    }
+
+    public static void SetBlock(World world, Vector3Int blockPos, BlockType blockType)
+    {
+        var chunkData = GetChunkData(world, blockPos);
+        if (chunkData != null)
+        {
+            Vector3Int localPos = Chunk.GetLocalBlockCoords(chunkData, blockPos);
+            Chunk.SetBlock(chunkData, localPos, blockType);
+        }
+    }
+
+    public static ChunkRenderer GetChunk(World world, Vector3Int worldPos)
+    {
+        if (world.worldData.chunkDict.ContainsKey(worldPos))
+        {
+            return world.worldData.chunkDict[worldPos];
+        }
+
+        return null;
+    }
+    
+    public static ChunkData GetChunkData(World world, Vector3Int blockPos)
+    {
+        var chunkPos = GetChunkPosition(world, blockPos);
+
+        world.worldData.chunkDataDict.TryGetValue(chunkPos, out var containerChunk);
+        
+        return containerChunk;
     }
 }

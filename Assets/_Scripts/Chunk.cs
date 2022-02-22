@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class Chunk
@@ -68,7 +69,7 @@ public static class Chunk
         }
         else
         {
-            throw new Exception("Out of range");
+            WorldDataHelper.SetBlock(chunkData.worldRef, localPos, block);
         }
     }
 
@@ -109,5 +110,52 @@ public static class Chunk
             Mathf.FloorToInt(pos.z / (float)world.chunkSize) * world.chunkSize
         );
         return chunkPos;
+    }
+
+    public static bool IsOnEdge(ChunkData chunkData, Vector3Int blockWorldPos)
+    {
+        var blockLocalPos = GetLocalBlockCoords(chunkData, blockWorldPos);
+        
+        return blockLocalPos.x == 0 || blockLocalPos.x == chunkData.chunkSize - 1 ||
+               blockLocalPos.y == 0 || blockLocalPos.y == chunkData.chunkHeight - 1 ||
+               blockLocalPos.z == 0 || blockLocalPos.z == chunkData.chunkSize - 1;
+    }
+
+    public static List<ChunkData> GetNeighbourChunk(ChunkData chunkData, Vector3Int blockWorldPos)
+    {
+        var blockLocalPos = GetLocalBlockCoords(chunkData, blockWorldPos);
+        var neighbourChunks = new List<ChunkData>();
+
+        if (blockLocalPos.x == 0)
+        {
+            neighbourChunks.Add(WorldDataHelper.GetChunkData(chunkData.worldRef, blockWorldPos - Vector3Int.right));
+        }
+        
+        if (blockLocalPos.x == chunkData.chunkSize - 1)
+        {
+            neighbourChunks.Add(WorldDataHelper.GetChunkData(chunkData.worldRef, blockWorldPos + Vector3Int.right));
+        }
+        
+        if (blockLocalPos.y == 0)
+        {
+            neighbourChunks.Add(WorldDataHelper.GetChunkData(chunkData.worldRef, blockWorldPos - Vector3Int.up));
+        }
+        
+        if (blockLocalPos.y == chunkData.chunkHeight - 1)
+        {
+            neighbourChunks.Add(WorldDataHelper.GetChunkData(chunkData.worldRef, blockWorldPos + Vector3Int.up));
+        }
+        
+        if (blockLocalPos.z == 0)
+        {
+            neighbourChunks.Add(WorldDataHelper.GetChunkData(chunkData.worldRef, blockWorldPos - Vector3Int.forward));
+        }
+        
+        if (blockLocalPos.z == chunkData.chunkSize - 1)
+        {
+            neighbourChunks.Add(WorldDataHelper.GetChunkData(chunkData.worldRef, blockWorldPos + Vector3Int.forward));
+        }
+        
+        return neighbourChunks;
     }
 }

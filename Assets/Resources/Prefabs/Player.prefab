@@ -533,11 +533,8 @@ MonoBehaviour:
   playerSpeed: 4.317
   playerRunSpeed: 5.612
   gravity: -32
-  flySpeed: 10.92
+  flySpeed: 21.0756
   flyRunSpeed: 21.6
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 8
   rayDistance: 0.01
   <IsGrounded>k__BackingField: 1
 --- !u!114 &5271358695257700335
@@ -555,6 +552,7 @@ MonoBehaviour:
   mainCam: {fileID: 5271358695385896068}
   playerReach: 4.5
   isFlying: 0
+  world: {fileID: 0}
 --- !u!114 &5271358695257700334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -579,6 +577,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 165a7d9f02394de990f305d87bf36a34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 8
   body: {fileID: 754787235063055543}
   head: {fileID: 8578214304646107183}
   leftArm: {fileID: 3555842928592231372}
@@ -662,7 +663,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.1
   far clip plane: 1000
   field of view: 90
   orthographic: 0

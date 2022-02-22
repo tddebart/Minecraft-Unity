@@ -18,7 +18,8 @@ public class BiomeGenerator : MonoBehaviour
     {
         settings.worldOffset = mapSeedOffset;
         var groundPos = GetSurfaceHeightNoise(data.worldPos.x + x, data.worldPos.z + z,data.chunkHeight);
-        for (var y = 0; y < data.chunkHeight; y++)
+        
+        for (var y = data.worldPos.y; y < data.worldPos.y + data.chunkHeight; y++)
         {
             startLayerHandler.Handle(data, new Vector3Int(x,y,z), groundPos, mapSeedOffset);
         }

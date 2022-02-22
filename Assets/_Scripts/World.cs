@@ -31,21 +31,23 @@ public class World : MonoBehaviour
 
     public void GenerateWorld()
     {
-        // chunkDataDict.Clear();
-        // foreach (ChunkRenderer chunk in chunkDict.Values)
-        // {
-        //     DestroyImmediate(chunk.gameObject);
-        // }
-        //
-        // foreach (var chunk in FindObjectsOfType<ChunkRenderer>())
-        // {
-        //     DestroyImmediate(chunk.gameObject);
-        // }
-        // chunkDict.Clear();
-        
-        WorldGenerationData worldGenerationData = GetPositionsInRenderDistance(Vector3Int.zero);
+        GenerateWorld(Vector3Int.zero);
+    }
 
+    private void GenerateWorld(Vector3Int position)
+    {
+        WorldGenerationData worldGenerationData = GetPositionsInRenderDistance(position);
+
+        foreach (var pos in worldGenerationData.chunkPositionsToRemove)
+        {
+            WorldDataHelper.RemoveChunk(this, pos);
+        }
         
+        foreach (var pos in worldGenerationData.chunkDataToRemove)
+        {
+            WorldDataHelper.RemoveChunkData(this, pos);
+        }
+
         // Generate data chunks
         foreach (var pos in worldGenerationData.chunkDataPositionsToCreate)
         {
@@ -79,16 +81,91 @@ public class World : MonoBehaviour
         
         var chunkPositionsToCreate = WorldDataHelper.GetPositionsToCreate(worldData, allChunkPositionsNeeded,playerPos);
         var chunkDataPositionsToCreate = WorldDataHelper.GetDataPositionsToCreate(worldData, allChunkDataPositionsNeeded,playerPos);
+        
+        var chunkPositionsToRemove = WorldDataHelper.GetUnneededChunkPositions(worldData, allChunkPositionsNeeded);
+        var chunkDataToRemove = WorldDataHelper.GetUnneededDataPositions(worldData, allChunkDataPositionsNeeded);
+        
 
         var data = new WorldGenerationData
         {
             chunkPositionsToCreate = chunkPositionsToCreate,
             chunkDataPositionsToCreate = chunkDataPositionsToCreate,
-            chunkPositionsToRemove = new List<Vector3Int>(),
-            chunkDataToRemove = new List<Vector3Int>()
+            chunkPositionsToRemove = chunkPositionsToRemove,
+            chunkDataToRemove = chunkDataToRemove
         };
         
         return data;
+    }
+    
+    public bool SetBlock(RaycastHit hit, BlockType blockType)
+    {
+        var chunk = hit.collider.GetComponent<ChunkRenderer>();
+        if (chunk == null)
+        {
+            return false;
+        }
+        
+        var blockPos = GetBlockPos(hit);
+
+        // // Dig out the blocks around the block
+        // var blocksToDig = new List<Vector3Int>();
+        // blocksToDig.Add(blockPos);
+        // blocksToDig.Add(blockPos + Vector3Int.up);
+        // blocksToDig.Add(blockPos + Vector3Int.down);
+        // blocksToDig.Add(blockPos + Vector3Int.left);
+        // blocksToDig.Add(blockPos + Vector3Int.right);
+        // blocksToDig.Add(blockPos + Vector3Int.forward);
+        // blocksToDig.Add(blockPos + Vector3Int.back);
+        //
+        // foreach (var pos in blocksToDig)
+        // {
+        //     SetBlock(chunk, pos, blockType);
+        // }
+
+        SetBlock(chunk, blockPos, blockType);
+        return true;
+    }
+
+    public void SetBlock(ChunkRenderer chunk, Vector3Int blockPos, BlockType blockType)
+    {
+        WorldDataHelper.SetBlock(chunk.ChunkData.worldRef, blockPos, blockType);
+        chunk.ModifiedByPlayer = true;
+
+        if (Chunk.IsOnEdge(chunk.ChunkData, blockPos))
+        {
+            List<ChunkData> neighbourChunkData = Chunk.GetNeighbourChunk(chunk.ChunkData, blockPos);
+            foreach (var neighChunkData in neighbourChunkData)
+            {
+                ChunkRenderer neighbourChunk = WorldDataHelper.GetChunk(neighChunkData.worldRef, neighChunkData.worldPos);
+                if(neighbourChunk != null)
+                {
+                    neighbourChunk.UpdateChunk();
+                }
+            }
+        }
+        
+        chunk.UpdateChunk();
+    }
+    
+    public Vector3Int GetBlockPos(RaycastHit hit)
+    {
+        var pos = new Vector3(
+            GetBlockPosIn(hit.point.x, hit.normal.x),
+            GetBlockPosIn(hit.point.y, hit.normal.y),
+            GetBlockPosIn(hit.point.z, hit.normal.z)
+            );
+        
+        return Vector3Int.RoundToInt(pos);
+    }
+
+    private float GetBlockPosIn(float pos, float normal)
+    {
+        if (Mathf.Abs(pos % 1) == 0.5f)
+        {
+            pos -= (normal / 2);
+        }
+        
+        return pos;
     }
 
     public BlockType GetBlock(ChunkData chunkData, Vector3Int pos)
@@ -108,8 +185,14 @@ public class World : MonoBehaviour
     
     public void LoadAdditionalChunks(GameObject localPlayer)
     {
-        Debug.Log("Loading additional chunks");
+        // Debug.Log("Loading additional chunks");
+        GenerateWorld(Vector3Int.RoundToInt(localPlayer.transform.position));
         OnNewChunksGenerated?.Invoke();
+    }
+    
+    public void RemoveChunk(ChunkRenderer chunk)
+    {
+        chunk.gameObject.SetActive(false);
     }
     
     public struct WorldGenerationData
@@ -127,7 +210,6 @@ public class World : MonoBehaviour
         public int chunkSize;
         public int chunkHeight;
     }
-    
 
 
 
@@ -140,20 +222,27 @@ public class World : MonoBehaviour
             var world = target as World;
             if (GUILayout.Button("Generate World"))
             {
+                Clear();
                 world.GenerateWorld();
             }
 
             if (GUILayout.Button("Clear World"))
             {
-                world.worldData.chunkDataDict.Clear();
-                world.worldData.chunkDict.Clear();
-                foreach (var chunk in FindObjectsOfType<ChunkRenderer>())
-                {
-                    DestroyImmediate(chunk.gameObject);
-                }
+                Clear();
             }
             
             base.OnInspectorGUI();
+        }
+
+        private void Clear()
+        {
+            var world = target as World;
+            world.worldData.chunkDataDict.Clear();
+            world.worldData.chunkDict.Clear();
+            foreach (var chunk in FindObjectsOfType<ChunkRenderer>())
+            {
+                DestroyImmediate(chunk.gameObject);
+            }
         }
     }
 #endif

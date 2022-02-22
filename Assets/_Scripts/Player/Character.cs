@@ -13,6 +13,10 @@ public class Character : MonoBehaviour
 
     private bool waitForJumpDelay;
 
+    private PlayerObjects objects;
+
+    private World world;
+
     private void Awake()
     {
         if (mainCam == null)
@@ -21,6 +25,8 @@ public class Character : MonoBehaviour
         }
         playerInput = GetComponent<PlayerInput>();
         playerController = GetComponent<PlayerController>();
+        objects = GetComponent<PlayerObjects>();
+        world = FindObjectOfType<World>();
     }
 
     private void Start()
@@ -31,7 +37,17 @@ public class Character : MonoBehaviour
     
     private void OnMouseClick()
     {
-        
+        Ray playerRay = new Ray(mainCam.transform.position, mainCam.transform.forward);
+        RaycastHit hit;
+        if (Physics.Raycast(playerRay, out hit, playerReach, objects.groundMask))
+        {
+            ModifyTerrain(hit);
+        }
+    }
+    
+    private void ModifyTerrain(RaycastHit hit)
+    {
+        world.SetBlock(hit, BlockType.Air);
     }
     
     private void OnFly()

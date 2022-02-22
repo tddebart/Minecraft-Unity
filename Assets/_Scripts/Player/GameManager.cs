@@ -16,11 +16,6 @@ public class GameManager : MonoBehaviour
 
     public float detectionTime = 1;
 
-    public void Start()
-    {
-        Debug.Log("start");
-    }
-
     public void SpawnPlayer()
     {
         if (localPlayer != null) return;

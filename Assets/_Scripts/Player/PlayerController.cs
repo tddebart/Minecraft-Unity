@@ -14,7 +14,6 @@ public class PlayerController : MonoBehaviour
     private Vector3 playerVelocity;
     
     [Header("Grounded check parameters")]
-    public LayerMask groundMask;
     public float rayDistance = 0.1f;
     [field: SerializeField]
     public bool IsGrounded { get; private set; }
@@ -119,7 +118,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        IsGrounded = Physics.Raycast(transform.position, Vector3.down, rayDistance, groundMask);
+        IsGrounded = Physics.Raycast(transform.position, Vector3.down, rayDistance, objects.groundMask);
 
         if (!IsGrounded)
         {
