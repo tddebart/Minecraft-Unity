@@ -498,9 +498,9 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 2
   m_Height: 1.841
-  m_Radius: 0.4
+  m_Radius: 0.3
   m_SlopeLimit: 45
-  m_StepOffset: 0.5
+  m_StepOffset: 0.25
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1, z: 0}
@@ -552,7 +552,6 @@ MonoBehaviour:
   mainCam: {fileID: 5271358695385896068}
   playerReach: 4.5
   isFlying: 0
-  world: {fileID: 0}
 --- !u!114 &5271358695257700334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1143,7 +1142,7 @@ BoxCollider:
   m_GameObject: {fileID: 7073877235118122517}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 0.02, y: 0.02, z: 0.06469196}
   m_Center: {x: 0, y: -9.651305e-18, z: 0.007269313}

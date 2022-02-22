@@ -63,7 +63,7 @@ public static class WorldDataHelper
         return chunkPositionsToCreate;
     }
 
-    public static List<Vector3Int> GetPositionsToCreate(World.WorldData worldData, List<Vector3Int> allChunkPositionsNeeded, Vector3Int playerPos)
+    public static List<Vector3Int> GetPositionsToCreate(WorldData worldData, List<Vector3Int> allChunkPositionsNeeded, Vector3Int playerPos)
     {
         return allChunkPositionsNeeded
             .Where(pos => !worldData.chunkDict.ContainsKey(pos))
@@ -71,7 +71,7 @@ public static class WorldDataHelper
             .ToList();
     }
 
-    public static List<Vector3Int> GetDataPositionsToCreate(World.WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded, Vector3Int playerPos)
+    public static List<Vector3Int> GetDataPositionsToCreate(WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded, Vector3Int playerPos)
     {
         return allChunkDataPositionsNeeded
             .Where(pos => !worldData.chunkDataDict.ContainsKey(pos))
@@ -79,7 +79,7 @@ public static class WorldDataHelper
             .ToList();
     }
 
-    public static List<Vector3Int> GetUnneededChunkPositions(World.WorldData worldData, List<Vector3Int> allChunkPositionsNeeded)
+    public static List<Vector3Int> GetUnneededChunkPositions(WorldData worldData, List<Vector3Int> allChunkPositionsNeeded)
     {
         var positionsToRemove = new List<Vector3Int>();
         foreach (var pos in worldData.chunkDict.Keys.Where(pos => !allChunkPositionsNeeded.Contains(pos)))
@@ -90,7 +90,7 @@ public static class WorldDataHelper
         return positionsToRemove;
     }
 
-    public static List<Vector3Int> GetUnneededDataPositions(World.WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded)
+    public static List<Vector3Int> GetUnneededDataPositions(WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded)
     {
         return worldData.chunkDataDict.Keys.Where(pos => !allChunkDataPositionsNeeded.Contains(pos) && !worldData.chunkDataDict[pos].modifiedByPlayer).ToList();
     }
@@ -100,7 +100,7 @@ public static class WorldDataHelper
         ChunkRenderer chunk = null;
         if(world.worldData.chunkDict.TryGetValue(pos, out chunk))
         {
-            world.RemoveChunk(chunk);
+            world.worldRenderer.RemoveChunk(chunk);
             world.worldData.chunkDict.Remove(pos);
         }
         else
