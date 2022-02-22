@@ -1,9 +1,13 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
+using Debug = UnityEngine.Debug;
 
 public class World : MonoBehaviour
 {
@@ -19,9 +23,11 @@ public class World : MonoBehaviour
     public UnityEvent OnNewChunksGenerated;
 
     public WorldData worldData { get; private set; }
-    public bool IsWorldCreated { get; set; }
+    public bool IsWorldCreated { get; private set; }
     
-    
+    private Stopwatch stopwatch = new Stopwatch();
+
+
     private void OnValidate()
     {
         worldData = new WorldData
@@ -33,14 +39,18 @@ public class World : MonoBehaviour
         };
     }
 
-    public void GenerateWorld()
+    public async void GenerateWorld()
     {
-        GenerateWorld(Vector3Int.zero);
+        await GenerateWorld(Vector3Int.zero);
     }
 
-    private void GenerateWorld(Vector3Int position)
+    private async Task GenerateWorld(Vector3Int position)
     {
-        WorldGenerationData worldGenerationData = GetPositionsInRenderDistance(position);
+        if (!Application.isPlaying)
+        {
+            stopwatch.Start();
+        }
+        WorldGenerationData worldGenerationData = await Task.Run(() => GetPositionsInRenderDistance(position));
 
         foreach (var pos in worldGenerationData.chunkPositionsToRemove)
         {
@@ -53,27 +63,82 @@ public class World : MonoBehaviour
         }
 
         // Generate data chunks
-        foreach (var pos in worldGenerationData.chunkDataPositionsToCreate)
+        ConcurrentDictionary<Vector3Int, ChunkData> dataDict = 
+            await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate);
+
+        foreach (var calculatedData in dataDict)
         {
-            var data = new ChunkData(chunkSize, chunkHeight, this, pos);
-            var newData = terrainGenerator.GenerateChunkData(data, mapOffset);
-            worldData.chunkDataDict.Add(newData.worldPos, newData);
+            worldData.chunkDataDict.Add(calculatedData.Key, calculatedData.Value);
         }
 
         // Generate visual chunks
-        Dictionary<Vector3Int, MeshData> meshDataDict = new Dictionary<Vector3Int, MeshData>();
-        foreach (var pos in worldGenerationData.chunkPositionsToCreate)
-        {
-            var data = worldData.chunkDataDict[pos];
-            var meshData = Chunk.GetChunkMeshData(data);
-            meshDataDict.Add(pos, meshData);
-        }
+        // ConcurrentDictionary<Vector3Int, MeshData> meshDataDict = 
+        //     await CalculateChunkMeshData(worldGenerationData.chunkPositionsToCreate);
+        ConcurrentDictionary<Vector3Int, MeshData> meshDataDict;
+        List<ChunkData> dataToRender = worldData.chunkDataDict
+            .Where(x => worldGenerationData.chunkPositionsToCreate.Contains(x.Key))
+            .Select(x => x.Value)
+            .ToList();
         
-        StartCoroutine(ChunkCreationCoroutine(meshDataDict));
+        meshDataDict = await CreateMeshDataAsync(dataToRender);
+
+        StartCoroutine(ChunkCreationCoroutine(meshDataDict, position));
     }
-    
-    IEnumerator ChunkCreationCoroutine(Dictionary<Vector3Int, MeshData> meshDataDict) 
+
+    private Task<ConcurrentDictionary<Vector3Int, MeshData>> CreateMeshDataAsync(List<ChunkData> dataToRender)
     {
+        return Task.Run(() =>
+        {
+            var dict = new ConcurrentDictionary<Vector3Int, MeshData>();
+            Parallel.ForEach(dataToRender, data =>
+            {
+                var meshData = Chunk.GetChunkMeshData(data);
+                dict.TryAdd(data.worldPos, meshData);
+            });
+
+            return dict;
+        });
+    }
+
+    // private Task<ConcurrentDictionary<Vector3Int, MeshData>> CalculateChunkMeshData(List<Vector3Int> chunkPositionsToCreate)
+    // {
+    //     return Task.Run(() =>
+    //     {
+    //         var meshDataDict = new ConcurrentDictionary<Vector3Int, MeshData>();
+    //         
+    //         Parallel.ForEach(chunkPositionsToCreate, pos =>
+    //         {
+    //             var data = worldData.chunkDataDict[pos];
+    //             var meshData = Chunk.GetChunkMeshData(data);
+    //             meshDataDict.TryAdd(pos, meshData);
+    //         });
+    //         
+    //         return meshDataDict;
+    //     });
+    // }
+
+    private Task<ConcurrentDictionary<Vector3Int, ChunkData>> CalculateWorldChunkData(List<Vector3Int> chunkDataPositionsToCreate)
+    {
+
+        return Task.Run(() =>
+        {
+            var dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
+
+            Parallel.ForEach(chunkDataPositionsToCreate, pos =>
+            {
+                var data = new ChunkData(chunkSize, chunkHeight, this, pos);
+                var newData = terrainGenerator.GenerateChunkData(data, mapOffset);
+                dataDict.TryAdd(pos, newData);
+
+            });
+
+            return dataDict;
+        });
+    }
+
+    IEnumerator ChunkCreationCoroutine(ConcurrentDictionary<Vector3Int, MeshData> meshDataConDict, Vector3Int playerPos)
+    {
+        var meshDataDict = meshDataConDict.OrderBy(pair => Vector3Int.Distance(playerPos, pair.Key));
         foreach (var item in meshDataDict)
         {
             CreateChunk(worldData, item.Key, item.Value);
@@ -88,15 +153,24 @@ public class World : MonoBehaviour
             IsWorldCreated = true;
             OnWorldCreated?.Invoke();
         }
+
+        if (!Application.isPlaying)
+        {
+            stopwatch.Stop();
+            Debug.Log($"World created in {stopwatch.ElapsedMilliseconds}ms");
+            stopwatch.Reset();
+        }
     }
 
     private void CreateChunk(WorldData worldData, Vector3Int pos, MeshData meshData)
     {
         var chunkObj = Instantiate(chunkPrefab, pos, Quaternion.identity);
         var chunkRenderer = chunkObj.GetComponent<ChunkRenderer>();
-        worldData.chunkDict.Add(pos, chunkRenderer);
-        chunkRenderer.Initialize(worldData.chunkDataDict[pos]);
-        chunkRenderer.UpdateChunk(meshData);
+        if (worldData.chunkDict.TryAdd(pos, chunkRenderer) && worldData.chunkDataDict.TryGetValue(pos, out var data))
+        {
+            chunkRenderer.Initialize(data);
+            chunkRenderer.UpdateChunk(meshData);
+        }
     }
     
 
@@ -209,10 +283,10 @@ public class World : MonoBehaviour
         return Chunk.GetBlock(containerChunk, blockPos);
     }
     
-    public void LoadAdditionalChunks(GameObject localPlayer)
+    public async void LoadAdditionalChunks(GameObject localPlayer)
     {
         // Debug.Log("Loading additional chunks");
-        GenerateWorld(Vector3Int.RoundToInt(localPlayer.transform.position));
+        await GenerateWorld(Vector3Int.RoundToInt(localPlayer.transform.position));
         OnNewChunksGenerated?.Invoke();
     }
     

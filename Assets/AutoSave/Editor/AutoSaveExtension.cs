@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿
+using UnityEditor;
 using UnityEngine;
 
 namespace EckTechGames
@@ -9,7 +10,9 @@ namespace EckTechGames
 		// Static constructor that gets called when unity fires up.
 		static AutoSaveExtension()
 		{
+#pragma warning disable CS0618
 			EditorApplication.playmodeStateChanged += AutoSaveWhenPlaymodeStarts;
+#pragma warning restore CS0618
 		}
 
 		private static void AutoSaveWhenPlaymodeStarts()
@@ -18,7 +21,9 @@ namespace EckTechGames
 			if (EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying)
 			{
 				// Save the scene and the assets.
+#pragma warning disable CS0618
 				EditorApplication.SaveScene();
+#pragma warning restore CS0618
 				AssetDatabase.SaveAssets();
 			}
 		}

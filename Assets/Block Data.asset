@@ -23,7 +23,7 @@ MonoBehaviour:
     generateCollider: 0
   - blockType: 3
     up: {x: 11, y: 1}
-    down: {x: 7, y: 0}
+    down: {x: 12, y: 30}
     side: {x: 12, y: 30}
     isSolid: 1
     generateCollider: 1

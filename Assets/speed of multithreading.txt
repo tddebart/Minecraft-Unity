@@ -1,0 +1,17 @@
+16 render distance, 256 chunks
+
+fully multithreaded with Parallel
+4406ms
+
+fully multithreaded without Parallel
+30530ms
+
+only data multithreaded with Parallel
+21530ms
+
+fully not multithreaded
+30560ms
+
+
+//TODO:
+make sure that LoadAdditionalChunks in the world script is made async and we await GenerateWorld 

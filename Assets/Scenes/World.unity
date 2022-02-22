@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 836.48486, g: 799.7422, b: 963.1621, a: 1}
+  m_IndirectSpecularColor: {r: 836.1714, g: 799.9502, b: 964.5332, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -837,7 +837,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e113280f9ab044168541f6fef84d3095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 3
+  renderDistance: 10
   chunkSize: 16
   chunkHeight: 100
   chunkPrefab: {fileID: 6559892113857526336, guid: 17ca87b4625a0554490f7956581608b2,
@@ -1038,7 +1038,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 90
+  field of view: 100
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -1064,7 +1064,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1823688464}
   m_LocalRotation: {x: 0.70710677, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 100, z: 0}
+  m_LocalPosition: {x: 0, y: 150, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
