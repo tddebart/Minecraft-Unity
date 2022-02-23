@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 839.0073, g: 797.6865, b: 949.4551, a: 1}
+  m_IndirectSpecularColor: {r: 839.39355, g: 796.1963, b: 943.41016, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -458,6 +458,52 @@ Transform:
   m_Father: {fileID: 402633447}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &476284153
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 476284154}
+  - component: {fileID: 476284155}
+  m_Layer: 0
+  m_Name: TreesLayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &476284154
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 476284153}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 975012411}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &476284155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 476284153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0de39f8e91284c50965254d501f25b45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Next: {fileID: 0}
+  terrainHeightLimit: 150
 --- !u!1 &521203637
 GameObject:
   m_ObjectHideFlags: 0
@@ -606,6 +652,7 @@ GameObject:
   - component: {fileID: 975012411}
   - component: {fileID: 975012410}
   - component: {fileID: 975012412}
+  - component: {fileID: 975012413}
   m_Layer: 0
   m_Name: BiomeGenerator
   m_TagString: Untagged
@@ -622,15 +669,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 975012409}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ee0b6dcdc644623b50b23acb186e9cb, type: 3}
+  m_Script: {fileID: 11500000, guid: 8dc71ed97774a8e49a863bdc5a8d678a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   settings: {fileID: 11400000, guid: 8eb4b95ff5c263440861f78887f9a842, type: 2}
   domainWarping: {fileID: 975012412}
   useWarping: 1
   startLayerHandler: {fileID: 521203639}
+  treeNoiseGenerator: {fileID: 975012413}
   additionalLayerHandlers:
   - {fileID: 1241654582}
+  - {fileID: 476284155}
 --- !u!4 &975012411
 Transform:
   m_ObjectHideFlags: 0
@@ -648,6 +697,7 @@ Transform:
   - {fileID: 739261252}
   - {fileID: 2128529303}
   - {fileID: 393902519}
+  - {fileID: 476284154}
   m_Father: {fileID: 1658937129}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -666,6 +716,20 @@ MonoBehaviour:
   noiseDomainX: {fileID: 11400000, guid: de40866a48b42404f99d3af2a65e4170, type: 2}
   noiseDomainY: {fileID: 11400000, guid: 6a84a9f0574cbed4bb4209a557ba0240, type: 2}
   amplitude: {x: 80, y: 80}
+--- !u!114 &975012413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 975012409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be3081bf4c7945a49652dabc690a72fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  treeNoiseSettings: {fileID: 11400000, guid: 36901bb152f84e247ae5a6bea314e55e, type: 2}
+  domainWarping: {fileID: 975012412}
 --- !u!1 &992165542
 GameObject:
   m_ObjectHideFlags: 0
@@ -883,7 +947,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e113280f9ab044168541f6fef84d3095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 20
+  renderDistance: 10
   chunkSize: 16
   chunkHeight: 100
   chunksPerFrame: 2

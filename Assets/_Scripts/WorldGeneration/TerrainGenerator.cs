@@ -6,6 +6,9 @@ public class TerrainGenerator : MonoBehaviour
     
     public ChunkData GenerateChunkData(ChunkData data, Vector2Int mapOffset)
     {
+        TreeData treeData = biomeGenerator.GenerateTreeData(data, mapOffset);
+        data.treeData = treeData;
+        
         for (var x = 0; x < data.chunkSize; x++)
         {
             for (var z = 0; z < data.chunkSize; z++)

@@ -44,7 +44,7 @@ public static class Chunk
     }
     
     /// <summary>
-    /// Returns the block at the given position.
+    /// Returns the block at the given position with position being in local space.
     /// </summary>
     /// <param name="chunkData"></param>
     /// <param name="pos">This is in chunk coordinates</param>
@@ -69,7 +69,7 @@ public static class Chunk
         }
         else
         {
-            WorldDataHelper.SetBlock(chunkData.worldRef, localPos, block);
+            WorldDataHelper.SetBlock(chunkData.worldRef, localPos + chunkData.worldPos, block);
         }
     }
 

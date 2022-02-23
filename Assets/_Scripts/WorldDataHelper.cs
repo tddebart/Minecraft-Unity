@@ -114,16 +114,16 @@ public static class WorldDataHelper
         world.worldData.chunkDataDict.Remove(pos);
     }
 
-    public static void SetBlock(World world, Vector3Int blockPos, BlockType blockType)
+    public static void SetBlock(World world, Vector3Int worldBlockPos, BlockType blockType)
     {
-        var chunkData = GetChunkData(world, blockPos);
+        var chunkData = GetChunkData(world, worldBlockPos);
         if (chunkData != null)
         {
-            Vector3Int localPos = Chunk.GetLocalBlockCoords(chunkData, blockPos);
+            Vector3Int localPos = Chunk.GetLocalBlockCoords(chunkData, worldBlockPos);
             Chunk.SetBlock(chunkData, localPos, blockType);
         }
     }
-
+    
     public static ChunkRenderer GetChunk(World world, Vector3Int worldPos)
     {
         if (world.worldData.chunkDict.ContainsKey(worldPos))

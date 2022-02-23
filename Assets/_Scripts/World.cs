@@ -74,7 +74,7 @@ public class World : MonoBehaviour
         {
             dataDict = await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate);
         }
-        catch (Exception)
+        catch (OperationCanceledException)
         {
             Debug.Log("Task cancelled");
             return;
@@ -83,6 +83,12 @@ public class World : MonoBehaviour
         foreach (var calculatedData in dataDict)
         {
             worldData.chunkDataDict.Add(calculatedData.Key, calculatedData.Value);
+        }
+
+        // Generate features like trees
+        foreach (var chunkData in worldData.chunkDataDict.Values)
+        {
+            AddTreeLeaves(chunkData);
         }
 
         // Generate visual chunks
@@ -99,13 +105,24 @@ public class World : MonoBehaviour
         {
             meshDataDict = await CreateMeshDataAsync(dataToRender);
         }
-        catch (Exception)
+        catch (OperationCanceledException)
         {
             Debug.Log("Task cancelled");
             return;
         }
 
         StartCoroutine(ChunkCreationCoroutine(meshDataDict, position));
+    }
+
+    private void AddTreeLeaves(ChunkData chunkData)
+    {
+        foreach (var leavePos in chunkData.treeData.leavePositions)
+        {
+            if (Chunk.GetBlock(chunkData, leavePos) != BlockType.Log)
+            {
+                Chunk.SetBlock(chunkData, leavePos, BlockType.Leaves);
+            }
+        }
     }
 
     private Task<ConcurrentDictionary<Vector3Int, MeshData>> CreateMeshDataAsync(List<ChunkData> dataToRender)

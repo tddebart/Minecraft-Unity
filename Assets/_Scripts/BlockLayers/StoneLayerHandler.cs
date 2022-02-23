@@ -24,15 +24,17 @@ public class StoneLayerHandler : BlockLayerHandler
             endPosition = chunk.worldPos.y + chunk.chunkHeight;
         }
 
+        if (Chunk.GetBlock(chunk, new Vector3Int(pos.x,endPosition,pos.z)) == BlockType.Sand)
+        {
+            return false;
+        }
+
         if (stoneNoise > stoneThreshold)
         {
             for (var i = chunk.worldPos.y; i <= endPosition; i++)
             {
                 var stonePos = new Vector3Int(pos.x, i, pos.z);
-                if (Chunk.GetBlock(chunk, stonePos) != BlockType.Sand)
-                {
-                    Chunk.SetBlock(chunk, stonePos, BlockType.Stone);
-                }
+                Chunk.SetBlock(chunk, stonePos, BlockType.Stone);
             }
             return true;
         }

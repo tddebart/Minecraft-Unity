@@ -9,6 +9,7 @@ public class UndergroundLayerHandler : BlockLayerHandler
     {
         if (pos.y < surfaceHeightNoise)
         {
+            pos.y -= chunk.worldPos.y;
             Chunk.SetBlock(chunk, pos, undergroundBlockType);
             return true;
         }

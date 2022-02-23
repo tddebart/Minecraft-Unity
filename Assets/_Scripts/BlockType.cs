@@ -5,7 +5,7 @@ public enum BlockType
     Dirt,
     Grass,
     Stone,
-    Wood,
+    Log,
     Leaves,
     Sand,
     Water,

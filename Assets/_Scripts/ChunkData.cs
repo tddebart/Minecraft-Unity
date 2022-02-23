@@ -9,7 +9,8 @@ public class ChunkData
     public Vector3Int worldPos;
     
     public bool modifiedByPlayer = false;
-    
+    public TreeData treeData;
+
     public ChunkData(int chunkSize, int chunkHeight, World worldRef, Vector3Int worldPos)
     {
         this.chunkSize = chunkSize;

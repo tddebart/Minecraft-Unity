@@ -11,6 +11,8 @@ public class BiomeGenerator : MonoBehaviour
     public bool useWarping = true;
 
     public BlockLayerHandler startLayerHandler;
+    
+    public TreeNoiseGenerator treeNoiseGenerator;
 
     public List<BlockLayerHandler> additionalLayerHandlers;
     
@@ -46,6 +48,15 @@ public class BiomeGenerator : MonoBehaviour
         terrainHeight = MyNoise.Redistribution(terrainHeight, settings);
         var surfaceHeight = (int)Mathf.Lerp(0, chunkHeight, terrainHeight);
         return surfaceHeight;
+    }
+
+    public TreeData GenerateTreeData(ChunkData data, Vector2Int mapOffset)
+    {
+        if(treeNoiseGenerator == null)
+        {
+            return new TreeData();
+        }
+        return treeNoiseGenerator.GenerateTreeData(data, mapOffset);
     }
 }
 
