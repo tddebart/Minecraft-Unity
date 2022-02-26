@@ -15,6 +15,7 @@ public class WaterLayerHandler : BlockLayerHandler
             {
                 pos.y = surfaceHeightNoise;
                 Chunk.SetBlock(chunk, pos, BlockType.Sand);
+                Chunk.SetBlock(chunk, pos + Vector3Int.down, BlockType.Sand);
             }
             
             return true;

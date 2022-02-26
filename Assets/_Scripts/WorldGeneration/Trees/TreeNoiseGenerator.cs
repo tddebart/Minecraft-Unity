@@ -7,7 +7,7 @@ public class TreeNoiseGenerator : MonoBehaviour
 
     public TreeData GenerateTreeData(ChunkData chunkData, Vector2Int mapSeedOffset)
     {
-        treeNoiseSettings.worldOffset = mapSeedOffset;
+        treeNoiseSettings.worldSeedOffset = mapSeedOffset;
         var treeData = new TreeData();
         float[,] noiseData = GenerateTreeNoiseData(chunkData, treeNoiseSettings);
         treeData.treePositions = DataProcessing.FindLocalMaxima(noiseData, chunkData.worldPos.x, chunkData.worldPos.z);

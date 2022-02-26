@@ -12,6 +12,3 @@ only data multithreaded with Parallel
 fully not multithreaded
 30560ms
 
-
-//TODO:
-make sure that LoadAdditionalChunks in the world script is made async and we await GenerateWorld 

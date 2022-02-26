@@ -16,10 +16,18 @@ public class BiomeGenerator : MonoBehaviour
 
     public List<BlockLayerHandler> additionalLayerHandlers;
     
-    public ChunkData ProcessChunkColumn(ChunkData data, int x, int z, Vector2Int mapSeedOffset)
+    public int minHeight = 0;
+    
+    public ChunkData ProcessChunkColumn(ChunkData data, int x, int z, Vector2Int mapSeedOffset, int? terrainHeightNoise)
     {
-        settings.worldOffset = mapSeedOffset;
-        var groundPos = GetSurfaceHeightNoise(data.worldPos.x + x, data.worldPos.z + z,data.chunkHeight);
+        settings.worldSeedOffset = mapSeedOffset;
+        
+        var groundPos = terrainHeightNoise ?? GetSurfaceHeightNoise(data.worldPos.x + x, data.worldPos.z + z,data.chunkHeight);
+        
+        if (groundPos < minHeight)
+        {
+            groundPos = minHeight;
+        }
         
         for (var y = data.worldPos.y; y < data.worldPos.y + data.chunkHeight; y++)
         {
@@ -34,7 +42,7 @@ public class BiomeGenerator : MonoBehaviour
         return data;
     }
 
-    private int GetSurfaceHeightNoise(int x, int z, int chunkHeight)
+    public int GetSurfaceHeightNoise(int x, int z, int chunkHeight)
     {
         float terrainHeight;
         if (useWarping)
@@ -50,13 +58,13 @@ public class BiomeGenerator : MonoBehaviour
         return surfaceHeight;
     }
 
-    public TreeData GenerateTreeData(ChunkData data, Vector2Int mapOffset)
+    public TreeData GenerateTreeData(ChunkData data, Vector2Int mapSeedOffset)
     {
         if(treeNoiseGenerator == null)
         {
             return new TreeData();
         }
-        return treeNoiseGenerator.GenerateTreeData(data, mapOffset);
+        return treeNoiseGenerator.GenerateTreeData(data, mapSeedOffset);
     }
 }
 

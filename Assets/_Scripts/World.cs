@@ -20,7 +20,7 @@ public class World : MonoBehaviour
     public WorldRenderer worldRenderer;
     
     public TerrainGenerator terrainGenerator;
-    public Vector2Int mapOffset;
+    public Vector2Int mapSeedOffset;
 
     private CancellationTokenSource taskTokenSource = new CancellationTokenSource();
 
@@ -55,8 +55,11 @@ public class World : MonoBehaviour
         {
             stopwatch.Start();
         }
+        
+        terrainGenerator.GenerateBiomePoints(position, renderDistance, chunkSize, mapSeedOffset);
+        
         WorldGenerationData worldGenerationData = await Task.Run(() => GetPositionsInRenderDistance(position), taskTokenSource.Token);
-
+        
         foreach (var pos in worldGenerationData.chunkPositionsToRemove)
         {
             WorldDataHelper.RemoveChunk(this, pos);
@@ -177,10 +180,22 @@ public class World : MonoBehaviour
                 }
                 
                 var data = new ChunkData(chunkSize, chunkHeight, this, pos);
-                var newData = terrainGenerator.GenerateChunkData(data, mapOffset);
+                var newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
                 dataDict.TryAdd(pos, newData);
-
+            
             });
+            // foreach(var pos in chunkDataPositionsToCreate)
+            // {
+            //     if(taskTokenSource.IsCancellationRequested)
+            //     {
+            //         taskTokenSource.Token.ThrowIfCancellationRequested();
+            //     }
+            //     
+            //     var data = new ChunkData(chunkSize, chunkHeight, this, pos);
+            //     var newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
+            //     dataDict.TryAdd(pos, newData);
+            //
+            // };
 
             return dataDict;
         }, taskTokenSource.Token);

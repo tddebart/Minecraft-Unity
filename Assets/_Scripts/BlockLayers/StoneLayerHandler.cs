@@ -14,7 +14,7 @@ public class StoneLayerHandler : BlockLayerHandler
             return false;
         }
         
-        stoneNoiseSettings.worldOffset = mapSeedOffset;
+        stoneNoiseSettings.worldSeedOffset = mapSeedOffset;
         //var stoneNoise = MyNoise.OctavePerlin(chunk.worldPos.x + pos.x, chunk.worldPos.z + pos.z, stoneNoiseSettings);
         var stoneNoise = stoneDomainWarping.GenerateDomainNoise(chunk.worldPos.x + pos.x, chunk.worldPos.z + pos.z, stoneNoiseSettings);
 

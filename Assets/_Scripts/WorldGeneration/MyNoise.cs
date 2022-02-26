@@ -25,14 +25,20 @@ public static class MyNoise
         float amplitudeSum = 0;  // Used for normalizing result to 0.0 - 1.0 range
         for (int i = 0; i < settings.octaves; i++)
         {
-            total += Mathf.PerlinNoise((settings.offset.x + settings.worldOffset.x + x) * frequency, (settings.offset.y + settings.worldOffset.y + z) * frequency) * amplitude;
+            total += Mathf.PerlinNoise((settings.offset.x + settings.worldSeedOffset.x + x) * frequency, (settings.offset.y + settings.worldSeedOffset.y + z) * frequency) * amplitude;
 
             amplitudeSum += amplitude;
 
             amplitude *= settings.persistence;
             frequency *= 2;
         }
+        
+        var result = total / amplitudeSum;
+        if (result < 0)
+        {
+            result = 0;
+        }
 
-        return total / amplitudeSum;
+        return result;
     }
 }
