@@ -42,21 +42,24 @@ public static class WorldDataHelper
         {
             for (var z = startZ; z <= endZ; z += world.chunkSize)
             {
-                var chunkPos = GetChunkPosition(world, new Vector3Int(x, 0, z));
-                chunkPositionsToCreate.Add(chunkPos);
-                
-                // Add the chunks directly around and below the player so they can dig
-                if(x >= playerPos.x - world.chunkSize && x <= playerPos.x + world.chunkSize)
+                for (var y = 0; y < world.worldHeight; y+= world.chunkSize)
                 {
-                    if(z >= playerPos.z - world.chunkSize && z <= playerPos.z + world.chunkSize)
-                    {
-                        for (var y = -world.chunkHeight; y >= playerPos.y - world.chunkHeight*2; y-=world.chunkHeight)
-                        {
-                            chunkPos = GetChunkPosition(world, new Vector3Int(x, y, z));
-                            chunkPositionsToCreate.Add(chunkPos);
-                        }
-                    }
+                    var chunkPos = GetChunkPosition(world, new Vector3Int(x, y, z));
+                    chunkPositionsToCreate.Add(chunkPos);
                 }
+                
+                // // Add the chunks directly around and below the player so they can dig
+                // if(x >= playerPos.x - world.chunkSize && x <= playerPos.x + world.chunkSize)
+                // {
+                //     if(z >= playerPos.z - world.chunkSize && z <= playerPos.z + world.chunkSize)
+                //     {
+                //         for (var y = -world.chunkHeight; y >= playerPos.y - world.chunkHeight*2; y-=world.chunkHeight)
+                //         {
+                //             chunkPos = GetChunkPosition(world, new Vector3Int(x, y, z));
+                //             chunkPositionsToCreate.Add(chunkPos);
+                //         }
+                //     }
+                // }
             }
         }
         
@@ -123,7 +126,7 @@ public static class WorldDataHelper
             Chunk.SetBlock(chunkData, localPos, blockType);
         }
     }
-    
+
     public static ChunkRenderer GetChunk(World world, Vector3Int worldPos)
     {
         if (world.worldData.chunkDict.ContainsKey(worldPos))

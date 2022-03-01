@@ -25,20 +25,24 @@ public static class BlockHelper
         {
             Vector3Int neighbourPos = pos + dir.GetVector();
             BlockType neighbourBlockType = Chunk.GetBlock(chunk, neighbourPos);
-            
-            if (neighbourBlockType != BlockType.Nothing && BlockDataManager.textureDataDictionary[neighbourBlockType].isTransparent)
+
+            if (BlockDataManager.textureDataDictionary[blockType].isTransparent)
             {
                 if (blockType == BlockType.Water)
                 {
-                    if (neighbourBlockType == BlockType.Air)
+                    if (neighbourBlockType != BlockType.Nothing && neighbourBlockType != BlockType.Water && BlockDataManager.textureDataDictionary[neighbourBlockType].isTransparent)
                     {
-                        meshData.waterMesh = GetFaceDataIn(dir, chunk, pos, meshData.waterMesh, blockType);
+                        meshData.transparentMesh = GetFaceDataIn(dir, chunk, pos, meshData.transparentMesh, blockType);
                     }
                 }
-                else
+                else if (neighbourBlockType != BlockType.Nothing && BlockDataManager.textureDataDictionary[neighbourBlockType].isTransparent)
                 {
-                    meshData = GetFaceDataIn(dir, chunk, pos, meshData, blockType);
+                    meshData.transparentMesh = GetFaceDataIn(dir, chunk, pos, meshData.transparentMesh, blockType);
                 }
+            }
+            else if(neighbourBlockType != BlockType.Nothing && BlockDataManager.textureDataDictionary[neighbourBlockType].isTransparent)
+            {
+                meshData = GetFaceDataIn(dir, chunk, pos, meshData, blockType);
             }
         }
         return meshData;
@@ -48,8 +52,9 @@ public static class BlockHelper
     {
         GetFaceVertices(dir, pos, meshData, blockType);
         meshData.AddQuadTriangles(BlockDataManager.textureDataDictionary[blockType].generateCollider);
-        meshData.uv.AddRange(FaceUVs(dir,blockType));
-        
+        var uvs = FaceUVs(dir, blockType);
+        meshData.uv.AddRange(uvs);
+
         return meshData;
     }
     

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class BiomeGenerator : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class BiomeGenerator : MonoBehaviour
     
     public TreeNoiseGenerator treeNoiseGenerator;
 
-    public List<BlockLayerHandler> additionalLayerHandlers;
+    public List<BlockLayerHandler> featureLayerHandlers;
     
     public int minHeight = 0;
     
@@ -22,7 +23,7 @@ public class BiomeGenerator : MonoBehaviour
     {
         settings.worldSeedOffset = mapSeedOffset;
         
-        var groundPos = terrainHeightNoise ?? GetSurfaceHeightNoise(data.worldPos.x + x, data.worldPos.z + z,data.chunkHeight);
+        var groundPos = terrainHeightNoise ?? GetSurfaceHeightNoise(data.worldPos.x + x, data.worldPos.z + z,data.worldRef.worldHeight);
         
         if (groundPos < minHeight)
         {
@@ -31,18 +32,33 @@ public class BiomeGenerator : MonoBehaviour
         
         for (var y = data.worldPos.y; y < data.worldPos.y + data.chunkHeight; y++)
         {
-            startLayerHandler.Handle(data, new Vector3Int(x,y,z), groundPos, mapSeedOffset);
+            startLayerHandler.Handle(data, new Vector3Int(x+data.worldPos.x,y,z+data.worldPos.z), new Vector3Int(x,y - data.worldPos.y,z), groundPos, mapSeedOffset);
         }
-        
-        foreach (var layer in additionalLayerHandlers)
-        {
-            layer.Handle(data, new Vector3Int(x,data.worldPos.y,z), groundPos, mapSeedOffset);
-        }
+
 
         return data;
     }
 
-    public int GetSurfaceHeightNoise(int x, int z, int chunkHeight)
+
+    public void ProcessFeatures(ChunkData data, int x, int z, Vector2Int mapSeedOffset, int? terrainHeightNoise)
+    {
+        settings.worldSeedOffset = mapSeedOffset;
+        var groundPos = terrainHeightNoise ?? GetSurfaceHeightNoise(data.worldPos.x + x, data.worldPos.z + z,data.worldRef.worldHeight);
+        if (groundPos < minHeight)
+        {
+            groundPos = minHeight;
+        }
+
+        foreach (var layer in featureLayerHandlers)
+        {
+            for (var y = data.worldPos.y; y < data.worldPos.y + data.chunkHeight; y++)
+            {
+                layer.Handle(data, new Vector3Int(x+data.worldPos.x,y,z+data.worldPos.z),new Vector3Int(x,y - data.worldPos.y,z), groundPos, mapSeedOffset);
+            }
+        }
+    }
+
+    public int GetSurfaceHeightNoise(int x, int z, int worldHeight)
     {
         float terrainHeight;
         if (useWarping)
@@ -54,7 +70,7 @@ public class BiomeGenerator : MonoBehaviour
             terrainHeight = MyNoise.OctavePerlin(x, z, settings);
         }
         terrainHeight = MyNoise.Redistribution(terrainHeight, settings);
-        var surfaceHeight = (int)Mathf.Lerp(0, chunkHeight, terrainHeight);
+        var surfaceHeight = (int)Mathf.Lerp(0, worldHeight, terrainHeight);
         return surfaceHeight;
     }
 

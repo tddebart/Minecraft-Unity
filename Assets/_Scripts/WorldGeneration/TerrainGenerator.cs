@@ -38,43 +38,19 @@ public class TerrainGenerator : MonoBehaviour
         return data;
     }
 
-    private BiomeGeneratorSelection SelectBiomeGenerator(Vector3Int worldPos, ChunkData data, bool useDomainWarping = true)
+    public void GenerateFeatures(ChunkData data, Vector2Int mapSeedOffset)
     {
-        var originalWorldPos = worldPos;
-        useDomainWarping = false;
-        if (useDomainWarping)
+        for (var x = 0; x < data.chunkSize; x++)
         {
-            var domainOffset = Vector2Int.RoundToInt(domainWarping.GenerateDomainOffset(worldPos.x, worldPos.z));
-            worldPos += new Vector3Int(domainOffset.x, 0, domainOffset.y);
+            for (var z = 0; z < data.chunkSize; z++)
+            {
+                BiomeGeneratorSelection biomeSelection = SelectBiomeGeneratorWeight(new Vector3Int(data.worldPos.x + x, 0, data.worldPos.z + z), data);
+                biomeSelection.biomeGenerator.ProcessFeatures(data, x, z, mapSeedOffset, biomeSelection.terrainSurfaceNoise);
+            }
         }
-        
-        List<BiomeSelectionHelper> biomeSelectionHelpersByDistance = GetBiomeGeneratorSelectionHelpers(worldPos);
-        var generator1 = SelectBiome(biomeSelectionHelpersByDistance[0].Index);
-        var generator2 = SelectBiome(biomeSelectionHelpersByDistance[1].Index);
-        
-        var distance = Vector3.Distance(biomeCenters[biomeSelectionHelpersByDistance[0].Index], biomeCenters[biomeSelectionHelpersByDistance[1].Index]);
-        // there is something wrong with the weights distance 0 results in weight 0, what?
-        var weight1 = biomeSelectionHelpersByDistance[0].Distance / distance;
-        var weight2 = 1 - weight1;
-        var terrainHeight1 = generator1.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.chunkHeight);
-        var terrainHeight2 = generator2.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.chunkHeight);
-        
-        // if(Mathf.Abs(terrainHeight1 - terrainHeight2) > 15)
-        // {
-        //     var x = 0;
-        // }
-
-        if (worldPos.x is 123 && worldPos.z is 37 or 38)
-        {
-            var x = 0;
-        }
-        
-        return new BiomeGeneratorSelection(generator1, Mathf.RoundToInt(terrainHeight1 * weight2 + terrainHeight2 * weight1));
-        // return new BiomeGeneratorSelection(generator1, Mathf.RoundToInt((terrainHeight1+terrainHeight2)/2f));
-
     }
-    
-    
+
+
     // source: https://gisgeography.com/inverse-distance-weighting-idw-interpolation/
     private BiomeGeneratorSelection SelectBiomeGeneratorWeight(Vector3Int worldPos, ChunkData data, bool useDomainWarping = true)
     {
@@ -93,9 +69,9 @@ public class TerrainGenerator : MonoBehaviour
         var generator3 = SelectBiome(biomeSelectionHelpersByDistance[2].Index);
         
 
-        var terrainHeight1 = generator1.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.chunkHeight);
-        var terrainHeight2 = generator2.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.chunkHeight);
-        var terrainHeight3 = generator3.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.chunkHeight);
+        var terrainHeight1 = generator1.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.worldRef.worldHeight);
+        var terrainHeight2 = generator2.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.worldRef.worldHeight);
+        var terrainHeight3 = generator3.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.worldRef.worldHeight);
 
         if (!useIDW)
         {

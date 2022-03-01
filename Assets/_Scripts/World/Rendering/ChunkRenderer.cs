@@ -32,19 +32,19 @@ public class ChunkRenderer : MonoBehaviour
         mesh.Clear();
 
         mesh.subMeshCount = 2;
-        mesh.vertices = meshData.vertices.Concat(meshData.waterMesh.vertices).ToArray();
+        mesh.vertices = meshData.vertices.Concat(meshData.transparentMesh.vertices).ToArray();
         
         mesh.SetTriangles(meshData.triangles.ToArray(), 0);
-        mesh.SetTriangles(meshData.waterMesh.triangles.Select(val => val + meshData.vertices.Count).ToArray(), 1);
+        mesh.SetTriangles(meshData.transparentMesh.triangles.Select(val => val + meshData.vertices.Count).ToArray(), 1);
 
-        mesh.uv = meshData.uv.Concat(meshData.waterMesh.uv).ToArray();
+        mesh.uv = meshData.uv.Concat(meshData.transparentMesh.uv).ToArray();
         mesh.RecalculateNormals();
 
         meshCollider.sharedMesh = null;
         Mesh collisionMesh = new Mesh
         {
-            vertices = meshData.colliderVertices.ToArray(),
-            triangles = meshData.colliderTriangles.ToArray()
+            vertices = meshData.colliderVertices.Concat(meshData.transparentMesh.colliderVertices).ToArray(),
+            triangles = meshData.colliderTriangles.Concat(meshData.transparentMesh.colliderTriangles).ToArray()
         };
         collisionMesh.RecalculateNormals();
 
@@ -53,7 +53,9 @@ public class ChunkRenderer : MonoBehaviour
 
     public void UpdateChunk()
     {
-        RenderMesh(Chunk.GetChunkMeshData(ChunkData));
+        //TODO: this takes a long time
+        var data = Chunk.GetChunkMeshData(ChunkData);
+        RenderMesh(data);
     }
     
     public void UpdateChunk(MeshData meshData)
@@ -67,7 +69,7 @@ public class ChunkRenderer : MonoBehaviour
     {
         if (!showGizmo) return;
 
-        if (Application.isPlaying && ChunkData != null)
+        if (ChunkData != null)
         {
             if (Selection.activeObject == gameObject)
             {

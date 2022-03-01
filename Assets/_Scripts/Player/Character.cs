@@ -41,15 +41,10 @@ public class Character : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(playerRay, out hit, playerReach, objects.groundMask))
         {
-            ModifyTerrain(hit);
+            world.SetBlock(hit, BlockType.Air);
         }
     }
-    
-    private void ModifyTerrain(RaycastHit hit)
-    {
-        world.SetBlock(hit, BlockType.Air);
-    }
-    
+
     private void OnFly()
     {
         isFlying = !isFlying;
@@ -57,6 +52,11 @@ public class Character : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (Input.GetMouseButton(0))
+        {
+            OnMouseClick();
+        }
+        
         if (isFlying)
         {
             playerController.Fly(playerInput.MovementInput, playerInput.IsJumpPressed, playerInput.IsRunPressed);

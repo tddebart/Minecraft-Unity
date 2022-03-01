@@ -20,9 +20,9 @@ public class GameManager : MonoBehaviour
     {
         if (localPlayer != null) return;
         
-        var raycastStartposition = new Vector3Int(world.chunkSize / 2+Random.Range(-3,3), world.chunkHeight, world.chunkSize / 2+Random.Range(-3,3));
+        var raycastStartposition = new Vector3Int(world.chunkSize / 2+Random.Range(-3,3), world.worldHeight, world.chunkSize / 2+Random.Range(-3,3));
         RaycastHit hit;
-        if (Physics.Raycast(raycastStartposition, Vector3.down, out hit, world.chunkHeight))
+        if (Physics.Raycast(raycastStartposition, Vector3.down, out hit, world.worldHeight))
         {
             localPlayer = Instantiate(playerPrefab, hit.point+Vector3Int.up, Quaternion.identity);
             StartCheckingForChunks();

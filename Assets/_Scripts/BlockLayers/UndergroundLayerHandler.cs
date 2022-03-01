@@ -5,12 +5,11 @@ public class UndergroundLayerHandler : BlockLayerHandler
 {
     public BlockType undergroundBlockType;
     
-    protected override bool TryHandling(ChunkData chunk, Vector3Int pos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
+    protected override bool TryHandling(ChunkData chunk, Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
     {
-        if (pos.y < surfaceHeightNoise)
+        if (worldPos.y < surfaceHeightNoise)
         {
-            pos.y -= chunk.worldPos.y;
-            Chunk.SetBlock(chunk, pos, undergroundBlockType);
+            Chunk.SetBlock(chunk, localPos, undergroundBlockType);
             return true;
         }
         return false;

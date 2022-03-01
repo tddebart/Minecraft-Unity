@@ -7,8 +7,9 @@ public class StoneLayerHandler : BlockLayerHandler
     
     public DomainWarping stoneDomainWarping;
     
-    protected override bool TryHandling(ChunkData chunk, Vector3Int pos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
+    protected override bool TryHandling(ChunkData chunk,Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
     {
+        return false;
         if (chunk.worldPos.y > surfaceHeightNoise)
         {
             return false;
@@ -16,7 +17,7 @@ public class StoneLayerHandler : BlockLayerHandler
         
         stoneNoiseSettings.worldSeedOffset = mapSeedOffset;
         //var stoneNoise = MyNoise.OctavePerlin(chunk.worldPos.x + pos.x, chunk.worldPos.z + pos.z, stoneNoiseSettings);
-        var stoneNoise = stoneDomainWarping.GenerateDomainNoise(chunk.worldPos.x + pos.x, chunk.worldPos.z + pos.z, stoneNoiseSettings);
+        var stoneNoise = stoneDomainWarping.GenerateDomainNoise(chunk.worldPos.x + localPos.x, chunk.worldPos.z + localPos.z, stoneNoiseSettings);
 
         int endPosition = surfaceHeightNoise;
         if (chunk.worldPos.y < 0)
@@ -24,7 +25,7 @@ public class StoneLayerHandler : BlockLayerHandler
             endPosition = chunk.worldPos.y + chunk.chunkHeight;
         }
 
-        if (Chunk.GetBlock(chunk, new Vector3Int(pos.x,endPosition,pos.z)) == BlockType.Sand)
+        if (Chunk.GetBlock(chunk, new Vector3Int(localPos.x,endPosition,localPos.z)) == BlockType.Sand)
         {
             return false;
         }
@@ -33,7 +34,7 @@ public class StoneLayerHandler : BlockLayerHandler
         {
             for (var i = chunk.worldPos.y; i <= endPosition; i++)
             {
-                var stonePos = new Vector3Int(pos.x, i, pos.z);
+                var stonePos = new Vector3Int(localPos.x, i, localPos.z);
                 Chunk.SetBlock(chunk, stonePos, BlockType.Stone);
             }
             return true;

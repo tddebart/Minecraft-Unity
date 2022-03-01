@@ -16,6 +16,7 @@ public class World : MonoBehaviour
     public int renderDistance = 6;
     public int chunkSize = 16; // 16x16 chunks
     public int chunkHeight = 100; // 100 blocks high
+    public int worldHeight = 256; // 256 blocks high
     public int chunksPerFrame = 2;
     public WorldRenderer worldRenderer;
     
@@ -30,7 +31,9 @@ public class World : MonoBehaviour
     public WorldData worldData { get; private set; }
     public bool IsWorldCreated { get; private set; }
     
-    private Stopwatch stopwatch = new Stopwatch();
+    private Stopwatch fullStopwatch = new Stopwatch();
+    
+    public Dictionary<Vector3Int, BlockType> blocksToPlaceAfterGeneration = new Dictionary<Vector3Int, BlockType>();
 
 
     private void OnValidate()
@@ -53,7 +56,7 @@ public class World : MonoBehaviour
     {
         if (!Application.isPlaying)
         {
-            stopwatch.Start();
+            fullStopwatch.Start();
         }
         
         terrainGenerator.GenerateBiomePoints(position, renderDistance, chunkSize, mapSeedOffset);
@@ -73,6 +76,10 @@ public class World : MonoBehaviour
         // Generate data chunks
         ConcurrentDictionary<Vector3Int, ChunkData> dataDict;
 
+        var dataStopWatch = new Stopwatch();
+        dataStopWatch.Start();
+        
+        
         try
         {
             dataDict = await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate);
@@ -88,12 +95,37 @@ public class World : MonoBehaviour
             worldData.chunkDataDict.Add(calculatedData.Key, calculatedData.Value);
         }
 
-        // Generate features like trees
-        foreach (var chunkData in worldData.chunkDataDict.Values)
+        dataStopWatch.Stop();
+        if (!Application.isPlaying)
         {
-            AddTreeLeaves(chunkData);
+            Debug.Log($"Data generation took {dataStopWatch.ElapsedMilliseconds}ms");
         }
 
+
+        var featureStopWatch = new Stopwatch();
+        featureStopWatch.Start();
+        
+        // Generate features like trees
+        await CalculateFeatures(worldGenerationData.chunkPositionsToCreate);
+        
+        featureStopWatch.Stop();
+        if (!Application.isPlaying)
+        {
+            Debug.Log($"Feature generation took {featureStopWatch.ElapsedMilliseconds}ms");
+        }
+
+        await Task.Run(() =>
+        {
+            Parallel.ForEach(blocksToPlaceAfterGeneration, (block) =>
+            {
+                WorldDataHelper.SetBlock(this, block.Key, block.Value);
+            });
+        });
+
+
+        var visualStopWatch = new Stopwatch();
+        visualStopWatch.Start();
+        
         // Generate visual chunks
         // ConcurrentDictionary<Vector3Int, MeshData> meshDataDict = 
         //     await CalculateChunkMeshData(worldGenerationData.chunkPositionsToCreate);
@@ -113,19 +145,14 @@ public class World : MonoBehaviour
             Debug.Log("Task cancelled");
             return;
         }
+        
+        visualStopWatch.Stop();
+        if (!Application.isPlaying)
+        {
+            Debug.Log($"Mesh generation took {visualStopWatch.ElapsedMilliseconds}ms");
+        }
 
         StartCoroutine(ChunkCreationCoroutine(meshDataDict, position));
-    }
-
-    private void AddTreeLeaves(ChunkData chunkData)
-    {
-        foreach (var leavePos in chunkData.treeData.leavePositions)
-        {
-            if (Chunk.GetBlock(chunkData, leavePos) != BlockType.Log)
-            {
-                Chunk.SetBlock(chunkData, leavePos, BlockType.Leaves);
-            }
-        }
     }
 
     private Task<ConcurrentDictionary<Vector3Int, MeshData>> CreateMeshDataAsync(List<ChunkData> dataToRender)
@@ -167,7 +194,6 @@ public class World : MonoBehaviour
 
     private Task<ConcurrentDictionary<Vector3Int, ChunkData>> CalculateWorldChunkData(List<Vector3Int> chunkDataPositionsToCreate)
     {
-
         return Task.Run(() =>
         {
             var dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
@@ -200,6 +226,25 @@ public class World : MonoBehaviour
             return dataDict;
         }, taskTokenSource.Token);
     }
+    
+    private Task CalculateFeatures(List<Vector3Int> chunkDataPositionsToCreate)
+    {
+        return Task.Run(() =>
+        {
+            Parallel.ForEach(chunkDataPositionsToCreate, pos =>
+            {
+                if(taskTokenSource.IsCancellationRequested)
+                {
+                    taskTokenSource.Token.ThrowIfCancellationRequested();
+                }
+                
+                var data = worldData.chunkDataDict[pos];
+                terrainGenerator.GenerateFeatures(data, mapSeedOffset);
+            });
+        }, taskTokenSource.Token);
+    }
+    
+    
 
     IEnumerator ChunkCreationCoroutine(ConcurrentDictionary<Vector3Int, MeshData> meshDataConDict, Vector3Int playerPos)
     {
@@ -222,9 +267,9 @@ public class World : MonoBehaviour
 
         if (!Application.isPlaying)
         {
-            stopwatch.Stop();
-            Debug.Log($"World created in {stopwatch.ElapsedMilliseconds}ms");
-            stopwatch.Reset();
+            fullStopwatch.Stop();
+            Debug.Log($"World created in {fullStopwatch.ElapsedMilliseconds}ms");
+            fullStopwatch.Reset();
         }
     }
 
@@ -260,52 +305,65 @@ public class World : MonoBehaviour
     
     public bool SetBlock(RaycastHit hit, BlockType blockType)
     {
-        var chunk = hit.collider.GetComponent<ChunkRenderer>();
-        if (chunk == null)
-        {
-            return false;
-        }
-        
+        var pos = WorldDataHelper.GetChunkPosition(this, Vector3Int.RoundToInt(hit.point));
+        var chunk = WorldDataHelper.GetChunk(this, pos);
+
         var blockPos = GetBlockPos(hit);
 
-        // // Dig out the blocks around the block
-        // var blocksToDig = new List<Vector3Int>();
-        // blocksToDig.Add(blockPos);
-        // blocksToDig.Add(blockPos + Vector3Int.up);
-        // blocksToDig.Add(blockPos + Vector3Int.down);
-        // blocksToDig.Add(blockPos + Vector3Int.left);
-        // blocksToDig.Add(blockPos + Vector3Int.right);
-        // blocksToDig.Add(blockPos + Vector3Int.forward);
-        // blocksToDig.Add(blockPos + Vector3Int.back);
-        //
+        // Dig out the blocks around the block
+        var blocksToDig = new List<Vector3Int>();
+        blocksToDig.Add(blockPos);
+        blocksToDig.Add(blockPos + Vector3Int.up);
+        blocksToDig.Add(blockPos + Vector3Int.down);
+        blocksToDig.Add(blockPos + Vector3Int.left);
+        blocksToDig.Add(blockPos + Vector3Int.right);
+        blocksToDig.Add(blockPos + Vector3Int.forward);
+        blocksToDig.Add(blockPos + Vector3Int.back);
+        
+        SetBlocks(chunk, blocksToDig.ToArray(), blockType);
+        
         // foreach (var pos in blocksToDig)
         // {
         //     SetBlock(chunk, pos, blockType);
         // }
 
-        SetBlock(chunk, blockPos, blockType);
+        // SetBlock(chunk, blockPos, blockType);
         return true;
     }
 
-    public void SetBlock(ChunkRenderer chunk, Vector3Int blockPos, BlockType blockType)
+    public void SetBlocks(ChunkRenderer chunk, Vector3Int[] blockPoss, BlockType blockType)
     {
-        WorldDataHelper.SetBlock(chunk.ChunkData.worldRef, blockPos, blockType);
-        chunk.ModifiedByPlayer = true;
-
-        if (Chunk.IsOnEdge(chunk.ChunkData, blockPos))
+        var neightBourUpdates = new List<ChunkRenderer>();
+        
+        foreach (var pos in blockPoss)
         {
-            List<ChunkData> neighbourChunkData = Chunk.GetNeighbourChunk(chunk.ChunkData, blockPos);
-            foreach (var neighChunkData in neighbourChunkData)
+            WorldDataHelper.SetBlock(chunk.ChunkData.worldRef, pos, blockType);
+            
+            if (Chunk.IsOnEdge(chunk.ChunkData, pos))
             {
-                ChunkRenderer neighbourChunk = WorldDataHelper.GetChunk(neighChunkData.worldRef, neighChunkData.worldPos);
-                if(neighbourChunk != null)
+                List<ChunkData> neighbourChunkData = Chunk.GetNeighbourChunk(chunk.ChunkData, pos);
+                foreach (var neighChunkData in neighbourChunkData)
                 {
-                    neighbourChunk.UpdateChunk();
+                    ChunkRenderer neighbourChunk = WorldDataHelper.GetChunk(neighChunkData.worldRef, neighChunkData.worldPos);
+                    if(neighbourChunk != null)
+                    {
+                        neightBourUpdates.Add(neighbourChunk);
+                    }
                 }
             }
         }
         
+        foreach (var chunkRenderer in neightBourUpdates)
+        {
+            chunkRenderer.UpdateChunk();
+        }
+        
         chunk.UpdateChunk();
+    }
+
+    public void SetBlock(ChunkRenderer chunk, Vector3Int blockPos, BlockType blockType)
+    {
+        SetBlocks(chunk, new[] {blockPos}, blockType);
     }
     
     public Vector3Int GetBlockPos(RaycastHit hit)
@@ -356,7 +414,7 @@ public class World : MonoBehaviour
         worldData.chunkDataDict.Clear();
         worldData.chunkDict.Clear();
         worldRenderer.chunkPool.Clear();
-        
+
         foreach (var chunk in FindObjectsOfType<ChunkRenderer>())
         {
             DestroyImmediate(chunk.gameObject);

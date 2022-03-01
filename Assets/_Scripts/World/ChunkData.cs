@@ -4,9 +4,10 @@ public class ChunkData
 {
     public BlockType[] blocks;
     public int chunkSize = 16;
-    public int chunkHeight = 100;
+    public int chunkHeight = 16;
     public World worldRef;
     public Vector3Int worldPos;
+    public ChunkSection[] sections = new ChunkSection[16];
     
     public bool modifiedByPlayer = false;
     public TreeData treeData;

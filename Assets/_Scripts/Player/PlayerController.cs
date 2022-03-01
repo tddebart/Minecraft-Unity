@@ -33,7 +33,6 @@ public class PlayerController : MonoBehaviour
     //TODO:
     // make the collider a box instead of a capsule
     // make it so when you let go of the movement keys, you stop moving instead of sliding
-    // rotate the body when you move in direction
 
     private void Start()
     {

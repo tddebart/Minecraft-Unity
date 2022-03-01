@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 838.76025, g: 797.9209, b: 950.76953, a: 1}
+  m_IndirectSpecularColor: {r: 838.9453, g: 797.38184, b: 948.5254, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -161,7 +161,7 @@ MonoBehaviour:
   useWarping: 1
   startLayerHandler: {fileID: 334016699}
   treeNoiseGenerator: {fileID: 6577203}
-  additionalLayerHandlers: []
+  featureLayerHandlers: []
   minHeight: 20
 --- !u!114 &6577203
 MonoBehaviour:
@@ -793,7 +793,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 1147158915}
-  waterLevel: 20
+  waterLevel: 5
 --- !u!1 &739261251
 GameObject:
   m_ObjectHideFlags: 0
@@ -967,9 +967,9 @@ MonoBehaviour:
   useWarping: 1
   startLayerHandler: {fileID: 521203639}
   treeNoiseGenerator: {fileID: 975012413}
-  additionalLayerHandlers:
-  - {fileID: 1241654582}
+  featureLayerHandlers:
   - {fileID: 476284155}
+  - {fileID: 1241654582}
   minHeight: 0
 --- !u!4 &975012411
 Transform:
@@ -1238,10 +1238,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e113280f9ab044168541f6fef84d3095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 10
+  renderDistance: 5
   chunkSize: 16
-  chunkHeight: 100
-  chunksPerFrame: 2
+  chunkHeight: 16
+  worldHeight: 100
+  chunksPerFrame: 4
   worldRenderer: {fileID: 1269315924}
   terrainGenerator: {fileID: 1658937128}
   mapSeedOffset: {x: -251, y: 150}
@@ -1419,76 +1420,37 @@ MonoBehaviour:
   biomeGenerator: {fileID: 975012410}
   biomeCenters:
   - {x: 78, y: 0, z: 77}
-  - {x: -202, y: 0, z: -177}
-  - {x: -175, y: 0, z: -93}
-  - {x: -200, y: 0, z: -94}
-  - {x: -211, y: 0, z: 37}
-  - {x: -161, y: 0, z: 74}
-  - {x: -146, y: 0, z: 124}
-  - {x: -212, y: 0, z: 196}
-  - {x: -185, y: 0, z: 272}
-  - {x: -135, y: 0, z: -191}
   - {x: -106, y: 0, z: -128}
   - {x: -118, y: 0, z: -66}
   - {x: -106, y: 0, z: 49}
   - {x: -116, y: 0, z: 94}
   - {x: -83, y: 0, z: 161}
-  - {x: -133, y: 0, z: 188}
-  - {x: -102, y: 0, z: 265}
-  - {x: -68, y: 0, z: -186}
   - {x: -68, y: 0, z: -96}
   - {x: -28, y: 0, z: -22}
   - {x: -85, y: 0, z: -13}
   - {x: -69, y: 0, z: 79}
   - {x: -18, y: 0, z: 120}
-  - {x: -36, y: 0, z: 213}
-  - {x: -27, y: 0, z: 231}
-  - {x: -7, y: 0, z: -177}
   - {x: 27, y: 0, z: -132}
   - {x: 18, y: 0, z: -77}
   - {x: -2, y: 0, z: -4}
   - {x: 22, y: 0, z: 85}
   - {x: 8, y: 0, z: 162}
-  - {x: 3, y: 0, z: 185}
-  - {x: -21, y: 0, z: 266}
-  - {x: 80, y: 0, z: -187}
   - {x: 83, y: 0, z: -114}
   - {x: 75, y: 0, z: -53}
   - {x: 100, y: 0, z: 11}
   - {x: 96, y: 0, z: 110}
-  - {x: 48, y: 0, z: 224}
-  - {x: 77, y: 0, z: 276}
-  - {x: 149, y: 0, z: -207}
   - {x: 158, y: 0, z: -77}
   - {x: 158, y: 0, z: -38}
   - {x: 136, y: 0, z: 1}
   - {x: 137, y: 0, z: 75}
   - {x: 161, y: 0, z: 136}
-  - {x: 144, y: 0, z: 252}
-  - {x: 154, y: 0, z: 301}
-  - {x: 202, y: 0, z: -161}
-  - {x: 187, y: 0, z: -101}
-  - {x: 201, y: 0, z: -54}
-  - {x: 177, y: 0, z: 63}
-  - {x: 198, y: 0, z: 75}
-  - {x: 213, y: 0, z: 110}
-  - {x: 202, y: 0, z: 217}
-  - {x: 202, y: 0, z: 280}
-  - {x: 273, y: 0, z: -186}
-  - {x: 256, y: 0, z: -119}
-  - {x: 295, y: 0, z: -63}
-  - {x: 259, y: 0, z: 42}
-  - {x: 257, y: 0, z: 84}
-  - {x: 249, y: 0, z: 152}
-  - {x: 262, y: 0, z: 214}
-  - {x: 260, y: 0, z: 267}
   temperatureNoiseSettings: {fileID: 11400000, guid: 0e63362b226ea1b4aaf0207cff8a5abd,
     type: 2}
   domainWarping: {fileID: 1658937130}
   useIDW: 1
   biomeGeneratorsData:
   - temperatureStartThreshold: 0
-    temperatureEndThreshold: 3
+    temperatureEndThreshold: 4
     biomeTerrainGenerator: {fileID: 975012410}
   - temperatureStartThreshold: 3
     temperatureEndThreshold: 4
@@ -1813,7 +1775,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &2019228122
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1885,7 +1847,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2019228121}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 168, y: 47, z: -68}
+  m_LocalPosition: {x: 33, y: 79, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

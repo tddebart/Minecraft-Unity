@@ -10,13 +10,13 @@ public class MeshData
     public List<Vector3> colliderVertices = new List<Vector3>();
     public List<int> colliderTriangles = new List<int>();
 
-    public MeshData waterMesh;
+    public MeshData transparentMesh;
 
     public MeshData(bool isMainMesh)
     {
         if (isMainMesh)
         {
-            waterMesh = new MeshData(false);
+            transparentMesh = new MeshData(false);
         }
     }
 

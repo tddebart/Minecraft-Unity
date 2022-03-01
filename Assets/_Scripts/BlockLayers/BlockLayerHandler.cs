@@ -4,15 +4,15 @@ public abstract class BlockLayerHandler : MonoBehaviour
 {
     [SerializeField] private BlockLayerHandler Next;
 
-    public bool Handle(ChunkData chunk, Vector3Int pos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
+    public bool Handle(ChunkData chunk,Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
     {
-        if(TryHandling(chunk, pos, surfaceHeightNoise, mapSeedOffset))
+        if(TryHandling(chunk, worldPos,localPos, surfaceHeightNoise, mapSeedOffset))
         {
             return true;
         }
         else if(Next != null)
         {
-            return Next.Handle(chunk, pos, surfaceHeightNoise, mapSeedOffset);
+            return Next.Handle(chunk, worldPos,localPos, surfaceHeightNoise, mapSeedOffset);
         }
         else
         {
@@ -20,5 +20,5 @@ public abstract class BlockLayerHandler : MonoBehaviour
         }
     }
     
-    protected abstract bool TryHandling(ChunkData chunk, Vector3Int pos, int surfaceHeightNoise, Vector2Int mapSeedOffset);
+    protected abstract bool TryHandling(ChunkData chunk, Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector2Int mapSeedOffset);
 }

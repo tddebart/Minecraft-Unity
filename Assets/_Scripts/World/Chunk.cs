@@ -1,18 +1,26 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public static class Chunk
 {
     public static void LoopThroughTheBlocks(ChunkData chunkData, Action<int, int, int> actionToPerform)
     {
+        // foreach (var block in chunkData.sections.Select(section => section.blocks))
+        // {
+        //     
+        // }
         for (var index = 0; index < chunkData.blocks.Length; index++)
         {
             var pos = GetPositionFromIndex(chunkData, index);
             actionToPerform(pos.x, pos.y, pos.z);
         }
     }
+    
+    // private static LocacPositionToGlobal
 
     private static Vector3Int GetPositionFromIndex(ChunkData chunkData, int index)
     {
@@ -77,15 +85,25 @@ public static class Chunk
     /// Returns the local position of the block at the given world position.
     /// </summary>
     /// <param name="chunkData"></param>
-    /// <param name="pos">This is in world coordinates</param>
+    /// <param name="worldPos">This is in world coordinates</param>
     /// <returns></returns>
-    public static Vector3Int GetLocalBlockCoords(ChunkData chunkData, Vector3Int pos)
+    public static Vector3Int GetLocalBlockCoords(ChunkData chunkData, Vector3Int worldPos)
     {
         return new Vector3Int
         (
-            pos.x - chunkData.worldPos.x, 
-            pos.y - chunkData.worldPos.y, 
-            pos.z - chunkData.worldPos.z
+            worldPos.x - chunkData.worldPos.x, 
+            worldPos.y - chunkData.worldPos.y, 
+            worldPos.z - chunkData.worldPos.z
+        );
+    }
+    
+    public static Vector3Int GetGlobalBlockCoords(ChunkData chunkData, Vector3Int localPos)
+    {
+        return new Vector3Int
+        (
+            localPos.x + chunkData.worldPos.x, 
+            localPos.y + chunkData.worldPos.y, 
+            localPos.z + chunkData.worldPos.z
         );
     }
 
@@ -95,7 +113,8 @@ public static class Chunk
         
         LoopThroughTheBlocks(chunkData, (x, y, z) =>
         {
-            meshData = BlockHelper.GetMeshData(chunkData, new Vector3Int(x,y,z), meshData, chunkData.blocks[GetIndexFromPosition(chunkData, new Vector3Int(x,y,z))]);
+            meshData = BlockHelper.GetMeshData(chunkData, new Vector3Int(x, y, z), meshData,
+                chunkData.blocks[GetIndexFromPosition(chunkData, new Vector3Int(x, y, z))]);
         });
         
         
