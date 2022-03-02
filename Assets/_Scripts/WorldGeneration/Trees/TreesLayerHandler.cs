@@ -42,18 +42,18 @@ public class TreesLayerHandler : BlockLayerHandler
             {
                 return false;
             }
-            var type = Chunk.GetBlock(chunk, blockCoords);
+            var type = chunk.GetBlock(blockCoords);
 
             if (type is BlockType.Grass or BlockType.Dirt)
             {
-                Chunk.SetBlock(chunk, blockCoords, BlockType.Dirt);
+                chunk.SetBlock(blockCoords, BlockType.Dirt);
 
                 for (var i = 1; i < 6; i++)
                 {
                     blockCoords.y = surfaceHeightNoise-chunk.worldPos.y + i;
                     // WorldDataHelper.SetBlock(chunk.worldRef, Chunk.GetGlobalBlockCoords(chunk, blockCoords), BlockType.Log);
                     // chunk.worldRef.blocksToPlaceAfterGeneration[Chunk.GetGlobalBlockCoords(chunk, blockCoords)] = BlockType.Log;
-                    Chunk.SetBlock(chunk, blockCoords, BlockType.Log);
+                    chunk.SetBlock(blockCoords, BlockType.Log);
                 }
                 
                 var leavePositions = new List<Vector3Int>();
@@ -90,14 +90,14 @@ public class TreesLayerHandler : BlockLayerHandler
                 // Check if there is enough space for the leaves
                 foreach (var l in leavePositions)
                 {
-                    if (Chunk.GetBlock(chunk, l) is not BlockType.Air and not BlockType.Leaves and not BlockType.Log and not BlockType.Nothing)
+                    if (chunk.GetBlock(l) is not BlockType.Air and not BlockType.Leaves and not BlockType.Log and not BlockType.Nothing)
                     {
                         blockCoords = new Vector3Int(localPos.x, surfaceHeightNoise-chunk.worldPos.y, localPos.z);
-                        Chunk.SetBlock(chunk, blockCoords, type);
+                        chunk.SetBlock(blockCoords, type);
                         for (var i = 1; i < 6; i++)
                         {
                             blockCoords.y = surfaceHeightNoise-chunk.worldPos.y + i;
-                            Chunk.SetBlock(chunk, blockCoords, BlockType.Air);
+                            chunk.SetBlock(blockCoords, BlockType.Air);
                         }
 
                         return false;
@@ -106,7 +106,7 @@ public class TreesLayerHandler : BlockLayerHandler
 
                 foreach (var leavePos in leavePositions)
                 {
-                    Chunk.SetBlock(chunk, leavePos, BlockType.Leaves);
+                    chunk.SetBlock(leavePos, BlockType.Leaves);
                     // chunk.treeData.leavePositions.Add(leavePos);
                 }
 

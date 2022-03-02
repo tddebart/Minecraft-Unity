@@ -24,7 +24,7 @@ public static class BlockHelper
         foreach (var dir in directions)
         {
             Vector3Int neighbourPos = pos + dir.GetVector();
-            BlockType neighbourBlockType = Chunk.GetBlock(chunk, neighbourPos);
+            BlockType neighbourBlockType = chunk.GetBlock(neighbourPos);
 
             if (BlockDataManager.textureDataDictionary[blockType].isTransparent)
             {

@@ -8,7 +8,7 @@ public class SurfaceLayerHandler : BlockLayerHandler
     {
         if (worldPos.y == surfaceHeightNoise)
         {
-            Chunk.SetBlock(chunk,localPos,surfaceBlockType);
+            chunk.SetBlock(localPos,surfaceBlockType);
             return true;
         }
         return false;

@@ -24,12 +24,14 @@ public class ChunkRenderer : MonoBehaviour
         meshCollider = GetComponent<MeshCollider>();
         meshFilter.sharedMesh = new Mesh();
         mesh = meshFilter.sharedMesh;
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         this.ChunkData = data;
     }
 
     private void RenderMesh(MeshData meshData)
     {
         mesh.Clear();
+        mesh.MarkDynamic();
 
         mesh.subMeshCount = 2;
         mesh.vertices = meshData.vertices.Concat(meshData.transparentMesh.vertices).ToArray();
@@ -54,7 +56,7 @@ public class ChunkRenderer : MonoBehaviour
     public void UpdateChunk()
     {
         //TODO: this takes a long time
-        var data = Chunk.GetChunkMeshData(ChunkData);
+        var data = ChunkData.GetMeshData();
         RenderMesh(data);
     }
     

@@ -25,7 +25,7 @@ public class StoneLayerHandler : BlockLayerHandler
             endPosition = chunk.worldPos.y + chunk.chunkHeight;
         }
 
-        if (Chunk.GetBlock(chunk, new Vector3Int(localPos.x,endPosition,localPos.z)) == BlockType.Sand)
+        if (chunk.GetBlock(new Vector3Int(localPos.x,endPosition,localPos.z)) == BlockType.Sand)
         {
             return false;
         }
@@ -35,7 +35,7 @@ public class StoneLayerHandler : BlockLayerHandler
             for (var i = chunk.worldPos.y; i <= endPosition; i++)
             {
                 var stonePos = new Vector3Int(localPos.x, i, localPos.z);
-                Chunk.SetBlock(chunk, stonePos, BlockType.Stone);
+                chunk.SetBlock(stonePos, BlockType.Stone);
             }
             return true;
         }

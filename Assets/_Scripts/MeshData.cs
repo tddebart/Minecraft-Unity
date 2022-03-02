@@ -10,6 +10,8 @@ public class MeshData
     public List<Vector3> colliderVertices = new List<Vector3>();
     public List<int> colliderTriangles = new List<int>();
 
+    public int subMeshCount;
+
     public MeshData transparentMesh;
 
     public MeshData(bool isMainMesh)

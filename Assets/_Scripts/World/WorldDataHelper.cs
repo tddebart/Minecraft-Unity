@@ -122,8 +122,8 @@ public static class WorldDataHelper
         var chunkData = GetChunkData(world, worldBlockPos);
         if (chunkData != null)
         {
-            Vector3Int localPos = Chunk.GetLocalBlockCoords(chunkData, worldBlockPos);
-            Chunk.SetBlock(chunkData, localPos, blockType);
+            Vector3Int localPos = chunkData.GetLocalBlockCoords(worldBlockPos);
+            chunkData.SetBlock(localPos, blockType);
         }
     }
 

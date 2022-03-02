@@ -167,7 +167,7 @@ public class World : MonoBehaviour
                     taskTokenSource.Token.ThrowIfCancellationRequested();
                 }
                 
-                var meshData = Chunk.GetChunkMeshData(data);
+                var meshData = data.GetMeshData();
                 dict.TryAdd(data.worldPos, meshData);
             });
 
@@ -339,9 +339,9 @@ public class World : MonoBehaviour
         {
             WorldDataHelper.SetBlock(chunk.ChunkData.worldRef, pos, blockType);
             
-            if (Chunk.IsOnEdge(chunk.ChunkData, pos))
+            if (chunk.ChunkData.IsOnEdge(pos))
             {
-                List<ChunkData> neighbourChunkData = Chunk.GetNeighbourChunk(chunk.ChunkData, pos);
+                List<ChunkData> neighbourChunkData = chunk.ChunkData.GetNeighbourChunk(pos);
                 foreach (var neighChunkData in neighbourChunkData)
                 {
                     ChunkRenderer neighbourChunk = WorldDataHelper.GetChunk(neighChunkData.worldRef, neighChunkData.worldPos);
@@ -398,8 +398,8 @@ public class World : MonoBehaviour
             return BlockType.Nothing;
         }
 
-        var blockPos = Chunk.GetLocalBlockCoords(containerChunk, new Vector3Int(pos.x, pos.y, pos.z));
-        return Chunk.GetBlock(containerChunk, blockPos);
+        var blockPos = containerChunk.GetLocalBlockCoords(new Vector3Int(pos.x, pos.y, pos.z));
+        return containerChunk.GetBlock(blockPos);
     }
     
     public async void LoadAdditionalChunks(GameObject localPlayer)

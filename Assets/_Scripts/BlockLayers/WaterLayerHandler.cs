@@ -9,7 +9,7 @@ public class WaterLayerHandler : BlockLayerHandler
     {
         if (worldPos.y > surfaceHeightNoise && worldPos.y < waterLevel)
         {
-            Chunk.SetBlock(chunk, localPos, BlockType.Water);
+            chunk.SetBlock(localPos, BlockType.Water);
 
             if (worldPos.x == 33 && worldPos.z == 5)//16
             {
@@ -25,8 +25,8 @@ public class WaterLayerHandler : BlockLayerHandler
                 }
                 else
                 {
-                    Chunk.SetBlock(chunk, localPos + Vector3Int.down, BlockType.Sand);
-                    Chunk.SetBlock(chunk, localPos + Vector3Int.down*2, BlockType.Sand);
+                    chunk.SetBlock(localPos + Vector3Int.down, BlockType.Sand);
+                    chunk.SetBlock(localPos + Vector3Int.down*2, BlockType.Sand);
                 }
             }
             
