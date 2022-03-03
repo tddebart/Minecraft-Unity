@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -55,11 +56,10 @@ public class ChunkRenderer : MonoBehaviour
 
     public void UpdateChunk()
     {
-        //TODO: this takes a long time
         var data = ChunkData.GetMeshData();
         RenderMesh(data);
     }
-    
+
     public void UpdateChunk(MeshData meshData)
     {
         RenderMesh(meshData);

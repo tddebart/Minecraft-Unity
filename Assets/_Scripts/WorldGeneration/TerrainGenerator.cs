@@ -174,6 +174,7 @@ public class TerrainGenerator : MonoBehaviour
         return positions.Select(pos => MyNoise.OctavePerlin(pos.x,pos.z,temperatureNoiseSettings)).ToList();
     }
 
+    #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         if (Selection.activeObject != gameObject) return;
@@ -184,6 +185,7 @@ public class TerrainGenerator : MonoBehaviour
             Gizmos.DrawLine(biomeCenter, biomeCenter + Vector3.up*255f);
         }
     }
+    #endif
 }
 
 public class BiomeGeneratorSelection

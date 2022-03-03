@@ -25,24 +25,28 @@ public static class BlockHelper
         {
             Vector3Int neighbourPos = pos + dir.GetVector();
             BlockType neighbourBlockType = chunk.GetBlock(neighbourPos);
-
-            if (BlockDataManager.textureDataDictionary[blockType].isTransparent)
+            if (neighbourBlockType != BlockType.Nothing)
             {
-                if (blockType == BlockType.Water)
+                TextureData neighbourTextureData = BlockDataManager.textureDataDictionary[neighbourBlockType];
+
+                if (BlockDataManager.textureDataDictionary[blockType].isTransparent)
                 {
-                    if (neighbourBlockType != BlockType.Nothing && neighbourBlockType != BlockType.Water && BlockDataManager.textureDataDictionary[neighbourBlockType].isTransparent)
+                    if (blockType == BlockType.Water)
+                    {
+                        if (neighbourBlockType != BlockType.Water && neighbourTextureData.isTransparent)
+                        {
+                            meshData.transparentMesh = GetFaceDataIn(dir, chunk, pos, meshData.transparentMesh, blockType);
+                        }
+                    }
+                    else if (neighbourTextureData.isTransparent)
                     {
                         meshData.transparentMesh = GetFaceDataIn(dir, chunk, pos, meshData.transparentMesh, blockType);
                     }
                 }
-                else if (neighbourBlockType != BlockType.Nothing && BlockDataManager.textureDataDictionary[neighbourBlockType].isTransparent)
+                else if(neighbourTextureData.isTransparent)
                 {
-                    meshData.transparentMesh = GetFaceDataIn(dir, chunk, pos, meshData.transparentMesh, blockType);
+                    meshData = GetFaceDataIn(dir, chunk, pos, meshData, blockType);
                 }
-            }
-            else if(neighbourBlockType != BlockType.Nothing && BlockDataManager.textureDataDictionary[neighbourBlockType].isTransparent)
-            {
-                meshData = GetFaceDataIn(dir, chunk, pos, meshData, blockType);
             }
         }
         return meshData;

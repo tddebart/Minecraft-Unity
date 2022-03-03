@@ -36,6 +36,12 @@ public class World : MonoBehaviour
     public Dictionary<Vector3Int, BlockType> blocksToPlaceAfterGeneration = new Dictionary<Vector3Int, BlockType>();
 
 
+    private void Start()
+    {
+        OnValidate();
+        GenerateWorld();
+    }
+
     private void OnValidate()
     {
         worldData = new WorldData
@@ -155,7 +161,7 @@ public class World : MonoBehaviour
         StartCoroutine(ChunkCreationCoroutine(meshDataDict, position));
     }
 
-    private Task<ConcurrentDictionary<Vector3Int, MeshData>> CreateMeshDataAsync(List<ChunkData> dataToRender)
+    public Task<ConcurrentDictionary<Vector3Int, MeshData>> CreateMeshDataAsync(List<ChunkData> dataToRender)
     {
         return Task.Run(() =>
         {
@@ -226,7 +232,7 @@ public class World : MonoBehaviour
             return dataDict;
         }, taskTokenSource.Token);
     }
-    
+
     private Task CalculateFeatures(List<Vector3Int> chunkDataPositionsToCreate)
     {
         return Task.Run(() =>
@@ -303,35 +309,56 @@ public class World : MonoBehaviour
         return data;
     }
     
+    private Task<ConcurrentDictionary<ChunkRenderer, MeshData>> UpdateMeshDataAsync(List<ChunkRenderer> dataToRender)
+    {
+        return Task.Run(() =>
+        {
+            var dict = new ConcurrentDictionary<ChunkRenderer, MeshData>();
+            Parallel.ForEach(dataToRender, chunkRenderer =>
+            {
+                chunkRenderer.ModifiedByPlayer = true;
+                var data = chunkRenderer.ChunkData.GetMeshData();
+                dict.TryAdd(chunkRenderer, data);
+            });
+            return dict;
+        });
+    }
+    
     public bool SetBlock(RaycastHit hit, BlockType blockType)
     {
         var pos = WorldDataHelper.GetChunkPosition(this, Vector3Int.RoundToInt(hit.point));
         var chunk = WorldDataHelper.GetChunk(this, pos);
 
         var blockPos = GetBlockPos(hit);
-
-        // Dig out the blocks around the block
-        var blocksToDig = new List<Vector3Int>();
-        blocksToDig.Add(blockPos);
-        blocksToDig.Add(blockPos + Vector3Int.up);
-        blocksToDig.Add(blockPos + Vector3Int.down);
-        blocksToDig.Add(blockPos + Vector3Int.left);
-        blocksToDig.Add(blockPos + Vector3Int.right);
-        blocksToDig.Add(blockPos + Vector3Int.forward);
-        blocksToDig.Add(blockPos + Vector3Int.back);
+        // var radius = 2;
+        //
+        // // Dig out the blocks around the block
+        // var blocksToDig = new List<Vector3Int>();
+        //
+        // for (var x = -radius; x <= radius; x++)
+        // {
+        //     for (var y = -radius; y <= radius; y++)
+        //     {
+        //         for (var z = -radius; z <= radius; z++)
+        //         {
+        //             var blockPosToDig = blockPos + new Vector3Int(x, y, z);
+        //             blocksToDig.Add(blockPosToDig);
+        //         }
+        //     }
+        // }
         
-        SetBlocks(chunk, blocksToDig.ToArray(), blockType);
+        // SetBlocks(chunk, blocksToDig.ToArray(), blockType);
         
         // foreach (var pos in blocksToDig)
         // {
         //     SetBlock(chunk, pos, blockType);
         // }
 
-        // SetBlock(chunk, blockPos, blockType);
+        SetBlock(chunk, blockPos, blockType);
         return true;
     }
 
-    public void SetBlocks(ChunkRenderer chunk, Vector3Int[] blockPoss, BlockType blockType)
+    public async void SetBlocks(ChunkRenderer chunk, Vector3Int[] blockPoss, BlockType blockType)
     {
         var neightBourUpdates = new List<ChunkRenderer>();
         
@@ -352,13 +379,14 @@ public class World : MonoBehaviour
                 }
             }
         }
+        neightBourUpdates.Add(chunk);
+
+        var meshData = await UpdateMeshDataAsync(neightBourUpdates);
         
         foreach (var chunkRenderer in neightBourUpdates)
         {
-            chunkRenderer.UpdateChunk();
+            chunkRenderer.UpdateChunk(meshData[chunkRenderer]);
         }
-        
-        chunk.UpdateChunk();
     }
 
     public void SetBlock(ChunkRenderer chunk, Vector3Int blockPos, BlockType blockType)

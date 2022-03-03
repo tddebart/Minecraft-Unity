@@ -8,7 +8,12 @@ public class BlockDataManager : MonoBehaviour
     public static float tileSizeX, tileSizeY;
     public static readonly Dictionary<BlockType, TextureData> textureDataDictionary = new Dictionary<BlockType, TextureData>();
     public BlockDataSO textureData;
-    
+
+    private void Start()
+    {
+        OnValidate();
+    }
+
     public void OnValidate()
     {
         foreach (var item in textureData.textureDataList)

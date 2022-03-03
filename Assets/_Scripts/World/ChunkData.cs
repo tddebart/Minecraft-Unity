@@ -146,7 +146,7 @@ public class ChunkData
         var blockLocalPos = GetLocalBlockCoords(blockWorldPos);
         
         return blockLocalPos.x == 0 || blockLocalPos.x == this.chunkSize - 1 ||
-               blockLocalPos.y == 0 || blockLocalPos.y == this.chunkHeight - 1 ||
+               blockLocalPos.y == 0 || blockLocalPos.y == this.chunkSize - 1 ||
                blockLocalPos.z == 0 || blockLocalPos.z == this.chunkSize - 1;
     }
 
