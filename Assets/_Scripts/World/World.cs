@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Profiling;
 using Debug = UnityEngine.Debug;
 
 public class World : MonoBehaviour
@@ -22,6 +23,8 @@ public class World : MonoBehaviour
     
     public TerrainGenerator terrainGenerator;
     public Vector2Int mapSeedOffset;
+    
+    public bool GenerateMoreChunks = true;
 
     private CancellationTokenSource taskTokenSource = new CancellationTokenSource();
 
@@ -60,6 +63,7 @@ public class World : MonoBehaviour
 
     private async Task GenerateWorld(Vector3Int position)
     {
+        Profiler.BeginThreadProfiling("GenerateWorld", "GenerateWorld");
         if (!Application.isPlaying)
         {
             fullStopwatch.Start();
@@ -156,9 +160,12 @@ public class World : MonoBehaviour
         if (!Application.isPlaying)
         {
             Debug.Log($"Mesh generation took {visualStopWatch.ElapsedMilliseconds}ms");
+            Debug.Log($"Time spent generating noise {MyNoise.stopWatch.ElapsedMilliseconds}ms");
         }
 
         StartCoroutine(ChunkCreationCoroutine(meshDataDict, position));
+        
+        Profiler.EndThreadProfiling();
     }
 
     public Task<ConcurrentDictionary<Vector3Int, MeshData>> CreateMeshDataAsync(List<ChunkData> dataToRender)
@@ -202,6 +209,7 @@ public class World : MonoBehaviour
     {
         return Task.Run(() =>
         {
+            Profiler.BeginThreadProfiling("MyThreads","CalculateWorldChunkData");
             var dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
 
             Parallel.ForEach(chunkDataPositionsToCreate, pos =>
@@ -229,6 +237,7 @@ public class World : MonoBehaviour
             //
             // };
 
+            Profiler.EndThreadProfiling();
             return dataDict;
         }, taskTokenSource.Token);
     }
@@ -371,6 +380,8 @@ public class World : MonoBehaviour
                 List<ChunkData> neighbourChunkData = chunk.ChunkData.GetNeighbourChunk(pos);
                 foreach (var neighChunkData in neighbourChunkData)
                 {
+                    if(neighChunkData == null) continue;
+                    
                     ChunkRenderer neighbourChunk = WorldDataHelper.GetChunk(neighChunkData.worldRef, neighChunkData.worldPos);
                     if(neighbourChunk != null)
                     {
@@ -432,6 +443,8 @@ public class World : MonoBehaviour
     
     public async void LoadAdditionalChunks(GameObject localPlayer)
     {
+        if (!GenerateMoreChunks) return;
+        
         // Debug.Log("Loading additional chunks");
         await GenerateWorld(Vector3Int.RoundToInt(localPlayer.transform.position));
         OnNewChunksGenerated?.Invoke();
@@ -442,6 +455,8 @@ public class World : MonoBehaviour
         worldData.chunkDataDict.Clear();
         worldData.chunkDict.Clear();
         worldRenderer.chunkPool.Clear();
+        
+        MyNoise.stopWatch.Reset();
 
         foreach (var chunk in FindObjectsOfType<ChunkRenderer>())
         {

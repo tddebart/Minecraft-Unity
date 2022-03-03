@@ -49,16 +49,16 @@ public class ChunkRenderer : MonoBehaviour
             vertices = meshData.colliderVertices.Concat(meshData.transparentMesh.colliderVertices).ToArray(),
             triangles = meshData.colliderTriangles.Concat(meshData.transparentMesh.colliderTriangles).ToArray()
         };
-        collisionMesh.RecalculateNormals();
+        // collisionMesh.RecalculateNormals();
 
         meshCollider.sharedMesh = collisionMesh;
     }
 
-    public void UpdateChunk()
-    {
-        var data = ChunkData.GetMeshData();
-        RenderMesh(data);
-    }
+    // public void UpdateChunk()
+    // {
+    //     var data = ChunkData.GetMeshData();
+    //     RenderMesh(data);
+    // }
 
     public void UpdateChunk(MeshData meshData)
     {

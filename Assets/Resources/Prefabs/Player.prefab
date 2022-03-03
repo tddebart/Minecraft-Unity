@@ -516,7 +516,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5130b8e0cb54096a4d598bbd3b45269, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sensitivity: 300
+  sensitivity: 500
   playerInput: {fileID: 5271358695257700334}
 --- !u!114 &5271358695257700328
 MonoBehaviour:

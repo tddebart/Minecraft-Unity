@@ -1,7 +1,11 @@
-﻿using UnityEngine;
+﻿using System.Diagnostics;
+using UnityEngine;
+using UnityEngine.Profiling;
 
 public static class MyNoise
 {
+    public static Stopwatch stopWatch = new Stopwatch();
+    
     public static float RemapValue(float value, float initialMin, float initialMax, float outputMin, float outputMax)
     {
         return outputMin + (value - initialMin) * (outputMax - outputMin) / (initialMax - initialMin);
@@ -14,6 +18,7 @@ public static class MyNoise
     
     public static float OctavePerlin(float x, float z, NoiseSettings settings)
     {
+        stopWatch.Start();
         x *= settings.noiseZoom;
         z *= settings.noiseZoom;
         x += settings.noiseZoom;
@@ -39,6 +44,7 @@ public static class MyNoise
             result = 0;
         }
 
+        stopWatch.Stop();
         return result;
     }
 }

@@ -21,7 +21,7 @@ public class TreesLayerHandler : BlockLayerHandler
     //
     // for now i will just make a array with the basic non random leaves
     
-    // pos is here in local space
+    
     protected override bool TryHandling(ChunkData chunk, Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
     {
         if (chunk.worldPos.y < 0)
@@ -29,13 +29,7 @@ public class TreesLayerHandler : BlockLayerHandler
             return false;
         }
 
-        if (chunk.worldPos.x > 31)
-        {
-            var x = 0;
-        }
-
-        if (surfaceHeightNoise < terrainHeightLimit &&
-            chunk.treeData.treePositions.Contains(new Vector2Int(worldPos.x, worldPos.z)))
+        if (surfaceHeightNoise < terrainHeightLimit && chunk.treeData.treePositions.Contains(new Vector2Int(worldPos.x, worldPos.z)))
         {
             var blockCoords = new Vector3Int(localPos.x,surfaceHeightNoise-chunk.worldPos.y,localPos.z);
             if(blockCoords.y < 0)

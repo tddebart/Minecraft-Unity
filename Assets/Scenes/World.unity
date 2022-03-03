@@ -924,11 +924,12 @@ MonoBehaviour:
   renderDistance: 5
   chunkSize: 16
   chunkHeight: 16
-  worldHeight: 100
+  worldHeight: 80
   chunksPerFrame: 4
   worldRenderer: {fileID: 1269315924}
   terrainGenerator: {fileID: 1658937128}
   mapSeedOffset: {x: -251, y: 150}
+  GenerateMoreChunks: 0
   OnWorldCreated:
     m_PersistentCalls:
       m_Calls:
@@ -1130,7 +1131,7 @@ MonoBehaviour:
   temperatureNoiseSettings: {fileID: 11400000, guid: 0e63362b226ea1b4aaf0207cff8a5abd,
     type: 2}
   domainWarping: {fileID: 1658937130}
-  useIDW: 1
+  useIDW: 0
   biomeGeneratorsData:
   - temperatureStartThreshold: 0
     temperatureEndThreshold: 3

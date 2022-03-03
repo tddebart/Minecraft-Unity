@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class DataProcessing
 {
-    public static List<Vector2Int> directions = new List<Vector2Int>()
+    public static readonly List<Vector2Int> directions = new List<Vector2Int>()
     {
         new Vector2Int(0, 1), //N
         new Vector2Int(1, 1), //NE
@@ -16,9 +16,9 @@ public static class DataProcessing
         new Vector2Int(-1, 1) //NW
     };
     
-    public static List<Vector2Int> FindLocalMaxima(float[,] noiseData, int chunkXCoord, int chunkZCoord)
+    public static HashSet<Vector2Int> FindLocalMaxima(float[,] noiseData, int chunkXCoord, int chunkZCoord)
     {
-        var maximas = new List<Vector2Int>();
+        var maximas = new HashSet<Vector2Int>();
         for (var x = 0; x < noiseData.GetLength(0); x++)
         {
             for (var y = 0; y < noiseData.GetLength(1); y++)

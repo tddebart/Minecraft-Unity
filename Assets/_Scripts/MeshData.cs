@@ -42,7 +42,7 @@ public class MeshData
         triangles.Add(vertices.Count - 2);
         triangles.Add(vertices.Count - 1);
 
-        //TODO: enable colliders when needed
+        //NOTE: enable colliders when needed
         if (generateCollider)
         {
             colliderTriangles.Add(colliderVertices.Count - 4);

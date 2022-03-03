@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -52,8 +53,10 @@ public class TerrainGenerator : MonoBehaviour
 
 
     // source: https://gisgeography.com/inverse-distance-weighting-idw-interpolation/
+    //TODO: biome selection is incredibly slow, need to optimize it. For now i will just always use the first biome
     private BiomeGeneratorSelection SelectBiomeGeneratorWeight(Vector3Int worldPos, ChunkData data, bool useDomainWarping = true)
     {
+        
         var originalWorldPos = worldPos;
         if (useDomainWarping)
         {
@@ -61,12 +64,15 @@ public class TerrainGenerator : MonoBehaviour
             worldPos += new Vector3Int(domainOffset.x, 0, domainOffset.y);
         }
         
-        List<BiomeSelectionHelper> biomeSelectionHelpersByDistance = GetBiomeGeneratorSelectionHelpers(worldPos);
+        return biomeGeneratorsData.Select(b => new BiomeGeneratorSelection(b.biomeTerrainGenerator, b.biomeTerrainGenerator.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.worldRef.worldHeight))).First();
         
+        var biomeSelectionHelpersByDistance = GetBiomeGeneratorSelectionHelpers(worldPos);
+        var selectionHelpersByDistance = biomeSelectionHelpersByDistance as BiomeSelectionHelper[] ?? biomeSelectionHelpersByDistance.ToArray();
+
         // Select the biome generators based on the temperature noise
-        var generator1 = SelectBiome(biomeSelectionHelpersByDistance[0].Index);
-        var generator2 = SelectBiome(biomeSelectionHelpersByDistance[1].Index);
-        var generator3 = SelectBiome(biomeSelectionHelpersByDistance[2].Index);
+        var generator1 = SelectBiome(selectionHelpersByDistance[0].Index);
+        var generator2 = SelectBiome(selectionHelpersByDistance[1].Index);
+        var generator3 = SelectBiome(selectionHelpersByDistance[2].Index);
         
 
         var terrainHeight1 = generator1.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.worldRef.worldHeight);
@@ -78,14 +84,14 @@ public class TerrainGenerator : MonoBehaviour
             return new BiomeGeneratorSelection(generator1, terrainHeight1);
         }
         
-        if(biomeSelectionHelpersByDistance[0].Distance == 0)
+        if(selectionHelpersByDistance[0].Distance == 0)
         {
             return new BiomeGeneratorSelection(generator1, terrainHeight1);
         }
 
-        var distance1 = biomeSelectionHelpersByDistance[0].Distance;
-        var distance2 = biomeSelectionHelpersByDistance[1].Distance;
-        var distance3 = biomeSelectionHelpersByDistance[2].Distance;
+        var distance1 = selectionHelpersByDistance[0].Distance;
+        var distance2 = selectionHelpersByDistance[1].Distance;
+        var distance3 = selectionHelpersByDistance[2].Distance;
 
         var power = 3;
 
@@ -128,20 +134,20 @@ public class TerrainGenerator : MonoBehaviour
         return biomeGeneratorsData[0].biomeTerrainGenerator;
     }
 
-    private List<BiomeSelectionHelper> GetBiomeGeneratorSelectionHelpers(Vector3Int pos)
+    private IEnumerable<BiomeSelectionHelper> GetBiomeGeneratorSelectionHelpers(Vector3Int pos)
     {
         pos.y = 0;
         return GetClosestBiomeIndex(pos);
     }
 
-    private List<BiomeSelectionHelper> GetClosestBiomeIndex(Vector3Int pos)
+    private IEnumerable<BiomeSelectionHelper> GetClosestBiomeIndex(Vector3Int pos)
     {
         return biomeCenters.Select((center, index) => 
         new BiomeSelectionHelper
         {
             Index = index,
             Distance = Vector3.Distance(pos, center)
-        }).OrderBy(helper => helper.Distance).Take(4).ToList();
+        }).OrderBy(helper => helper.Distance).Take(4);
     }
     
     private struct BiomeSelectionHelper
