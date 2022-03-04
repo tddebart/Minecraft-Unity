@@ -1,18 +1,17 @@
 ﻿
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class Block
 {
-    protected Vector3Int position;
-    protected BlockType type;
-    protected bool isSolid;
-    protected bool isTransparent;
+    public Vector3Int position;
+    public BlockType type;
+    public ChunkSection section;
 
-    public Block(BlockType type, bool isSolid, bool isTransparent, Vector3Int position)
+    public Block(BlockType type, Vector3Int position, [CanBeNull] ChunkSection section = null)
     {
         this.type = type;
-        this.isSolid = isSolid;
-        this.isTransparent = isTransparent;
         this.position = position;
+        this.section = section;
     }
 }

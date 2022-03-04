@@ -9,7 +9,7 @@ public static class WorldDataHelper
     {
         return new Vector3Int(
             Mathf.FloorToInt(worldSpacePos.x / (float)world.chunkSize) * world.chunkSize,
-            Mathf.FloorToInt(worldSpacePos.y / (float)world.chunkHeight) * world.chunkHeight,
+            0,
             Mathf.FloorToInt(worldSpacePos.z / (float)world.chunkSize) * world.chunkSize
         );
     }
@@ -42,12 +42,9 @@ public static class WorldDataHelper
         {
             for (var z = startZ; z <= endZ; z += world.chunkSize)
             {
-                for (var y = 0; y < world.worldHeight; y+= world.chunkSize)
-                {
-                    var chunkPos = GetChunkPosition(world, new Vector3Int(x, y, z));
-                    chunkPositionsToCreate.Add(chunkPos);
-                }
-                
+                var chunkPos = GetChunkPosition(world, new Vector3Int(x, 0, z));
+                chunkPositionsToCreate.Add(chunkPos);
+
                 // // Add the chunks directly around and below the player so they can dig
                 // if(x >= playerPos.x - world.chunkSize && x <= playerPos.x + world.chunkSize)
                 // {

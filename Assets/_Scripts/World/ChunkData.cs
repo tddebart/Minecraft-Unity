@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ChunkData
 {
-    public BlockType[] blocks;
     public int chunkSize = 16;
     public int chunkHeight = 16;
     public World worldRef;
@@ -20,7 +20,6 @@ public class ChunkData
         this.chunkHeight = chunkHeight;
         this.worldRef = worldRef;
         this.worldPos = worldPos;
-        blocks = new BlockType[chunkSize * chunkSize * chunkHeight];
         sections = new ChunkSection[worldRef.worldHeight / 16];
         for (int i = 0; i < sections.Length; i++)
         {
@@ -28,34 +27,22 @@ public class ChunkData
         }
     }
     
-    public static void LoopThroughTheBlocks(ChunkData chunkData, Action<int, int, int> actionToPerform)
+    public static void LoopThroughTheBlocks(ChunkData chunkData, Action<int, int, int, BlockType> actionToPerform)
     {
-        // foreach (var block in chunkData.sections.Select(section => section.blocks))
-        // {
-        //     
-        // }
-        for (var index = 0; index < chunkData.blocks.Length; index++)
+        foreach (var section in chunkData.sections)
         {
-            var pos = GetPositionFromIndex(chunkData, index);
-            actionToPerform(pos.x, pos.y, pos.z);
+            foreach (var block in section.blocks)
+            {
+                actionToPerform(block.position.x, block.position.y+section.yOffset, block.position.z, block.type);
+            }
         }
     }
     
-    // private static LocacPositionToGlobal
+    public ChunkSection GetSection(int y)
+    {
+        return sections[Mathf.FloorToInt(y / chunkSize)];
+    }
 
-    private static Vector3Int GetPositionFromIndex(ChunkData chunkData, int index)
-    {
-        var x = index % chunkData.chunkSize;
-        var y = (index / chunkData.chunkSize) % chunkData.chunkHeight;
-        var z = index / (chunkData.chunkSize * chunkData.chunkHeight);
-        return new Vector3Int(x, y, z);
-    }
-    
-    private static int GetIndexFromPosition(ChunkData chunkData, Vector3Int localPos)
-    {
-        return localPos.x + chunkData.chunkSize * localPos.y + chunkData.chunkSize * chunkData.chunkHeight * localPos.z;
-    }
-    
 
     private static bool IsInRange(ChunkData chunkData, int axisCoord)
     {
@@ -69,31 +56,35 @@ public class ChunkData
     
     private static bool IsInRangeHeight(ChunkData chunkData, int axisCoord)
     {
-        return axisCoord >= 0 && axisCoord < chunkData.chunkHeight;
+        return axisCoord >= 0 && axisCoord < chunkData.worldRef.worldHeight;
     }
 
     /// <summary>
     /// Returns the block at the given position with position being in local space.
     /// </summary>
-    /// <param name="pos">This is in chunk coordinates</param>
+    /// <param name="localPos">This is in chunk coordinates except the y axis</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public BlockType GetBlock(Vector3Int pos)
+    public Block GetBlock(Vector3Int localPos)
     {
-        if (IsInRange(this, pos))
+        if (localPos.y < 0)
         {
-            return this.blocks[GetIndexFromPosition(this, pos)];
+            return Blocks.NOTHING;
         }
         
-        return this.worldRef.GetBlock(this, new Vector3Int(this.worldPos.x + pos.x, this.worldPos.y + pos.y, this.worldPos.z + pos.z));
-
+        if (IsInRange(this, localPos))
+        {
+            return GetSection(localPos.y).GetBlock(localPos);
+        }
+        
+        return this.worldRef.GetBlock(this, new Vector3Int(this.worldPos.x + localPos.x, this.worldPos.y + localPos.y, this.worldPos.z + localPos.z));
     }
-    
+
     public void SetBlock(Vector3Int localPos, BlockType block)
     {
         if (IsInRange(this, localPos))
         {
-            this.blocks[GetIndexFromPosition(this, localPos)] = block;
+            GetSection(localPos.y).SetBlock(localPos, block);
         }
         else
         {
@@ -131,10 +122,9 @@ public class ChunkData
     {
         MeshData meshData = new MeshData(true);
         
-        LoopThroughTheBlocks(this, (x, y, z) =>
+        LoopThroughTheBlocks(this, (x, y, z,block) =>
         {
-            meshData = BlockHelper.GetMeshData(this, new Vector3Int(x, y, z), meshData,
-                this.blocks[GetIndexFromPosition(this, new Vector3Int(x, y, z))]);
+            meshData = BlockHelper.GetMeshData(this, new Vector3Int(x, y, z), meshData, block);
         });
         
         
@@ -146,7 +136,6 @@ public class ChunkData
         var blockLocalPos = GetLocalBlockCoords(blockWorldPos);
         
         return blockLocalPos.x == 0 || blockLocalPos.x == this.chunkSize - 1 ||
-               blockLocalPos.y == 0 || blockLocalPos.y == this.chunkSize - 1 ||
                blockLocalPos.z == 0 || blockLocalPos.z == this.chunkSize - 1;
     }
 
@@ -164,17 +153,7 @@ public class ChunkData
         {
             neighbourChunks.Add(WorldDataHelper.GetChunkData(this.worldRef, blockWorldPos + Vector3Int.right));
         }
-        
-        if (blockLocalPos.y == 0)
-        {
-            neighbourChunks.Add(WorldDataHelper.GetChunkData(this.worldRef, blockWorldPos - Vector3Int.up));
-        }
-        
-        if (blockLocalPos.y == this.chunkHeight - 1)
-        {
-            neighbourChunks.Add(WorldDataHelper.GetChunkData(this.worldRef, blockWorldPos + Vector3Int.up));
-        }
-        
+
         if (blockLocalPos.z == 0)
         {
             neighbourChunks.Add(WorldDataHelper.GetChunkData(this.worldRef, blockWorldPos - Vector3Int.forward));

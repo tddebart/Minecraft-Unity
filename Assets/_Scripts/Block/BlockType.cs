@@ -9,4 +9,5 @@ public enum BlockType
     Leaves,
     Sand,
     Water,
+    Glass
 }

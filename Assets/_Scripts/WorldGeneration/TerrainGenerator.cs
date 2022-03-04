@@ -64,7 +64,7 @@ public class TerrainGenerator : MonoBehaviour
             worldPos += new Vector3Int(domainOffset.x, 0, domainOffset.y);
         }
         
-        return biomeGeneratorsData.Select(b => new BiomeGeneratorSelection(b.biomeTerrainGenerator, b.biomeTerrainGenerator.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.worldRef.worldHeight))).First();
+        // return biomeGeneratorsData.Select(b => new BiomeGeneratorSelection(b.biomeTerrainGenerator, b.biomeTerrainGenerator.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.worldRef.worldHeight))).First();
         
         var biomeSelectionHelpersByDistance = GetBiomeGeneratorSelectionHelpers(worldPos);
         var selectionHelpersByDistance = biomeSelectionHelpersByDistance as BiomeSelectionHelper[] ?? biomeSelectionHelpersByDistance.ToArray();
@@ -95,11 +95,6 @@ public class TerrainGenerator : MonoBehaviour
 
         var power = 3;
 
-        if (worldPos.x is 169 or 168 && worldPos.z is -68)
-        {
-            var x = 0;
-        }
-        
         return new BiomeGeneratorSelection(generator1, Mathf.RoundToInt(
             (
                 terrainHeight1/Mathf.Pow(distance1,power) + 

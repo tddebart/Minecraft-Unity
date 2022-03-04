@@ -36,7 +36,7 @@ public class TreesLayerHandler : BlockLayerHandler
             {
                 return false;
             }
-            var type = chunk.GetBlock(blockCoords);
+            var type = chunk.GetBlock(blockCoords).type;
 
             if (type is BlockType.Grass or BlockType.Dirt)
             {
@@ -84,7 +84,7 @@ public class TreesLayerHandler : BlockLayerHandler
                 // Check if there is enough space for the leaves
                 foreach (var l in leavePositions)
                 {
-                    if (chunk.GetBlock(l) is not BlockType.Air and not BlockType.Leaves and not BlockType.Log and not BlockType.Nothing)
+                    if (chunk.GetBlock(l).type is not BlockType.Air and not BlockType.Leaves and not BlockType.Log and not BlockType.Nothing)
                     {
                         blockCoords = new Vector3Int(localPos.x, surfaceHeightNoise-chunk.worldPos.y, localPos.z);
                         chunk.SetBlock(blockCoords, type);

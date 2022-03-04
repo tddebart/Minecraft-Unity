@@ -18,7 +18,7 @@ public static class BiomeCenterFinder
 
     public static List<Vector3Int> CalculateBiomeCenters(Vector3 playerPos, int renderDistance, int chunkSize)
     {
-        var biomeLength = 4 * chunkSize;
+        var biomeLength = 5 * chunkSize;
         
         var origin = new Vector3Int(Mathf.RoundToInt(playerPos.x/biomeLength)*biomeLength, 0, Mathf.RoundToInt(playerPos.z/biomeLength)*biomeLength);
         
@@ -26,7 +26,7 @@ public static class BiomeCenterFinder
         
         biomeCenters.Add(origin);
 
-        var extra = renderDistance / 4;
+        var extra = renderDistance / 5;
         extra = extra < 1 ? 1 : extra;
         
         // This generates a list of all the biome centers which is a 5x5 square of points around the player

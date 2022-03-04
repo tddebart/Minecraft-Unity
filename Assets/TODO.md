@@ -4,7 +4,6 @@ made by me
 
 ## TODO:
 
-- refactor the world to use 16x16x16 chunks instead of 16x100x16 [almost done]
 - add a rainfall noise map to the world just like the temperature map (https://minecraft.fandom.com/wiki/Biome?file=Biome_Index.PNG)
 - maybe make use of compute shaders to generate the world faster
 
@@ -17,4 +16,16 @@ made by me
   - Mesh 398ms
   - Noise 1747ms
   - Total 5469ms
-- 
+- optimize 2: removed biomes
+  - Data 885ms
+  - Feature 405ms
+  - Mesh 385ms
+  - Noise 537ms
+  - Total 2249ms
+- optimize 3: biomes back and blocks are now class's and chunks are now made out of chunkSections
+  - Data 1931ms
+  - Feature 1409ms
+  - Mesh 357ms
+  - Noise 362ms
+  - Total 3833ms
+  

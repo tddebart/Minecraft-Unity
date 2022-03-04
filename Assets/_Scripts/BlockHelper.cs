@@ -3,7 +3,7 @@
 
 public static class BlockHelper
 {
-    private static Direction[] directions =
+    public static Direction[] directions =
     {
         Direction.backwards,
         Direction.down,
@@ -24,7 +24,9 @@ public static class BlockHelper
         foreach (var dir in directions)
         {
             Vector3Int neighbourPos = pos + dir.GetVector();
-            BlockType neighbourBlockType = chunk.GetBlock(neighbourPos);
+            if (neighbourPos.y < 0) continue;
+            
+            BlockType neighbourBlockType = chunk.GetBlock(neighbourPos).type;
             if (neighbourBlockType != BlockType.Nothing)
             {
                 TextureData neighbourTextureData = BlockDataManager.textureDataDictionary[neighbourBlockType];

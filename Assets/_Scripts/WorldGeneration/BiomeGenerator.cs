@@ -30,9 +30,12 @@ public class BiomeGenerator : MonoBehaviour
             groundPos = minHeight;
         }
         
-        for (var y = data.worldPos.y; y < data.worldPos.y + data.chunkHeight; y++)
+        var worldPosX = data.worldPos.x + x;
+        var worldPosZ = data.worldPos.z + z;
+
+        for (var y = 0; y < data.worldRef.worldHeight; y++)
         {
-            startLayerHandler.Handle(data, new Vector3Int(x+data.worldPos.x,y,z+data.worldPos.z), new Vector3Int(x,y - data.worldPos.y,z), groundPos, mapSeedOffset);
+            startLayerHandler.Handle(data, new Vector3Int(worldPosX,y,worldPosZ), new Vector3Int(x,y,z), groundPos, mapSeedOffset);
         }
 
 
@@ -51,14 +54,12 @@ public class BiomeGenerator : MonoBehaviour
         
         var worldPosX = data.worldPos.x + x;
         var worldPosZ = data.worldPos.z + z;
-        
-        var worldPosY = data.worldPos.y;
 
         foreach (var layer in featureLayerHandlers)
         {
-            for (var y = worldPosY; y < worldPosY + data.chunkHeight; y++)
+            for (var y = 0; y < data.worldRef.worldHeight; y++)
             {
-                layer.Handle(data, new Vector3Int(worldPosX,y,worldPosZ),new Vector3Int(x,y - worldPosY,z), groundPos, mapSeedOffset);
+                layer.Handle(data, new Vector3Int(worldPosX,y,worldPosZ),new Vector3Int(x,y,z), groundPos, mapSeedOffset);
             }
         }
     }

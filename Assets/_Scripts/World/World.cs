@@ -17,6 +17,7 @@ public class World : MonoBehaviour
     public int renderDistance = 6;
     public int chunkSize = 16; // 16x16 chunks
     public int chunkHeight = 100; // 100 blocks high
+    [RangeEx(16, 256, 16)]
     public int worldHeight = 256; // 256 blocks high
     public int chunksPerFrame = 2;
     public WorldRenderer worldRenderer;
@@ -118,11 +119,6 @@ public class World : MonoBehaviour
         // Generate features like trees
         await CalculateFeatures(worldGenerationData.chunkPositionsToCreate);
         
-        featureStopWatch.Stop();
-        if (!Application.isPlaying)
-        {
-            Debug.Log($"Feature generation took {featureStopWatch.ElapsedMilliseconds}ms");
-        }
 
         await Task.Run(() =>
         {
@@ -132,6 +128,11 @@ public class World : MonoBehaviour
             });
         });
 
+        featureStopWatch.Stop();
+        if (!Application.isPlaying)
+        {
+            Debug.Log($"Feature generation took {featureStopWatch.ElapsedMilliseconds}ms");
+        }
 
         var visualStopWatch = new Stopwatch();
         visualStopWatch.Start();
@@ -426,18 +427,18 @@ public class World : MonoBehaviour
         return pos;
     }
 
-    public BlockType GetBlock(ChunkData chunkData, Vector3Int pos)
+    public Block GetBlock(ChunkData chunkData, Vector3Int globalPos)
     {
-        var chunkPos = Chunk.ChunkPosFromBlockCoords(this, pos);
+        var chunkPos = Chunk.ChunkPosFromBlockCoords(this, globalPos);
 
         worldData.chunkDataDict.TryGetValue(chunkPos, out var containerChunk);
         
         if (containerChunk == null)
         {
-            return BlockType.Nothing;
+            return Blocks.NOTHING;
         }
 
-        var blockPos = containerChunk.GetLocalBlockCoords(new Vector3Int(pos.x, pos.y, pos.z));
+        var blockPos = containerChunk.GetLocalBlockCoords(new Vector3Int(globalPos.x, globalPos.y, globalPos.z));
         return containerChunk.GetBlock(blockPos);
     }
     

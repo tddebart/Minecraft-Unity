@@ -924,7 +924,7 @@ MonoBehaviour:
   renderDistance: 5
   chunkSize: 16
   chunkHeight: 16
-  worldHeight: 80
+  worldHeight: 96
   chunksPerFrame: 4
   worldRenderer: {fileID: 1269315924}
   terrainGenerator: {fileID: 1658937128}
@@ -1104,34 +1104,34 @@ MonoBehaviour:
   biomeGenerator: {fileID: 975012410}
   biomeCenters:
   - {x: 78, y: 0, z: 77}
-  - {x: -106, y: 0, z: -128}
-  - {x: -118, y: 0, z: -66}
-  - {x: -106, y: 0, z: 49}
-  - {x: -116, y: 0, z: 94}
-  - {x: -83, y: 0, z: 161}
-  - {x: -68, y: 0, z: -96}
-  - {x: -28, y: 0, z: -22}
-  - {x: -85, y: 0, z: -13}
-  - {x: -69, y: 0, z: 79}
-  - {x: -18, y: 0, z: 120}
-  - {x: 27, y: 0, z: -132}
-  - {x: 18, y: 0, z: -77}
-  - {x: -2, y: 0, z: -4}
-  - {x: 22, y: 0, z: 85}
-  - {x: 8, y: 0, z: 162}
-  - {x: 83, y: 0, z: -114}
-  - {x: 75, y: 0, z: -53}
-  - {x: 100, y: 0, z: 11}
-  - {x: 96, y: 0, z: 110}
-  - {x: 158, y: 0, z: -77}
-  - {x: 158, y: 0, z: -38}
-  - {x: 136, y: 0, z: 1}
-  - {x: 137, y: 0, z: 75}
-  - {x: 161, y: 0, z: 136}
+  - {x: -203, y: 0, z: -180}
+  - {x: -159, y: 0, z: -70}
+  - {x: -179, y: 0, z: 10}
+  - {x: -152, y: 0, z: 84}
+  - {x: -143, y: 0, z: 200}
+  - {x: -121, y: 0, z: -188}
+  - {x: -67, y: 0, z: -81}
+  - {x: -87, y: 0, z: -28}
+  - {x: -83, y: 0, z: 87}
+  - {x: -61, y: 0, z: 138}
+  - {x: -11, y: 0, z: -159}
+  - {x: 0, y: 0, z: -99}
+  - {x: -3, y: 0, z: -10}
+  - {x: -5, y: 0, z: 75}
+  - {x: -19, y: 0, z: 185}
+  - {x: 78, y: 0, z: -172}
+  - {x: 83, y: 0, z: -68}
+  - {x: 91, y: 0, z: -44}
+  - {x: 92, y: 0, z: 154}
+  - {x: 162, y: 0, z: -190}
+  - {x: 171, y: 0, z: -109}
+  - {x: 158, y: 0, z: 1}
+  - {x: 150, y: 0, z: 79}
+  - {x: 146, y: 0, z: 139}
   temperatureNoiseSettings: {fileID: 11400000, guid: 0e63362b226ea1b4aaf0207cff8a5abd,
     type: 2}
   domainWarping: {fileID: 1658937130}
-  useIDW: 0
+  useIDW: 1
   biomeGeneratorsData:
   - temperatureStartThreshold: 0
     temperatureEndThreshold: 3
@@ -1445,7 +1445,7 @@ MeshRenderer:
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 73c176f402d2c2f4d929aa5da7585d17, type: 2}
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1483,7 +1483,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2019228121}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 33, y: 79, z: 5}
+  m_LocalPosition: {x: 22, y: 63, z: 41}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -8,6 +8,7 @@ public class ChunkRenderer : MonoBehaviour
 {
     private MeshFilter meshFilter;
     private MeshCollider meshCollider;
+    private MeshCollider meshCollider2;
     private Mesh mesh;
     public bool showGizmo = false;
     
@@ -33,7 +34,6 @@ public class ChunkRenderer : MonoBehaviour
     {
         mesh.Clear();
         mesh.MarkDynamic();
-
         mesh.subMeshCount = 2;
         mesh.vertices = meshData.vertices.Concat(meshData.transparentMesh.vertices).ToArray();
         
@@ -42,14 +42,16 @@ public class ChunkRenderer : MonoBehaviour
 
         mesh.uv = meshData.uv.Concat(meshData.transparentMesh.uv).ToArray();
         mesh.RecalculateNormals();
+        mesh.Optimize();
 
         meshCollider.sharedMesh = null;
-        Mesh collisionMesh = new Mesh
+        var collisionMesh = new Mesh
         {
-            vertices = meshData.colliderVertices.Concat(meshData.transparentMesh.colliderVertices).ToArray(),
-            triangles = meshData.colliderTriangles.Concat(meshData.transparentMesh.colliderTriangles).ToArray()
+            indexFormat = UnityEngine.Rendering.IndexFormat.UInt32
         };
-        // collisionMesh.RecalculateNormals();
+
+        collisionMesh.SetVertices(meshData.colliderVertices.Concat(meshData.transparentMesh.colliderVertices).ToArray());
+        collisionMesh.SetTriangles(meshData.colliderTriangles.Concat(meshData.transparentMesh.colliderTriangles).ToArray(), 0);
 
         meshCollider.sharedMesh = collisionMesh;
     }
@@ -82,8 +84,8 @@ public class ChunkRenderer : MonoBehaviour
                 Gizmos.color = new Color(1,0,0,0.4f);
             }
             
-            Gizmos.DrawCube(transform.position + new Vector3(ChunkData.chunkSize / 2f, ChunkData.chunkHeight / 2f, ChunkData.chunkSize / 2f),
-                new Vector3(ChunkData.chunkSize, ChunkData.chunkHeight, ChunkData.chunkSize));
+            Gizmos.DrawCube(transform.position + new Vector3(ChunkData.chunkSize / 2f, ChunkData.worldRef.worldHeight / 2f, ChunkData.chunkSize / 2f),
+                new Vector3(ChunkData.chunkSize, ChunkData.worldRef.worldHeight, ChunkData.chunkSize));
         }
         
     }

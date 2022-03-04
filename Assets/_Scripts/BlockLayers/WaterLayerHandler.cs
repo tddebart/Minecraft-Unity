@@ -11,23 +11,10 @@ public class WaterLayerHandler : BlockLayerHandler
         {
             chunk.SetBlock(localPos, BlockType.Water);
 
-            if (worldPos.x == 33 && worldPos.z == 5)//16
-            {
-                var x = 0;
-            }
-            
             if (worldPos.y == surfaceHeightNoise + 1)
             {
-                if ((localPos + Vector3Int.down).y < 0 || (localPos + Vector3Int.down * 2).y < 0)
-                {
-                    chunk.worldRef.blocksToPlaceAfterGeneration[worldPos+Vector3Int.down] = BlockType.Sand;
-                    chunk.worldRef.blocksToPlaceAfterGeneration[worldPos+Vector3Int.down*2] = BlockType.Sand;
-                }
-                else
-                {
-                    chunk.SetBlock(localPos + Vector3Int.down, BlockType.Sand);
-                    chunk.SetBlock(localPos + Vector3Int.down*2, BlockType.Sand);
-                }
+                chunk.SetBlock(localPos + Vector3Int.down, BlockType.Sand);
+                chunk.SetBlock(localPos + Vector3Int.down*2, BlockType.Sand);
             }
             
             return true;

@@ -6,7 +6,7 @@ public static class Chunk
     {
         Vector3Int chunkPos = new Vector3Int(
             Mathf.FloorToInt(pos.x / (float)world.chunkSize) * world.chunkSize,
-            Mathf.FloorToInt(pos.y / (float)world.chunkHeight) * world.chunkHeight,
+            0,
             Mathf.FloorToInt(pos.z / (float)world.chunkSize) * world.chunkSize
         );
         return chunkPos;
