@@ -525,7 +525,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 1147158915}
-  waterLevel: 5
+  waterLevel: 15
 --- !u!1 &739261251
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,6 +572,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Next: {fileID: 2128529304}
   surfaceBlockType: 3
+  subSurfaceBlockType: 2
 --- !u!1 &870774956
 GameObject:
   m_ObjectHideFlags: 0
@@ -648,6 +649,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Next: {fileID: 1440682190}
   surfaceBlockType: 7
+  subSurfaceBlockType: 0
 --- !u!4 &876011790
 Transform:
   m_ObjectHideFlags: 0
@@ -921,10 +923,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e113280f9ab044168541f6fef84d3095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 5
+  renderDistance: 2
   chunkSize: 16
   chunkHeight: 16
-  worldHeight: 96
+  worldHeight: 80
   chunksPerFrame: 4
   worldRenderer: {fileID: 1269315924}
   terrainGenerator: {fileID: 1658937128}
@@ -1535,4 +1537,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 0}
-  undergroundBlockType: 2
+  undergroundBlockType: 4

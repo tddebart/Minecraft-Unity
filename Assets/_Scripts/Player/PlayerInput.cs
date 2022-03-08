@@ -55,6 +55,11 @@ public class PlayerInput : MonoBehaviour
         {
             OnMouseClick?.Invoke();
         }
+
+        if (Input.GetMouseButton(1))
+        {
+            OnMouseClick?.Invoke();
+        }
     }
     
 }

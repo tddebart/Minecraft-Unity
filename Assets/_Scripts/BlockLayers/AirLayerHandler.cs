@@ -7,7 +7,7 @@ public class AirLayerHandler : BlockLayerHandler
     {
         if (worldPos.y > surfaceHeightNoise)
         {
-            chunk.SetBlock(localPos, BlockType.Air);
+            chunk.SetBlock(localPos, Blocks.AIR);
             return true;
         }
         return false;

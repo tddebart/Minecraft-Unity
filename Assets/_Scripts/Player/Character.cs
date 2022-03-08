@@ -52,11 +52,7 @@ public class Character : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (Input.GetMouseButton(0))
-        {
-            OnMouseClick();
-        }
-        
+
         if (isFlying)
         {
             playerController.Fly(playerInput.MovementInput, playerInput.IsJumpPressed, playerInput.IsRunPressed);

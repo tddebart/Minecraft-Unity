@@ -9,7 +9,7 @@ public class WaterLayerHandler : BlockLayerHandler
     {
         if (worldPos.y > surfaceHeightNoise && worldPos.y < waterLevel)
         {
-            chunk.SetBlock(localPos, BlockType.Water);
+            chunk.SetBlock(localPos, Blocks.WATER);
 
             if (worldPos.y == surfaceHeightNoise + 1)
             {

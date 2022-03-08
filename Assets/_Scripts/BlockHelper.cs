@@ -20,6 +20,7 @@ public static class BlockHelper
         {
             return meshData;
         }
+        TextureData textureData = BlockDataManager.textureDataDictionary[blockType];
 
         foreach (var dir in directions)
         {
@@ -31,46 +32,46 @@ public static class BlockHelper
             {
                 TextureData neighbourTextureData = BlockDataManager.textureDataDictionary[neighbourBlockType];
 
-                if (BlockDataManager.textureDataDictionary[blockType].isTransparent)
+                if (textureData.isTransparent)
                 {
                     if (blockType == BlockType.Water)
                     {
                         if (neighbourBlockType != BlockType.Water && neighbourTextureData.isTransparent)
                         {
-                            meshData.transparentMesh = GetFaceDataIn(dir, chunk, pos, meshData.transparentMesh, blockType);
+                            meshData.transparentMesh = GetFaceDataIn(dir, chunk, pos, meshData.transparentMesh, blockType,textureData);
                         }
                     }
                     else if (neighbourTextureData.isTransparent)
                     {
-                        meshData.transparentMesh = GetFaceDataIn(dir, chunk, pos, meshData.transparentMesh, blockType);
+                        meshData.transparentMesh = GetFaceDataIn(dir, chunk, pos, meshData.transparentMesh, blockType,textureData);
                     }
                 }
                 else if(neighbourTextureData.isTransparent)
                 {
-                    meshData = GetFaceDataIn(dir, chunk, pos, meshData, blockType);
+                    meshData = GetFaceDataIn(dir, chunk, pos, meshData, blockType,textureData);
                 }
             }
         }
         return meshData;
     }
 
-    public static MeshData GetFaceDataIn(Direction dir, ChunkData chunk, Vector3Int pos, MeshData meshData, BlockType blockType)
+    public static MeshData GetFaceDataIn(Direction dir, ChunkData chunk, Vector3Int pos, MeshData meshData, BlockType blockType, TextureData textureData)
     {
         GetFaceVertices(dir, pos, meshData, blockType);
-        meshData.AddQuadTriangles(BlockDataManager.textureDataDictionary[blockType].generateCollider);
-        var uvs = FaceUVs(dir, blockType);
+        meshData.AddQuadTriangles(textureData.generateCollider);
+        var uvs = FaceUVs(dir, blockType, textureData);
         meshData.uv.AddRange(uvs);
 
         return meshData;
     }
     
-    public static Vector2Int TexturePosition(Direction dir, BlockType blockType)
+    public static Vector2Int TexturePosition(Direction dir, BlockType blockType, TextureData textureData)
     {
         return dir switch
         {
-            Direction.up => BlockDataManager.textureDataDictionary[blockType].up,
-            Direction.down => BlockDataManager.textureDataDictionary[blockType].down,
-            _ => BlockDataManager.textureDataDictionary[blockType].side
+            Direction.up => textureData.up,
+            Direction.down => textureData.down,
+            _ => textureData.side
         };
     }
 
@@ -120,10 +121,11 @@ public static class BlockHelper
         }
     }
     
-    public static Vector2[] FaceUVs(Direction dir, BlockType blockType)
+    public static Vector2[] FaceUVs(Direction dir, BlockType blockType, TextureData textureData = null)
     {
         Vector2[] UVs = new Vector2[4];
-        var tilePos = TexturePosition(dir, blockType);
+        textureData = textureData ?? BlockDataManager.textureDataDictionary[blockType];
+        var tilePos = TexturePosition(dir, blockType, textureData);
         var tileSizeX = BlockDataManager.tileSizeX;
         var tileSizeY = BlockDataManager.tileSizeY;
 

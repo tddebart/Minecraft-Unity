@@ -91,7 +91,7 @@ public class TreesLayerHandler : BlockLayerHandler
                         for (var i = 1; i < 6; i++)
                         {
                             blockCoords.y = surfaceHeightNoise-chunk.worldPos.y + i;
-                            chunk.SetBlock(blockCoords, BlockType.Air);
+                            chunk.SetBlock(blockCoords, Blocks.AIR);
                         }
 
                         return false;

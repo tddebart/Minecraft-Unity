@@ -31,10 +31,33 @@ public class ChunkSection
     ///
     /// </summary>
     /// <param name="pos">The x and z should be local and the y global</param>
-    /// <param name="block">The block to set</param>
+    /// <param name="block">The block type to set</param>
     public void SetBlock(Vector3Int pos, BlockType block)
     {
-        var localBlockPos = new Vector3Int(pos.x, pos.y - yOffset, pos.z);
-        blocks[localBlockPos.x,localBlockPos.y,localBlockPos.z] = new Block(block, localBlockPos, this);
+        SetBlock(pos, new Block(block));
     }
+    
+    public void SetBlock(Vector3Int pos, Block block)
+    {
+        pos.y -= yOffset;
+        block.position = pos;
+        block.section = this;
+        if (block.type == BlockType.Air)
+        {
+            blocks[pos.x,pos.y,pos.z]?.OnBlockDestroyed();
+        }
+        blocks[pos.x, pos.y, pos.z] = block;
+        blocks[pos.x,pos.y,pos.z].OnBlockPlaced();
+    }
+    
+    public Vector3Int GetGlobalBlockCoords(Vector3Int localPos)
+    {
+        return new Vector3Int
+        (
+            localPos.x + dataRef.worldPos.x, 
+            localPos.y + yOffset, 
+            localPos.z + dataRef.worldPos.z
+        );
+    }
+    
 }

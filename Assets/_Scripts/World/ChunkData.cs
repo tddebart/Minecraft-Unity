@@ -92,6 +92,23 @@ public class ChunkData
         }
     }
 
+    public void SetBlock(Vector3Int localPos, Block block, bool updateChunk = false)
+    {
+        if (IsInRange(this, localPos))
+        {
+            GetSection(localPos.y).SetBlock(localPos, block);
+            if (updateChunk)
+            {
+                var chunkPos = WorldDataHelper.GetChunkPosition(worldRef, localPos + this.worldPos);
+                WorldDataHelper.GetChunk(worldRef, chunkPos).UpdateChunk();
+            }
+        }
+        else
+        {
+            WorldDataHelper.SetBlock(this.worldRef, localPos + this.worldPos, block, updateChunk);
+        }
+    }
+
     /// <summary>
     /// Returns the local position of the block at the given world position.
     /// </summary>

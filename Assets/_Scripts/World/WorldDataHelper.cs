@@ -123,6 +123,16 @@ public static class WorldDataHelper
             chunkData.SetBlock(localPos, blockType);
         }
     }
+    
+    public static void SetBlock(World world, Vector3Int worldBlockPos, Block block, bool UpdateChunk = false)
+    {
+        var chunkData = GetChunkData(world, worldBlockPos);
+        if (chunkData != null)
+        {
+            Vector3Int localPos = chunkData.GetLocalBlockCoords(worldBlockPos);
+            chunkData.SetBlock(localPos, block, UpdateChunk);
+        }
+    }
 
     public static ChunkRenderer GetChunk(World world, Vector3Int worldPos)
     {
