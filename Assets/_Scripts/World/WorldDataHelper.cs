@@ -63,25 +63,25 @@ public static class WorldDataHelper
         return chunkPositionsToCreate;
     }
 
-    public static List<Vector3Int> GetPositionsToCreate(WorldData worldData, List<Vector3Int> allChunkPositionsNeeded, Vector3Int playerPos)
+    public static HashSet<Vector3Int> GetPositionsToCreate(WorldData worldData, List<Vector3Int> allChunkPositionsNeeded, Vector3Int playerPos)
     {
         return allChunkPositionsNeeded
             .Where(pos => !worldData.chunkDict.ContainsKey(pos))
             .OrderBy(pos => Vector3.Distance(playerPos, pos))
-            .ToList();
+            .ToHashSet();
     }
 
-    public static List<Vector3Int> GetDataPositionsToCreate(WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded, Vector3Int playerPos)
+    public static HashSet<Vector3Int> GetDataPositionsToCreate(WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded, Vector3Int playerPos)
     {
         return allChunkDataPositionsNeeded
             .Where(pos => !worldData.chunkDataDict.ContainsKey(pos))
             .OrderBy(pos => Vector3.Distance(playerPos, pos))
-            .ToList();
+            .ToHashSet();
     }
 
-    public static List<Vector3Int> GetUnneededChunkPositions(WorldData worldData, List<Vector3Int> allChunkPositionsNeeded)
+    public static HashSet<Vector3Int> GetUnneededChunkPositions(WorldData worldData, List<Vector3Int> allChunkPositionsNeeded)
     {
-        var positionsToRemove = new List<Vector3Int>();
+        var positionsToRemove = new HashSet<Vector3Int>();
         foreach (var pos in worldData.chunkDict.Keys.Where(pos => !allChunkPositionsNeeded.Contains(pos)))
         {
             positionsToRemove.Add(pos);
@@ -90,9 +90,9 @@ public static class WorldDataHelper
         return positionsToRemove;
     }
 
-    public static List<Vector3Int> GetUnneededDataPositions(WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded)
+    public static HashSet<Vector3Int> GetUnneededDataPositions(WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded)
     {
-        return worldData.chunkDataDict.Keys.Where(pos => !allChunkDataPositionsNeeded.Contains(pos) && !worldData.chunkDataDict[pos].modifiedByPlayer).ToList();
+        return worldData.chunkDataDict.Keys.Where(pos => !allChunkDataPositionsNeeded.Contains(pos) && !worldData.chunkDataDict[pos].modifiedByPlayer).ToHashSet();
     }
 
     public static void RemoveChunk(World world, Vector3Int pos)

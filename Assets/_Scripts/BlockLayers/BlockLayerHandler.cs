@@ -3,6 +3,7 @@
 public abstract class BlockLayerHandler : MonoBehaviour
 {
     [SerializeField] private BlockLayerHandler Next;
+    [SerializeField] private bool IsLast;
 
     public bool Handle(ChunkData chunk,Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
     {
@@ -10,7 +11,7 @@ public abstract class BlockLayerHandler : MonoBehaviour
         {
             return true;
         }
-        else if(Next != null)
+        else if(!IsLast)
         {
             return Next.Handle(chunk, worldPos,localPos, surfaceHeightNoise, mapSeedOffset);
         }

@@ -7,6 +7,8 @@ made by me
 - add a rainfall noise map to the world just like the temperature map (https://minecraft.fandom.com/wiki/Biome?file=Biome_Index.PNG)
 - maybe make use of compute shaders to generate the world faster
 
+
+
 ## Times
 
 5 render distance

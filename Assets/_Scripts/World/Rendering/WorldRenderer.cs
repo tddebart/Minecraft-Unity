@@ -16,7 +16,7 @@ public class WorldRenderer : MonoBehaviour
         }
         else
         {
-            var chunkObj = Instantiate(chunkPrefab, pos, Quaternion.identity);
+            var chunkObj = Instantiate(chunkPrefab, pos, Quaternion.identity, transform);
             newChunk = chunkObj.GetComponent<ChunkRenderer>();
             
         }

@@ -24,7 +24,7 @@ public static class DataProcessing
             for (var y = 0; y < noiseData.GetLength(1); y++)
             {
                 var noiseVal = noiseData[x, y];
-                if (CheckNeighbours(noiseData, x, y, (neighbourNoise) => neighbourNoise < noiseVal))
+                if (CheckNeighbours(noiseData, x, y, noiseVal))
                 {
                     maximas.Add(new Vector2Int(x + chunkXCoord, y + chunkZCoord));
                 }
@@ -33,7 +33,7 @@ public static class DataProcessing
         return maximas;
     }
 
-    private static bool CheckNeighbours(float[,] noiseData, int x, int y, Func<float, bool> successCondition)
+    private static bool CheckNeighbours(float[,] noiseData, int x, int y, float noiseVal)
     {
         foreach (var dir in directions)
         {
@@ -44,7 +44,7 @@ public static class DataProcessing
                 continue;
             
             // Check if the new position is a local maximum
-            if (!successCondition(noiseData[newPos.x, newPos.y]))
+            if (!(noiseData[newPos.x, newPos.y] < noiseVal))
                 return false;
         }
         

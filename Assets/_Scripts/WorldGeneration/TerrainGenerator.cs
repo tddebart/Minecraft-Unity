@@ -23,15 +23,17 @@ public class TerrainGenerator : MonoBehaviour
     
     public ChunkData GenerateChunkData(ChunkData data, Vector2Int mapSeedOffset)
     {
-        BiomeGeneratorSelection biomeSelection = SelectBiomeGeneratorWeight(data.worldPos, data,false);
+        BiomeGeneratorSelection biomeSelection;// = SelectBiomeGeneratorWeight(data.worldPos, data,false);
+        //TODO: enable this if want trees and enable features in world generator
         // TreeData treeData = biomeGenerator.GenerateTreeData(data, mapSeedOffset);
-        data.treeData = biomeSelection.biomeGenerator.GenerateTreeData(data, mapSeedOffset);
+        // data.treeData = biomeSelection.biomeGenerator.GenerateTreeData(data, mapSeedOffset);
         
         for (var x = 0; x < data.chunkSize; x++)
         {
             for (var z = 0; z < data.chunkSize; z++)
             {
                 biomeSelection = SelectBiomeGeneratorWeight( new Vector3Int(data.worldPos.x + x, 0, data.worldPos.z + z), data);
+                //TODO: processChunkColumn is very slow, need to optimize it
                 data = biomeSelection.biomeGenerator.ProcessChunkColumn(data, x, z, mapSeedOffset, biomeSelection.terrainSurfaceNoise);
             }
         }
@@ -67,7 +69,18 @@ public class TerrainGenerator : MonoBehaviour
         // return biomeGeneratorsData.Select(b => new BiomeGeneratorSelection(b.biomeTerrainGenerator, b.biomeTerrainGenerator.GetSurfaceHeightNoise(worldPos.x,worldPos.z, data.worldRef.worldHeight))).First();
         
         var biomeSelectionHelpersByDistance = GetBiomeGeneratorSelectionHelpers(worldPos);
-        var selectionHelpersByDistance = biomeSelectionHelpersByDistance as BiomeSelectionHelper[] ?? biomeSelectionHelpersByDistance.ToArray();
+        var selectionHelpersByDistance = new BiomeSelectionHelper[3];
+
+        var index = 0;
+        foreach (var helper in biomeSelectionHelpersByDistance)
+        {
+            if (index < 3)
+            {
+                selectionHelpersByDistance[index] = helper;
+            }
+            index++;
+        }
+        
 
         // Select the biome generators based on the temperature noise
         var generator1 = SelectBiome(selectionHelpersByDistance[0].Index);

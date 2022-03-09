@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Debug = UnityEngine.Debug;
@@ -39,11 +40,26 @@ public partial class World
         }
 
         // Generate data chunks
-        ConcurrentDictionary<Vector3Int, ChunkData> dataDict;
+        ConcurrentDictionary<Vector3Int, ChunkData> dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
 
         var dataStopWatch = new Stopwatch();
         dataStopWatch.Start();
         
+        Profiler.BeginThreadProfiling("GenerateWorld", "GenerateData");
+        
+        
+        // foreach(var pos in worldGenerationData.chunkDataPositionsToCreate)
+        // {
+        //     if(taskTokenSource.IsCancellationRequested)
+        //     {
+        //         taskTokenSource.Token.ThrowIfCancellationRequested();
+        //     }
+        //     
+        //     var data = new ChunkData(chunkSize, chunkHeight, this, pos);
+        //     var newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
+        //     dataDict.TryAdd(pos, newData);
+        //
+        // };
         
         try
         {
@@ -59,6 +75,8 @@ public partial class World
         {
             worldData.chunkDataDict.Add(calculatedData.Key, calculatedData.Value);
         }
+        
+        Profiler.EndThreadProfiling();
 
         dataStopWatch.Stop();
         if (!Application.isPlaying)
@@ -71,7 +89,7 @@ public partial class World
         featureStopWatch.Start();
         
         // Generate features like trees
-        await CalculateFeatures(worldGenerationData.chunkPositionsToCreate);
+        // await CalculateFeatures(worldGenerationData.chunkPositionsToCreate);
         
 
         await Task.Run(() =>
@@ -123,9 +141,9 @@ public partial class World
         Profiler.EndThreadProfiling();
     }
     
-    public Task<ConcurrentDictionary<Vector3Int, MeshData>> CreateMeshDataAsync(List<ChunkData> dataToRender)
+    public UniTask<ConcurrentDictionary<Vector3Int, MeshData>> CreateMeshDataAsync(List<ChunkData> dataToRender)
     {
-        return Task.Run(() =>
+        return UniTask.RunOnThreadPool(() =>
         {
             var dict = new ConcurrentDictionary<Vector3Int, MeshData>();
             Parallel.ForEach(dataToRender, data =>
@@ -151,7 +169,7 @@ public partial class World
             // }
 
             return dict;
-        }, taskTokenSource.Token);
+        }, true, taskTokenSource.Token);
     }
 
     // private Task<ConcurrentDictionary<Vector3Int, MeshData>> CalculateChunkMeshData(List<Vector3Int> chunkPositionsToCreate)
@@ -171,9 +189,9 @@ public partial class World
     //     });
     // }
 
-    private Task<ConcurrentDictionary<Vector3Int, ChunkData>> CalculateWorldChunkData(List<Vector3Int> chunkDataPositionsToCreate)
+    private UniTask<ConcurrentDictionary<Vector3Int, ChunkData>> CalculateWorldChunkData(HashSet<Vector3Int> chunkDataPositionsToCreate)
     {
-        return Task.Run(() =>
+        return UniTask.RunOnThreadPool(() =>
         {
             Profiler.BeginThreadProfiling("MyThreads","CalculateWorldChunkData");
             var dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
@@ -184,11 +202,11 @@ public partial class World
                 {
                     taskTokenSource.Token.ThrowIfCancellationRequested();
                 }
-                
+
                 var data = new ChunkData(chunkSize, chunkHeight, this, pos);
                 var newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
                 dataDict.TryAdd(pos, newData);
-            
+
             });
             // foreach(var pos in chunkDataPositionsToCreate)
             // {
@@ -205,12 +223,12 @@ public partial class World
 
             Profiler.EndThreadProfiling();
             return dataDict;
-        }, taskTokenSource.Token);
+        }, true, taskTokenSource.Token);
     }
 
-    private Task CalculateFeatures(List<Vector3Int> chunkDataPositionsToCreate)
+    private UniTask CalculateFeatures(HashSet<Vector3Int> chunkDataPositionsToCreate)
     {
-        return Task.Run(() =>
+        return UniTask.RunOnThreadPool(() =>
         {
             Parallel.ForEach(chunkDataPositionsToCreate, pos =>
             {
@@ -221,8 +239,9 @@ public partial class World
                 
                 var data = worldData.chunkDataDict[pos];
                 terrainGenerator.GenerateFeatures(data, mapSeedOffset);
+                data.isGenerated = true;
             });
-        }, taskTokenSource.Token);
+        },true, taskTokenSource.Token);
     }
     
     

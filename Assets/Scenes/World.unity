@@ -354,6 +354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 876011789}
+  IsLast: 0
 --- !u!4 &334016700
 Transform:
   m_ObjectHideFlags: 0
@@ -479,6 +480,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 0}
+  IsLast: 1
   terrainHeightLimit: 150
 --- !u!1 &521203637
 GameObject:
@@ -525,7 +527,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 1147158915}
-  waterLevel: 15
+  IsLast: 0
+  waterLevel: 10
 --- !u!1 &739261251
 GameObject:
   m_ObjectHideFlags: 0
@@ -571,6 +574,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 2128529304}
+  IsLast: 0
   surfaceBlockType: 3
   subSurfaceBlockType: 2
 --- !u!1 &870774956
@@ -648,8 +652,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 1440682190}
+  IsLast: 0
   surfaceBlockType: 7
-  subSurfaceBlockType: 0
+  subSurfaceBlockType: 7
 --- !u!4 &876011790
 Transform:
   m_ObjectHideFlags: 0
@@ -800,6 +805,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 739261253}
+  IsLast: 0
 --- !u!1 &1241654581
 GameObject:
   m_ObjectHideFlags: 0
@@ -830,6 +836,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 0}
+  IsLast: 1
   stoneThreshold: 0.67
   stoneNoiseSettings: {fileID: 11400000, guid: ef9b7dd91fc8565409957908e9138fb1, type: 2}
   stoneDomainWarping: {fileID: 975012412}
@@ -926,12 +933,12 @@ MonoBehaviour:
   renderDistance: 2
   chunkSize: 16
   chunkHeight: 16
-  worldHeight: 80
+  worldHeight: 96
   chunksPerFrame: 4
   worldRenderer: {fileID: 1269315924}
   terrainGenerator: {fileID: 1658937128}
   mapSeedOffset: {x: -251, y: 150}
-  GenerateMoreChunks: 0
+  GenerateMoreChunks: 1
   OnWorldCreated:
     m_PersistentCalls:
       m_Calls:
@@ -1007,6 +1014,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 0}
+  IsLast: 1
   undergroundBlockType: 7
 --- !u!4 &1440682191
 Transform:
@@ -1537,4 +1545,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Next: {fileID: 0}
+  IsLast: 1
   undergroundBlockType: 4

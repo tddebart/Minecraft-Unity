@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -30,12 +31,17 @@ public class BiomeGenerator : MonoBehaviour
             groundPos = minHeight;
         }
         
-        var worldPosX = data.worldPos.x + x;
-        var worldPosZ = data.worldPos.z + z;
+        var worldPos = new Vector3Int(data.worldPos.x + x, 0, data.worldPos.z + z);
+        var localPos = new Vector3Int(x, 0, z);
 
         for (var y = 0; y < data.worldRef.worldHeight; y++)
         {
-            startLayerHandler.Handle(data, new Vector3Int(worldPosX,y,worldPosZ), new Vector3Int(x,y,z), groundPos, mapSeedOffset);
+            worldPos.y = y;
+            localPos.y = y;
+            
+            
+            
+            startLayerHandler.Handle(data, worldPos, localPos, groundPos, mapSeedOffset);
         }
 
 

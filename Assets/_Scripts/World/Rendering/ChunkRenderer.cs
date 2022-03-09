@@ -8,7 +8,6 @@ public class ChunkRenderer : MonoBehaviour
 {
     private MeshFilter meshFilter;
     private MeshCollider meshCollider;
-    private MeshCollider meshCollider2;
     private Mesh mesh;
     public bool showGizmo = false;
     
@@ -32,15 +31,18 @@ public class ChunkRenderer : MonoBehaviour
 
     private void RenderMesh(MeshData meshData)
     {
+        //NOTE: using AddRange instead of concat and then ToArray is a lot faster. Try to avoid concat and ToArray/ToList if possible
+        
         mesh.Clear();
         mesh.MarkDynamic();
         mesh.subMeshCount = 2;
-        mesh.vertices = meshData.vertices.Concat(meshData.transparentMesh.vertices).ToArray();
+        meshData.vertices.AddRange(meshData.transparentMesh.vertices);
+        mesh.SetVertices(meshData.vertices);
         
-        mesh.SetTriangles(meshData.triangles.ToArray(), 0);
-        mesh.SetTriangles(meshData.transparentMesh.triangles.Select(val => val + meshData.vertices.Count).ToArray(), 1);
-
-        mesh.uv = meshData.uv.Concat(meshData.transparentMesh.uv).ToArray();
+        mesh.SetTriangles(meshData.triangles, 0);
+        mesh.SetTriangles(meshData.transparentMesh.triangles.Select(val => val + (meshData.vertices.Count-meshData.transparentMesh.vertices.Count)).ToList(), 1);
+        meshData.uv.AddRange(meshData.transparentMesh.uv);
+        mesh.SetUVs(0, meshData.uv);
         mesh.RecalculateNormals();
         mesh.Optimize();
 
@@ -50,8 +52,10 @@ public class ChunkRenderer : MonoBehaviour
             indexFormat = UnityEngine.Rendering.IndexFormat.UInt32
         };
 
-        collisionMesh.SetVertices(meshData.colliderVertices.Concat(meshData.transparentMesh.colliderVertices).ToArray());
-        collisionMesh.SetTriangles(meshData.colliderTriangles.Concat(meshData.transparentMesh.colliderTriangles).ToArray(), 0);
+        meshData.colliderVertices.AddRange(meshData.transparentMesh.colliderVertices);
+        collisionMesh.SetVertices(meshData.colliderVertices);
+        meshData.colliderTriangles.AddRange(meshData.transparentMesh.colliderTriangles);
+        collisionMesh.SetTriangles(meshData.colliderTriangles, 0);
 
         meshCollider.sharedMesh = collisionMesh;
     }

@@ -8,10 +8,11 @@ public class ChunkData
     public int chunkSize = 16;
     public int chunkHeight = 16;
     public World worldRef;
-    public Vector3Int worldPos;
+    public readonly Vector3Int worldPos;
     public ChunkSection[] sections;
     
     public bool modifiedByPlayer = false;
+    public bool isGenerated = false;
     public TreeData treeData;
 
     public ChunkData(int chunkSize, int chunkHeight, World worldRef, Vector3Int worldPos)
@@ -23,7 +24,7 @@ public class ChunkData
         sections = new ChunkSection[worldRef.worldHeight / 16];
         for (int i = 0; i < sections.Length; i++)
         {
-            sections[i] = new ChunkSection(this, i*chunkSize);
+            sections[i] = new ChunkSection(this, i*this.chunkHeight);
         }
     }
     
@@ -40,7 +41,7 @@ public class ChunkData
     
     public ChunkSection GetSection(int y)
     {
-        return sections[Mathf.FloorToInt(y / chunkSize)];
+        return sections[Mathf.FloorToInt(y / chunkHeight)];
     }
 
 
@@ -51,7 +52,11 @@ public class ChunkData
 
     private static bool IsInRange(ChunkData chunkData, Vector3Int pos)
     {
-        return IsInRange(chunkData, pos.x) && IsInRangeHeight(chunkData, pos.y) && IsInRange(chunkData, pos.z);
+        var x = pos.x;
+        var y = pos.y;
+        var z = pos.z;
+        
+        return x>= 0 && x < chunkData.chunkSize && y >= 0 && y < chunkData.worldRef.worldHeight && z >= 0 && z < chunkData.chunkSize;
     }
     
     private static bool IsInRangeHeight(ChunkData chunkData, int axisCoord)
@@ -67,6 +72,7 @@ public class ChunkData
     /// <exception cref="Exception"></exception>
     public Block GetBlock(Vector3Int localPos)
     {
+        var y = localPos.y;
         if (localPos.y < 0)
         {
             return Blocks.NOTHING;
@@ -100,7 +106,7 @@ public class ChunkData
             if (updateChunk)
             {
                 var chunkPos = WorldDataHelper.GetChunkPosition(worldRef, localPos + this.worldPos);
-                WorldDataHelper.GetChunk(worldRef, chunkPos).UpdateChunk();
+                WorldDataHelper.GetChunk(worldRef, chunkPos)?.UpdateChunk();
             }
         }
         else

@@ -13,7 +13,7 @@ public class ChunkSection
     {
         this.dataRef = dataRef;
         this.yOffset = yOffset;
-        blocks = new Block[dataRef.chunkSize, dataRef.chunkSize, dataRef.chunkSize];
+        blocks = new Block[dataRef.chunkSize, dataRef.chunkHeight, dataRef.chunkSize];
     }
 
     /// <summary>
@@ -42,12 +42,15 @@ public class ChunkSection
         pos.y -= yOffset;
         block.position = pos;
         block.section = this;
-        if (block.type == BlockType.Air)
+        if (dataRef.isGenerated && block.type == BlockType.Air)
         {
-            blocks[pos.x,pos.y,pos.z]?.OnBlockDestroyed();
+            // blocks[pos.x,pos.y,pos.z]?.OnBlockDestroyed();
         }
         blocks[pos.x, pos.y, pos.z] = block;
-        blocks[pos.x,pos.y,pos.z].OnBlockPlaced();
+        if (dataRef.isGenerated)
+        {
+            // blocks[pos.x,pos.y,pos.z].OnBlockPlaced();
+        }
     }
     
     public Vector3Int GetGlobalBlockCoords(Vector3Int localPos)

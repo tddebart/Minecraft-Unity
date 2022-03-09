@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 
 public static class BlockHelper
@@ -124,7 +125,7 @@ public static class BlockHelper
     public static Vector2[] FaceUVs(Direction dir, BlockType blockType, TextureData textureData = null)
     {
         Vector2[] UVs = new Vector2[4];
-        textureData = textureData ?? BlockDataManager.textureDataDictionary[blockType];
+        textureData ??= BlockDataManager.textureDataDictionary[blockType];
         var tilePos = TexturePosition(dir, blockType, textureData);
         var tileSizeX = BlockDataManager.tileSizeX;
         var tileSizeY = BlockDataManager.tileSizeY;

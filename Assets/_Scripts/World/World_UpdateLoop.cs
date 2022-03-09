@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public partial class World
@@ -8,11 +9,19 @@ public partial class World
     
     public IEnumerator UpdateLoop()
     {
-        while (true)
-        {
-            yield return new WaitForSeconds(1.0f / 4.0f);
-            UpdateBlocks();
-        }
+        // while (true)
+        // {
+        //     yield return new WaitForSeconds(1.0f / 4.0f);
+        //     new Thread(() =>
+        //     {
+        //         while (blockToUpdate.Count > 0)
+        //         {
+        //             Block block = blockToUpdate.Dequeue();
+        //             block.OnBlockUpdate();
+        //         }
+        //     }).Start();
+        // }
+        yield return null;
     }
 
     public void UpdateBlocks()

@@ -15,12 +15,12 @@ using Debug = UnityEngine.Debug;
 public partial class World : MonoBehaviour
 {
     public static World Instance;
-    public int renderDistance = 6;
-    public int chunkSize = 16; // 16x16 chunks
-    public int chunkHeight = 100; // 100 blocks high
-    [RangeEx(16, 256, 16)]
-    public int worldHeight = 256; // 256 blocks high
-    public int chunksPerFrame = 2;
+    public byte renderDistance = 6;
+    public byte chunkSize = 16; // 16x16 chunks
+    public byte chunkHeight = 100; // 100 blocks high
+    [RangeEx(16, 240, 16)]
+    public byte worldHeight = 240; // 256 blocks high
+    public byte chunksPerFrame = 2;
     public WorldRenderer worldRenderer;
     
     public TerrainGenerator terrainGenerator;
@@ -43,20 +43,22 @@ public partial class World : MonoBehaviour
 
     private void Start()
     {
+        ClearVisable();
         OnValidate();
         GenerateWorld();
     }
 
     private void OnValidate()
     {
-        worldData = new WorldData
+        if (!Application.isPlaying)
         {
-            chunkHeight = this.chunkHeight,
-            chunkSize = this.chunkSize,
-            chunkDataDict = new Dictionary<Vector3Int, ChunkData>(),
-            chunkDict = new Dictionary<Vector3Int, ChunkRenderer>()
-        };
-        Instance = this;
+            worldData = new WorldData
+            {
+                chunkDataDict = new Dictionary<Vector3Int, ChunkData>(),
+                chunkDict = new Dictionary<Vector3Int, ChunkRenderer>()
+            };
+            Instance = this;
+        }
     }
 
     private WorldGenerationData GetPositionsInRenderDistance(Vector3Int playerPos)
@@ -103,25 +105,42 @@ public partial class World : MonoBehaviour
         var chunk = WorldDataHelper.GetChunk(this, pos);
 
         var blockPos = GetBlockPos(hit);
+        
+        var blocksToDig = new List<Vector3Int>();
+        
+        // Dig out a 3x3x3 cube around the block
+        // for (var x = -1; x <= 2; x++)
+        // {
+        //     for (var y = -1; y <= 2; y++)
+        //     {
+        //         for (var z = -1; z <= 2; z++)
+        //         {
+        //             var blockPosToDig = new Vector3Int(blockPos.x + x, blockPos.y + y, blockPos.z + z);
+        //             blocksToDig.Add(blockPosToDig);
+        //         }
+        //     }
+        // }
+        //
+        // SetBlocks(chunk, blocksToDig, blockType);
 
         SetBlock(chunk, blockPos, blockType);
         return true;
     }
 
-    public async void SetBlocks(ChunkRenderer chunk, Vector3Int[] blockPoss, BlockType blockType)
+    public async void SetBlocks(ChunkRenderer chunk, IEnumerable<Vector3Int> blockPoss, BlockType blockType)
     {
         var neightBourUpdates = new List<ChunkRenderer>();
         
         foreach (var pos in blockPoss)
         {
-            if (blockType == BlockType.Air)
-            {
-                WorldDataHelper.SetBlock(chunk.ChunkData.worldRef, pos, Blocks.AIR);
-            }
-            else
-            {
+            // if (blockType == BlockType.Air)
+            // {
+            //     WorldDataHelper.SetBlock(chunk.ChunkData.worldRef, pos, Blocks.AIR);
+            // }
+            // else
+            // {
                 WorldDataHelper.SetBlock(chunk.ChunkData.worldRef, pos, blockType);
-            }
+            // }
             
             if (chunk.ChunkData.IsOnEdge(pos))
             {
@@ -219,10 +238,10 @@ public partial class World : MonoBehaviour
 
     public struct WorldGenerationData
     {
-        public List<Vector3Int> chunkPositionsToCreate;
-        public List<Vector3Int> chunkDataPositionsToCreate;
-        public List<Vector3Int> chunkPositionsToRemove;
-        public List<Vector3Int> chunkDataToRemove;
+        public HashSet<Vector3Int> chunkPositionsToCreate;
+        public HashSet<Vector3Int> chunkDataPositionsToCreate;
+        public HashSet<Vector3Int> chunkPositionsToRemove;
+        public HashSet<Vector3Int> chunkDataToRemove;
     }
 
 
@@ -255,6 +274,4 @@ public struct WorldData
 {
     public Dictionary<Vector3Int, ChunkData> chunkDataDict;
     public Dictionary<Vector3Int, ChunkRenderer> chunkDict;
-    public int chunkSize;
-    public int chunkHeight;
 }
