@@ -7,7 +7,7 @@ public class StoneLayerHandler : BlockLayerHandler
     
     public DomainWarping stoneDomainWarping;
     
-    protected override bool TryHandling(ChunkData chunk,Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
+    protected override bool TryHandling(ChunkData chunk,Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector3Int mapSeedOffset)
     {
         return false;
         if (chunk.worldPos.y > surfaceHeightNoise)

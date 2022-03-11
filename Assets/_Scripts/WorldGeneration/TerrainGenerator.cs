@@ -16,18 +16,22 @@ public class TerrainGenerator : MonoBehaviour
     public DomainWarping domainWarping;
     [Tooltip("Inverse Distance Weighting")]
     public bool useIDW = true;
-    
+
     [SerializeField]  private List<BiomeData> biomeGeneratorsData = new List<BiomeData>();
 
     
     
-    public ChunkData GenerateChunkData(ChunkData data, Vector2Int mapSeedOffset)
+    public ChunkData GenerateChunkData(ChunkData data, Vector3Int mapSeedOffset)
     {
         BiomeGeneratorSelection biomeSelection;// = SelectBiomeGeneratorWeight(data.worldPos, data,false);
         //TODO: enable this if want trees and enable features in world generator
         // TreeData treeData = biomeGenerator.GenerateTreeData(data, mapSeedOffset);
         // data.treeData = biomeSelection.biomeGenerator.GenerateTreeData(data, mapSeedOffset);
-        
+        data.treeData = new TreeData
+        {
+            treePositions = new HashSet<Vector2Int>()
+        };
+
         for (var x = 0; x < data.chunkSize; x++)
         {
             for (var z = 0; z < data.chunkSize; z++)
@@ -41,7 +45,7 @@ public class TerrainGenerator : MonoBehaviour
         return data;
     }
 
-    public void GenerateFeatures(ChunkData data, Vector2Int mapSeedOffset)
+    public void GenerateFeatures(ChunkData data, Vector3Int mapSeedOffset)
     {
         for (var x = 0; x < data.chunkSize; x++)
         {
@@ -164,7 +168,7 @@ public class TerrainGenerator : MonoBehaviour
         public float Distance;
     }
 
-    public void GenerateBiomePoints(Vector3 playerPos, int renderDistance, int chunkSize, Vector2Int mapSeedOffset)
+    public void GenerateBiomePoints(Vector3 playerPos, int renderDistance, int chunkSize, Vector3Int mapSeedOffset)
     {
         biomeCenters = new List<Vector3Int>();
         biomeCenters = BiomeCenterFinder.CalculateBiomeCenters(playerPos, renderDistance, chunkSize);
@@ -182,7 +186,7 @@ public class TerrainGenerator : MonoBehaviour
         temperatureNoise = CalculateTemperatureNoise(biomeCenters, mapSeedOffset);
     }
 
-    private List<float> CalculateTemperatureNoise(List<Vector3Int> positions, Vector2Int mapSeedOffset)
+    private List<float> CalculateTemperatureNoise(List<Vector3Int> positions, Vector3Int mapSeedOffset)
     {
         temperatureNoiseSettings.worldSeedOffset = mapSeedOffset;
         return positions.Select(pos => MyNoise.OctavePerlin(pos.x,pos.z,temperatureNoiseSettings)).ToList();

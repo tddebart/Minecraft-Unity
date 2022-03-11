@@ -5,7 +5,7 @@ public class TreeNoiseGenerator : MonoBehaviour
     public NoiseSettings treeNoiseSettings;
     public DomainWarping domainWarping;
 
-    public TreeData GenerateTreeData(ChunkData chunkData, Vector2Int mapSeedOffset)
+    public TreeData GenerateTreeData(ChunkData chunkData, Vector3Int mapSeedOffset)
     {
         treeNoiseSettings.worldSeedOffset = mapSeedOffset;
         var treeData = new TreeData();

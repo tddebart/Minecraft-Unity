@@ -5,7 +5,7 @@ public class WaterLayerHandler : BlockLayerHandler
 {
 
     public int waterLevel = 1;
-    protected override bool TryHandling(ChunkData chunk,Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
+    protected override bool TryHandling(ChunkData chunk,Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector3Int mapSeedOffset)
     {
         var y = worldPos.y;
         if (y > surfaceHeightNoise && y < waterLevel)
@@ -16,6 +16,7 @@ public class WaterLayerHandler : BlockLayerHandler
             {
                 chunk.SetBlock(localPos + Vector3Int.down, BlockType.Sand);
                 chunk.SetBlock(localPos + Vector3Int.down*2, BlockType.Sand);
+                chunk.SetBlock(localPos + Vector3Int.down*3, BlockType.Sand);
             }
             
             return true;

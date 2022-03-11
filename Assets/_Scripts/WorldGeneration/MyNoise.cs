@@ -4,7 +4,8 @@ using UnityEngine.Profiling;
 
 public static class MyNoise
 {
-    public static Stopwatch stopWatch = new Stopwatch();
+    public static Stopwatch noiseStopwatch = new Stopwatch();
+    public static Stopwatch noise3DStopwatch = new Stopwatch();
     
     public static float RemapValue(float value, float initialMin, float initialMax, float outputMin, float outputMax)
     {
@@ -18,7 +19,7 @@ public static class MyNoise
     
     public static float OctavePerlin(float x, float z, NoiseSettings settings)
     {
-        stopWatch.Start();
+        noiseStopwatch.Start();
         x *= settings.noiseZoom;
         z *= settings.noiseZoom;
         x += settings.noiseZoom;
@@ -44,7 +45,32 @@ public static class MyNoise
             result = 0;
         }
 
-        stopWatch.Stop();
+        noiseStopwatch.Stop();
         return result;
     }
+    
+    public static bool OctavePerlin3D(Vector3 pos, NoiseSettings settings, float threshold)
+    {
+        noise3DStopwatch.Start();
+        pos *= settings.noiseZoom;
+        var x = settings.offset.x + settings.worldSeedOffset.x + pos.x;
+        var y = settings.offset.y + settings.worldSeedOffset.y + pos.y;
+        var z = settings.offset.z + settings.worldSeedOffset.z + pos.z;
+        
+        float AB = Mathf.PerlinNoise(x, y);
+        float BC = Mathf.PerlinNoise(y, z);
+        float AC = Mathf.PerlinNoise(x, z);
+        
+        float BA = Mathf.PerlinNoise(y, x);
+        float CB = Mathf.PerlinNoise(z, y);
+        float CA = Mathf.PerlinNoise(z, x);
+        
+        noise3DStopwatch.Stop();
+        
+        if ((AB + BC + AC + BA + CB + CA) / 6f > threshold)
+            return true;
+        else
+            return false;
+    }
+    
 }

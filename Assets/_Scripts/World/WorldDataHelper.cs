@@ -26,10 +26,10 @@ public static class WorldDataHelper
 
     public static List<Vector3Int> GetDataPositionsInRenderDistance(World world, Vector3Int playerPos)
     {
-        var startX = playerPos.x - (world.renderDistance+1) * world.chunkSize;
-        var startZ = playerPos.z - (world.renderDistance+1) * world.chunkSize;
-        var endX = playerPos.x + (world.renderDistance+1) * world.chunkSize;
-        var endZ = playerPos.z + (world.renderDistance+1) * world.chunkSize;
+        var startX = playerPos.x - (world.renderDistance) * world.chunkSize;
+        var startZ = playerPos.z - (world.renderDistance) * world.chunkSize;
+        var endX = playerPos.x + (world.renderDistance) * world.chunkSize;
+        var endZ = playerPos.z + (world.renderDistance) * world.chunkSize;
         
         return GetPositionsInRenderDistance(world,playerPos, startX, startZ, endX, endZ);
     }

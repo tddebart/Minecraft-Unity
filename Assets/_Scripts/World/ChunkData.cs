@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class ChunkData
 {
@@ -30,7 +32,7 @@ public class ChunkData
     
     public static void LoopThroughTheBlocks(ChunkData chunkData, Action<int, int, int, BlockType> actionToPerform)
     {
-        foreach (var section in chunkData.sections)
+        foreach (var section in chunkData.sections.Where(s => s.blocks.Cast<Block>().Any(b => b.type != BlockType.Air)))
         {
             foreach (var block in section.blocks)
             {
@@ -73,7 +75,7 @@ public class ChunkData
     public Block GetBlock(Vector3Int localPos)
     {
         var y = localPos.y;
-        if (localPos.y < 0)
+        if (localPos.y < 0 || localPos.y >= worldRef.worldHeight)
         {
             return Blocks.NOTHING;
         }
@@ -88,6 +90,11 @@ public class ChunkData
 
     public void SetBlock(Vector3Int localPos, BlockType block)
     {
+        if (localPos.y < 0 || localPos.y >= worldRef.worldHeight)
+        {
+            return;
+        }
+        
         if (IsInRange(this, localPos))
         {
             GetSection(localPos.y).SetBlock(localPos, block);

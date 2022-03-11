@@ -5,7 +5,7 @@ public abstract class BlockLayerHandler : MonoBehaviour
     [SerializeField] private BlockLayerHandler Next;
     [SerializeField] private bool IsLast;
 
-    public bool Handle(ChunkData chunk,Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
+    public bool Handle(ChunkData chunk,Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector3Int mapSeedOffset)
     {
         if(TryHandling(chunk, worldPos,localPos, surfaceHeightNoise, mapSeedOffset))
         {
@@ -21,5 +21,5 @@ public abstract class BlockLayerHandler : MonoBehaviour
         }
     }
     
-    protected abstract bool TryHandling(ChunkData chunk, Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector2Int mapSeedOffset);
+    protected abstract bool TryHandling(ChunkData chunk, Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector3Int mapSeedOffset);
 }

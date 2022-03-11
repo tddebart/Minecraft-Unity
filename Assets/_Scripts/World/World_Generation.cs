@@ -14,6 +14,7 @@ public partial class World
 {
     public async void GenerateWorld()
     {
+        IsWorldCreated = false;
         await GenerateWorld(Vector3Int.zero);
     }
 
@@ -89,7 +90,7 @@ public partial class World
         featureStopWatch.Start();
         
         // Generate features like trees
-        // await CalculateFeatures(worldGenerationData.chunkPositionsToCreate);
+        await CalculateFeatures(worldGenerationData.chunkPositionsToCreate);
         
 
         await Task.Run(() =>
@@ -133,7 +134,8 @@ public partial class World
         if (!Application.isPlaying)
         {
             Debug.Log($"Mesh generation took {visualStopWatch.ElapsedMilliseconds}ms");
-            Debug.Log($"Time spent generating noise {MyNoise.stopWatch.ElapsedMilliseconds}ms");
+            Debug.Log($"Time spent generating noise {MyNoise.noiseStopwatch.ElapsedMilliseconds}ms");
+            Debug.Log($"Time spent generating 3D noise {MyNoise.noise3DStopwatch.ElapsedMilliseconds}ms");
         }
 
         StartCoroutine(ChunkCreationCoroutine(meshDataDict, position));

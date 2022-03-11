@@ -22,7 +22,7 @@ public class TreesLayerHandler : BlockLayerHandler
     // for now i will just make a array with the basic non random leaves
     
     
-    protected override bool TryHandling(ChunkData chunk, Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector2Int mapSeedOffset)
+    protected override bool TryHandling(ChunkData chunk, Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector3Int mapSeedOffset)
     {
         if (chunk.worldPos.y < 0)
         {

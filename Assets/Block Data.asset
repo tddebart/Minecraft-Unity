@@ -15,6 +15,12 @@ MonoBehaviour:
   textureSizeX: 0.03125
   textureSizeY: 0.03125
   textureDataList:
+  - blockType: 0
+    up: {x: 0, y: 0}
+    down: {x: 0, y: 0}
+    side: {x: 0, y: 0}
+    isTransparent: 1
+    generateCollider: 0
   - blockType: 1
     up: {x: 0, y: 0}
     down: {x: 0, y: 0}

@@ -162,7 +162,8 @@ MonoBehaviour:
   startLayerHandler: {fileID: 334016699}
   treeNoiseGenerator: {fileID: 6577203}
   featureLayerHandlers: []
-  minHeight: 0
+  lodes: []
+  extraTerrainHeightPercentage: 30
 --- !u!114 &6577203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -709,7 +710,13 @@ MonoBehaviour:
   featureLayerHandlers:
   - {fileID: 476284155}
   - {fileID: 1241654582}
-  minHeight: 0
+  lodes:
+  - blockType: 1
+    minHeight: 1
+    maxHeight: 50
+    threshold: 0.5
+    noiseSettings: {fileID: 11400000, guid: 1a7d427598b59324e9262e091044b05b, type: 2}
+  extraTerrainHeightPercentage: 20
 --- !u!4 &975012411
 Transform:
   m_ObjectHideFlags: 0
@@ -934,10 +941,10 @@ MonoBehaviour:
   chunkSize: 16
   chunkHeight: 16
   worldHeight: 96
-  chunksPerFrame: 4
+  chunksPerFrame: 1
   worldRenderer: {fileID: 1269315924}
   terrainGenerator: {fileID: 1658937128}
-  mapSeedOffset: {x: -251, y: 150}
+  mapSeedOffset: {x: -251, y: 150, z: 0}
   GenerateMoreChunks: 1
   OnWorldCreated:
     m_PersistentCalls:

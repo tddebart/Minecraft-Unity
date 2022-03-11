@@ -18,19 +18,16 @@ public class BiomeGenerator : MonoBehaviour
 
     public List<BlockLayerHandler> featureLayerHandlers;
     
-    public int minHeight = 0;
+    public List<Lode> lodes;
     
-    public ChunkData ProcessChunkColumn(ChunkData data, int x, int z, Vector2Int mapSeedOffset, int? terrainHeightNoise)
+    public int extraTerrainHeightPercentage = 0;
+
+    public ChunkData ProcessChunkColumn(ChunkData data, int x, int z, Vector3Int mapSeedOffset, int? terrainHeightNoise)
     {
         settings.worldSeedOffset = mapSeedOffset;
         
         var groundPos = terrainHeightNoise ?? GetSurfaceHeightNoise(data.worldPos.x + x, data.worldPos.z + z,data.worldRef.worldHeight);
-        
-        if (groundPos < minHeight)
-        {
-            groundPos = minHeight;
-        }
-        
+
         var worldPos = new Vector3Int(data.worldPos.x + x, 0, data.worldPos.z + z);
         var localPos = new Vector3Int(x, 0, z);
 
@@ -38,9 +35,16 @@ public class BiomeGenerator : MonoBehaviour
         {
             worldPos.y = y;
             localPos.y = y;
-            
-            
-            
+
+            // if (MyNoise.OctavePerlin3D(worldPos, settings))
+            // {
+            //     data.SetBlock(localPos, BlockType.Stone);
+            // }
+            // else
+            // {
+            //     data.SetBlock(localPos, BlockType.Air);
+            // }
+            //
             startLayerHandler.Handle(data, worldPos, localPos, groundPos, mapSeedOffset);
         }
 
@@ -49,23 +53,48 @@ public class BiomeGenerator : MonoBehaviour
     }
 
 
-    public void ProcessFeatures(ChunkData data, int x, int z, Vector2Int mapSeedOffset, int? terrainHeightNoise)
+    public void ProcessFeatures(ChunkData data, int x, int z, Vector3Int mapSeedOffset, int? terrainHeightNoise)
     {
         settings.worldSeedOffset = mapSeedOffset;
         var groundPos = terrainHeightNoise ?? GetSurfaceHeightNoise(data.worldPos.x + x, data.worldPos.z + z,data.worldRef.worldHeight);
-        if (groundPos < minHeight)
-        {
-            groundPos = minHeight;
-        }
-        
-        var worldPosX = data.worldPos.x + x;
-        var worldPosZ = data.worldPos.z + z;
+
+        var worldPos = new Vector3Int(data.worldPos.x + x, 0, data.worldPos.z + z);
+        var localPos = new Vector3Int(x, 0, z);
 
         foreach (var layer in featureLayerHandlers)
         {
             for (var y = 0; y < data.worldRef.worldHeight; y++)
             {
-                layer.Handle(data, new Vector3Int(worldPosX,y,worldPosZ),new Vector3Int(x,y,z), groundPos, mapSeedOffset);
+                worldPos.y = y;
+                localPos.y = y;
+                
+                layer.Handle(data, worldPos,localPos, groundPos, mapSeedOffset);
+            }
+        }
+        
+        // Process lodes
+        foreach (var lode in lodes)
+        {
+            for (var y = lode.maxHeight - 1; y >= lode.minHeight; y--)
+            {
+                worldPos.y = y;
+                localPos.y = y;
+                
+                if (data.GetBlock(localPos) == Blocks.AIR)
+                {
+                    continue;
+                }
+                
+                lode.noiseSettings.worldSeedOffset = mapSeedOffset;
+
+                if (MyNoise.OctavePerlin3D(worldPos, lode.noiseSettings, lode.threshold))
+                {
+                    if (data.GetBlock(localPos).type == BlockType.Grass && data.GetBlock(localPos+Vector3Int.down).type == BlockType.Dirt)
+                    {
+                        data.SetBlock(localPos+Vector3Int.down, BlockType.Grass);
+                    }
+                    data.SetBlock(localPos, lode.blockType);
+                }
             }
         }
     }
@@ -82,11 +111,11 @@ public class BiomeGenerator : MonoBehaviour
             terrainHeight = MyNoise.OctavePerlin(x, z, settings);
         }
         terrainHeight = MyNoise.Redistribution(terrainHeight, settings);
-        var surfaceHeight = (int)Mathf.Lerp(0, worldHeight, terrainHeight);
+        var surfaceHeight = (int)Mathf.Lerp(0+worldHeight*(extraTerrainHeightPercentage/100f), worldHeight-1, terrainHeight);
         return surfaceHeight;
     }
 
-    public TreeData GenerateTreeData(ChunkData data, Vector2Int mapSeedOffset)
+    public TreeData GenerateTreeData(ChunkData data, Vector3Int mapSeedOffset)
     {
         if(treeNoiseGenerator == null)
         {
@@ -94,6 +123,16 @@ public class BiomeGenerator : MonoBehaviour
         }
         return treeNoiseGenerator.GenerateTreeData(data, mapSeedOffset);
     }
+}
+
+[System.Serializable]
+public class Lode
+{
+    public BlockType blockType;
+    public int minHeight;
+    public int maxHeight;
+    public float threshold;
+    public NoiseSettings noiseSettings;
 }
 
 #if UNITY_EDITOR
@@ -105,6 +144,7 @@ public class BiomeGeneratorEditor : Editor
     {
         var biomeGenerator = (BiomeGenerator)this.target;
         DrawDefaultInspector();
+        EditorGUILayout.Space(20);
         var customEditor = Editor.CreateEditor(biomeGenerator.settings);
         customEditor.OnInspectorGUI();
     }

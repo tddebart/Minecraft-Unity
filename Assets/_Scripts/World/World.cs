@@ -24,7 +24,7 @@ public partial class World : MonoBehaviour
     public WorldRenderer worldRenderer;
     
     public TerrainGenerator terrainGenerator;
-    public Vector2Int mapSeedOffset;
+    public Vector3Int mapSeedOffset;
     
     public bool GenerateMoreChunks = true;
 
@@ -43,8 +43,9 @@ public partial class World : MonoBehaviour
 
     private void Start()
     {
-        ClearVisable();
+        Instance = this;
         OnValidate();
+        ClearVisable();
         GenerateWorld();
     }
 
@@ -197,6 +198,11 @@ public partial class World : MonoBehaviour
     {
         var chunkPos = Chunk.ChunkPosFromBlockCoords(this, globalPos);
 
+        if (chunkPos.x == -48)
+        {
+            var x = 0;
+        }
+        
         worldData.chunkDataDict.TryGetValue(chunkPos, out var containerChunk);
         
         if (containerChunk == null)
@@ -219,11 +225,17 @@ public partial class World : MonoBehaviour
     
     private void ClearVisable()
     {
-        worldData.chunkDataDict.Clear();
-        worldData.chunkDict.Clear();
-        worldRenderer.chunkPool.Clear();
+        worldData = new WorldData
+        {
+            chunkDataDict = new Dictionary<Vector3Int, ChunkData>(),
+            chunkDict = new Dictionary<Vector3Int, ChunkRenderer>(),
+        };
+        worldData.chunkDataDict?.Clear();
+        worldData.chunkDict?.Clear();
+        worldRenderer.chunkPool?.Clear();
         
-        MyNoise.stopWatch.Reset();
+        MyNoise.noiseStopwatch.Reset();
+        MyNoise.noise3DStopwatch.Reset();
 
         foreach (var chunk in FindObjectsOfType<ChunkRenderer>())
         {
