@@ -5,7 +5,7 @@ public class Character : MonoBehaviour
 {
     public Camera mainCam;
     private PlayerInput playerInput;
-    private PlayerController playerController;
+    private OLD_PlayerController _oldPlayerController;
     
     public float playerReach = 4.5f;
 
@@ -24,7 +24,7 @@ public class Character : MonoBehaviour
             mainCam = Camera.main;
         }
         playerInput = GetComponent<PlayerInput>();
-        playerController = GetComponent<PlayerController>();
+        _oldPlayerController = GetComponent<OLD_PlayerController>();
         objects = GetComponent<PlayerObjects>();
         world = FindObjectOfType<World>();
     }
@@ -55,19 +55,19 @@ public class Character : MonoBehaviour
 
         if (isFlying)
         {
-            playerController.Fly(playerInput.MovementInput, playerInput.IsJumpPressed, playerInput.IsRunPressed);
+            _oldPlayerController.Fly(playerInput.MovementInput, playerInput.IsJumpPressed, playerInput.IsRunPressed);
         }
         else
         {
-            if (playerController.IsGrounded && playerInput.IsJumpPressed && !waitForJumpDelay)
+            if (_oldPlayerController.IsGrounded && playerInput.IsJumpPressed && !waitForJumpDelay)
             {
                 waitForJumpDelay = true;
                 StopAllCoroutines();
                 StartCoroutine(WaitForJumpDelay());
             }
 
-            playerController.HandleGravity(playerInput.IsJumpPressed);
-            playerController.Move(playerInput.MovementInput, playerInput.IsRunPressed);
+            _oldPlayerController.HandleGravity(playerInput.IsJumpPressed);
+            _oldPlayerController.Move(playerInput.MovementInput, playerInput.IsRunPressed);
         }
     }
 

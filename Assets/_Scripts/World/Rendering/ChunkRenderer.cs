@@ -3,11 +3,10 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter),typeof(MeshRenderer),typeof(MeshCollider))]
+[RequireComponent(typeof(MeshFilter),typeof(MeshRenderer))]
 public class ChunkRenderer : MonoBehaviour
 {
     private MeshFilter meshFilter;
-    private MeshCollider meshCollider;
     private Mesh mesh;
     public bool showGizmo = false;
     
@@ -22,7 +21,6 @@ public class ChunkRenderer : MonoBehaviour
     public void Initialize(ChunkData data)
     {
         meshFilter = GetComponent<MeshFilter>();
-        meshCollider = GetComponent<MeshCollider>();
         meshFilter.sharedMesh = new Mesh();
         mesh = meshFilter.sharedMesh;
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
@@ -45,19 +43,6 @@ public class ChunkRenderer : MonoBehaviour
         mesh.SetUVs(0, meshData.uv);
         mesh.RecalculateNormals();
         mesh.Optimize();
-
-        meshCollider.sharedMesh = null;
-        var collisionMesh = new Mesh
-        {
-            indexFormat = UnityEngine.Rendering.IndexFormat.UInt32
-        };
-
-        meshData.colliderVertices.AddRange(meshData.transparentMesh.colliderVertices);
-        collisionMesh.SetVertices(meshData.colliderVertices);
-        meshData.colliderTriangles.AddRange(meshData.transparentMesh.colliderTriangles);
-        collisionMesh.SetTriangles(meshData.colliderTriangles, 0);
-
-        meshCollider.sharedMesh = collisionMesh;
     }
 
     public void UpdateChunk()

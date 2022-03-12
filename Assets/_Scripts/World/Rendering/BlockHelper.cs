@@ -21,7 +21,7 @@ public static class BlockHelper
         {
             return meshData;
         }
-        TextureData textureData = BlockDataManager.textureDataDictionary[blockType];
+        TextureData textureData = BlockDataManager.textureDataDictionary[(int)blockType];
 
         foreach (var dir in directions)
         {
@@ -32,9 +32,9 @@ public static class BlockHelper
             {
                 var p = 0;
             }
-            if (neighbourBlockType != BlockType.Nothing)
+            if (true/*neighbourBlockType != BlockType.Nothing*/)
             {
-                TextureData neighbourTextureData = BlockDataManager.textureDataDictionary[neighbourBlockType];
+                TextureData neighbourTextureData = BlockDataManager.textureDataDictionary[(int)neighbourBlockType];
 
                 if (textureData.isTransparent)
                 {
@@ -62,7 +62,7 @@ public static class BlockHelper
     public static MeshData GetFaceDataIn(Direction dir, ChunkData chunk, Vector3Int pos, MeshData meshData, BlockType blockType, TextureData textureData)
     {
         GetFaceVertices(dir, pos, meshData, blockType);
-        meshData.AddQuadTriangles(textureData.generateCollider);
+        meshData.AddQuadTriangles();
         var uvs = FaceUVs(dir, blockType, textureData);
         meshData.uv.AddRange(uvs);
 
@@ -81,46 +81,46 @@ public static class BlockHelper
 
     public static void GetFaceVertices(Direction direction, Vector3Int pos, MeshData meshData, BlockType blockType)
     {
-        var generatesCollider = BlockDataManager.textureDataDictionary[blockType].generateCollider;
+        var generatesCollider = BlockDataManager.textureDataDictionary[(int)blockType].generateCollider;
         //order of vertices matters for the normals and how we render the mesh
         switch (direction)
         {
             case Direction.backwards:
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z - 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z - 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z - 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z - 0.5f), generatesCollider);
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z - 0.5f));
                 break;
             case Direction.forwards:
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z + 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z + 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z + 0.5f), generatesCollider);
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z + 0.5f));
                 break;
             case Direction.left:
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z + 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z + 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z - 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z - 0.5f), generatesCollider);
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z - 0.5f));
                 break;
 
             case Direction.right:
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z - 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z - 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z + 0.5f), generatesCollider);
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z + 0.5f));
                 break;
             case Direction.down:
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z - 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z - 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z + 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z + 0.5f), generatesCollider);
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z + 0.5f));
                 break;
             case Direction.up:
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z + 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z - 0.5f), generatesCollider);
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z - 0.5f), generatesCollider);
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z - 0.5f));
                 break;
         }
     }
@@ -128,7 +128,7 @@ public static class BlockHelper
     public static Vector2[] FaceUVs(Direction dir, BlockType blockType, TextureData textureData = null)
     {
         Vector2[] UVs = new Vector2[4];
-        textureData ??= BlockDataManager.textureDataDictionary[blockType];
+        textureData ??= BlockDataManager.textureDataDictionary[(int)blockType];
         var tilePos = TexturePosition(dir, blockType, textureData);
         var tileSizeX = BlockDataManager.tileSizeX;
         var tileSizeY = BlockDataManager.tileSizeY;

@@ -85,7 +85,7 @@ public class ChunkData
             return GetSection(localPos.y).GetBlock(localPos);
         }
         
-        return this.worldRef.GetBlock(this, new Vector3Int(this.worldPos.x + localPos.x, this.worldPos.y + localPos.y, this.worldPos.z + localPos.z));
+        return this.worldRef.GetBlock(new Vector3Int(this.worldPos.x + localPos.x, this.worldPos.y + localPos.y, this.worldPos.z + localPos.z));
     }
 
     public void SetBlock(Vector3Int localPos, BlockType block)

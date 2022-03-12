@@ -41,7 +41,7 @@ public partial class World : MonoBehaviour
     public Dictionary<Vector3Int, BlockType> blocksToPlaceAfterGeneration = new Dictionary<Vector3Int, BlockType>();
 
 
-    private void Start()
+    private void Awake()
     {
         Instance = this;
         OnValidate();
@@ -194,15 +194,10 @@ public partial class World : MonoBehaviour
         return pos;
     }
 
-    public Block GetBlock(ChunkData chunkData, Vector3Int globalPos)
+    public Block GetBlock(Vector3Int globalPos)
     {
         var chunkPos = Chunk.ChunkPosFromBlockCoords(this, globalPos);
 
-        if (chunkPos.x == -48)
-        {
-            var x = 0;
-        }
-        
         worldData.chunkDataDict.TryGetValue(chunkPos, out var containerChunk);
         
         if (containerChunk == null)
@@ -213,7 +208,12 @@ public partial class World : MonoBehaviour
         var blockPos = containerChunk.GetLocalBlockCoords(new Vector3Int(globalPos.x, globalPos.y, globalPos.z));
         return containerChunk.GetBlock(blockPos);
     }
-    
+
+    public Block GetBlock(Vector3 globalPos)
+    {
+        return GetBlock(Vector3Int.RoundToInt(globalPos));
+    }
+
     public async void LoadAdditionalChunks(GameObject localPlayer)
     {
         if (!GenerateMoreChunks) return;

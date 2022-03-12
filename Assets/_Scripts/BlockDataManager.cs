@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ public class BlockDataManager : MonoBehaviour
 {
     public static float textureOffset = 0;
     public static float tileSizeX, tileSizeY;
-    public static readonly Dictionary<BlockType, TextureData> textureDataDictionary = new Dictionary<BlockType, TextureData>();
+    public static TextureData[] textureDataDictionary;
     public BlockDataSO textureData;
 
     private void Start()
@@ -16,12 +17,10 @@ public class BlockDataManager : MonoBehaviour
 
     public void OnValidate()
     {
+        textureDataDictionary = new TextureData[textureData.textureDataList.Max(t => (int)t.blockType+1)];
         foreach (var item in textureData.textureDataList)
         {
-            if (!textureDataDictionary.ContainsKey(item.blockType))
-            {
-                textureDataDictionary.Add(item.blockType, item);
-            }
+            textureDataDictionary[(int)item.blockType] = item;
         }
         tileSizeX = textureData.textureSizeX;
         tileSizeY = textureData.textureSizeY;
