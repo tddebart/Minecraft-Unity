@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.popcron.gizmos": {
+      "version": "https://github.com/popcron/gizmos.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "ba90e76b4a42cca4eda2b6a372fa7108ebaf08cd"
+    },
     "com.unity.collab-proxy": {
       "version": "1.15.12",
       "depth": 0,

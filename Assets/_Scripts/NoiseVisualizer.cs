@@ -9,11 +9,11 @@ public class NoiseVisualizer : MonoBehaviour
     
     public int resolution = 256;
     
-    public Renderer renderer;
+    public Renderer _renderer;
 
     public void Start()
     {
-        renderer = GetComponent<Renderer>();
+        _renderer = GetComponent<Renderer>();
     }
 
     private void OnValidate()
@@ -37,7 +37,7 @@ public class NoiseVisualizer : MonoBehaviour
         texture.SetPixels(pixs);
         texture.Apply();
         
-        renderer.sharedMaterial.mainTexture = texture;
+        _renderer.sharedMaterial.mainTexture = texture;
     }
     
 #if UNITY_EDITOR
