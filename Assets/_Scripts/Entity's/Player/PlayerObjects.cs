@@ -2,10 +2,7 @@
 
 public class PlayerObjects : MonoBehaviour
 {
-    public LayerMask groundMask;
-    
-    [Space]
-    
+    public Transform camera;
     public Transform body;
     public Transform head;
     public Transform leftArm;

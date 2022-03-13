@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Popcron;
 using UnityEngine;
 using Gizmos = Popcron.Gizmos;
@@ -42,11 +43,13 @@ public abstract class BaseEntity : MonoBehaviour
     protected float verticalMomentum;
     protected bool jumpRequest;
     protected bool isWaitingOnJumpDelay;
+    protected Transform direction;
 
 
     public virtual void Start()
     {
         world = World.Instance;
+        direction = transform;
     }
 
     public virtual void FixedUpdate()
@@ -68,7 +71,6 @@ public abstract class BaseEntity : MonoBehaviour
 
     public virtual void Move()
     {
-        transform.Rotate(Vector3.up * mouseX);
         transform.Translate(velocity, Space.World);
     }
 
@@ -100,7 +102,7 @@ public abstract class BaseEntity : MonoBehaviour
         if (!isGrounded && !isFlying)
         {
             verticalMomentum += gravity * 0.98f * Time.deltaTime;
-            // verticalMomentum *= 0.99f;
+            // verticalMomentum *= 0.98f;
         }
         else if(verticalMomentum < 0 && !isFlying)
         {
@@ -110,15 +112,15 @@ public abstract class BaseEntity : MonoBehaviour
         // Calculate movement velocity
         if (isCrouching && !isFlying)
         {
-            velocity = ((transform.forward * vertical) + (transform.right * horizontal)) * (Time.fixedDeltaTime * crouchSpeed);
+            velocity = ((direction.forward * vertical) + (direction.right * horizontal)) * (Time.fixedDeltaTime * crouchSpeed);
         }
         else if (isSprinting)
         {
-            velocity = ((transform.forward * vertical) + (transform.right * horizontal)) * (Time.fixedDeltaTime * (isFlying ? flySprintSpeed : sprintSpeed));
+            velocity = ((direction.forward * vertical) + (direction.right * horizontal)) * (Time.fixedDeltaTime * (isFlying ? flySprintSpeed : sprintSpeed));
         }
         else
         { 
-            velocity = ((transform.forward * vertical) + (transform.right * horizontal)) * (Time.fixedDeltaTime * (isFlying ? flySpeed : walkSpeed));
+            velocity = ((direction.forward * vertical) + (direction.right * horizontal)) * (Time.fixedDeltaTime * (isFlying ? flySpeed : walkSpeed));
         }
         
         // Apply vertical momentum (falling & jumping)
@@ -157,8 +159,14 @@ public abstract class BaseEntity : MonoBehaviour
                 transform.SetYPosition(Mathf.Floor(transform.position.y)+0.51f);
             });
         }
-        
-        if((velocity.y <= 0))
+
+        // If velocity y has more than 3 decimals, round it to 0
+        if (Mathf.Abs(velocity.y) < 0.001f)
+        {
+            velocity.y = 0;
+        }
+
+        if((velocity.y) <= 0)
         {
             velocity.y = CheckDownCollision(velocity.y);
         } else if((velocity.y > 0))

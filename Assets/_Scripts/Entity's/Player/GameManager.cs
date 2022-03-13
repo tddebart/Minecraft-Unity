@@ -19,13 +19,15 @@ public class GameManager : MonoBehaviour
     public void SpawnPlayer()
     {
         if (localPlayer != null) return;
-        
-        var raycastStartposition = new Vector3Int(world.chunkSize / 2+Random.Range(-3,3), world.worldHeight, world.chunkSize / 2+Random.Range(-3,3));
-        RaycastHit hit;
-        if (Physics.Raycast(raycastStartposition, Vector3.down, out hit, world.worldHeight))
+
+        for (var i = world.worldHeight - 1; i >= 0; i--)
         {
-            localPlayer = Instantiate(playerPrefab, hit.point+Vector3Int.up, Quaternion.identity);
-            StartCheckingForChunks();
+            if (world.GetBlock(new Vector3Int(0, i, 0)).type != BlockType.Air)
+            {
+                localPlayer = Instantiate(playerPrefab, new Vector3(world.chunkSize/2, i + 1, world.chunkSize/2), Quaternion.identity);
+                StartCheckingForChunks();
+                break;
+            }
         }
     }
 

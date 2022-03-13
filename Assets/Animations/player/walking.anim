@@ -65,7 +65,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: steve model/Root/RightArm
+    path: Model/Root/RightArm
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -117,7 +117,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: steve model/Root/RightLeg
+    path: Model/Root/RightLeg
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -169,7 +169,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: steve model/Root/LeftLeg
+    path: Model/Root/LeftLeg
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -221,7 +221,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: steve model/Root/LeftArm
+    path: Model/Root/LeftArm
   m_PositionCurves: []
   m_ScaleCurves: []
   m_FloatCurves: []
@@ -335,7 +335,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: steve model/Root/RightArm
+    path: Model/Root/RightArm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -390,7 +390,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: steve model/Root/RightArm
+    path: Model/Root/RightArm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -445,7 +445,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: steve model/Root/RightArm
+    path: Model/Root/RightArm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -500,7 +500,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: steve model/Root/RightLeg
+    path: Model/Root/RightLeg
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -555,7 +555,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: steve model/Root/RightLeg
+    path: Model/Root/RightLeg
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -610,7 +610,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: steve model/Root/RightLeg
+    path: Model/Root/RightLeg
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -665,7 +665,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: steve model/Root/LeftLeg
+    path: Model/Root/LeftLeg
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -720,7 +720,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: steve model/Root/LeftLeg
+    path: Model/Root/LeftLeg
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -775,7 +775,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: steve model/Root/LeftLeg
+    path: Model/Root/LeftLeg
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -830,7 +830,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.x
-    path: steve model/Root/LeftArm
+    path: Model/Root/LeftArm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -885,7 +885,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.y
-    path: steve model/Root/LeftArm
+    path: Model/Root/LeftArm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -940,7 +940,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: localEulerAnglesRaw.z
-    path: steve model/Root/LeftArm
+    path: Model/Root/LeftArm
     classID: 4
     script: {fileID: 0}
   m_EulerEditorCurves:
@@ -951,7 +951,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: steve model/Root/RightArm
+    path: Model/Root/RightArm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -961,7 +961,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: steve model/Root/RightArm
+    path: Model/Root/RightArm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -971,7 +971,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: steve model/Root/RightArm
+    path: Model/Root/RightArm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -981,7 +981,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: steve model/Root/LeftArm
+    path: Model/Root/LeftArm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -991,7 +991,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: steve model/Root/LeftArm
+    path: Model/Root/LeftArm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1001,7 +1001,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: steve model/Root/LeftArm
+    path: Model/Root/LeftArm
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1011,7 +1011,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: steve model/Root/LeftLeg
+    path: Model/Root/LeftLeg
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1021,7 +1021,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: steve model/Root/LeftLeg
+    path: Model/Root/LeftLeg
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1031,7 +1031,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: steve model/Root/LeftLeg
+    path: Model/Root/LeftLeg
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1041,7 +1041,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: steve model/Root/RightLeg
+    path: Model/Root/RightLeg
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1051,7 +1051,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: steve model/Root/RightLeg
+    path: Model/Root/RightLeg
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -1061,7 +1061,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: steve model/Root/RightLeg
+    path: Model/Root/RightLeg
     classID: 4
     script: {fileID: 0}
   m_HasGenericRootTransform: 0
