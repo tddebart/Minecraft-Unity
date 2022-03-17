@@ -14,6 +14,7 @@ public class Player : BaseEntity
     private Animator animator;
     
     private static readonly int Speed = Animator.StringToHash("speed");
+    private static readonly int Sneaking = Animator.StringToHash("sneaking");
     
     // INFO:
     // 530ms from jumping to landing on the ground
@@ -51,22 +52,24 @@ public class Player : BaseEntity
 
     private void DoBodyRotation()
     {
+        if (!Application.isPlaying) return;
+        
         // if we move forward or backwards, we want to rotate the body to face the direction we are moving
-        if (vertical != 0 && objects.body.localRotation.eulerAngles.x != Vector3.SignedAngle(-objects.body.forward, objects.moveDirection.forward, Vector3.up))
+        if (vertical != 0 && objects.body.localRotation.eulerAngles.x != Vector3.SignedAngle(objects.body.forward, objects.moveDirection.forward, Vector3.up))
         {
-            RotateBody(Vector3.SignedAngle(-objects.body.forward, objects.moveDirection.forward, Vector3.up)*(Time.deltaTime*6));
+            RotateBody(Vector3.SignedAngle(objects.body.forward, objects.moveDirection.forward, Vector3.up)*(Time.deltaTime*6));
         }
         
         // if we move to the left, we want to rotate the body 45 degrees to the left
-        if (horizontal < 0 && objects.body.localRotation.eulerAngles.x != Vector3.SignedAngle(-objects.body.forward, Vector3.Lerp(-objects.moveDirection.right,objects.moveDirection.forward,0.5f), Vector3.up))
+        if (horizontal < 0 && objects.body.localRotation.eulerAngles.x != Vector3.SignedAngle(objects.body.forward, Vector3.Lerp(-objects.moveDirection.right,objects.moveDirection.forward,0.5f), Vector3.up))
         {
-            RotateBody(Vector3.SignedAngle(-objects.body.forward, Vector3.Lerp(-objects.moveDirection.right,objects.moveDirection.forward,0.46f), Vector3.up)*(Time.deltaTime*10));
+            RotateBody(Vector3.SignedAngle(objects.body.forward, Vector3.Lerp(-objects.moveDirection.right,objects.moveDirection.forward,0.46f), Vector3.up)*(Time.deltaTime*10));
         }
         
         // if we move to the right, we want to rotate the body 45 degrees to the right
-        if (horizontal > 0 && objects.body.localRotation.eulerAngles.x != Vector3.SignedAngle(-objects.body.forward, Vector3.Lerp(objects.moveDirection.right,objects.moveDirection.forward,0.5f), Vector3.up))
+        if (horizontal > 0 && objects.body.localRotation.eulerAngles.x != Vector3.SignedAngle(objects.body.forward, Vector3.Lerp(objects.moveDirection.right,objects.moveDirection.forward,0.5f), Vector3.up))
         {
-            RotateBody(Vector3.SignedAngle(-objects.body.forward, Vector3.Lerp(objects.moveDirection.right,objects.moveDirection.forward,0.46f), Vector3.up)*(Time.deltaTime*10));
+            RotateBody(Vector3.SignedAngle(objects.body.forward, Vector3.Lerp(objects.moveDirection.right,objects.moveDirection.forward,0.46f), Vector3.up)*(Time.deltaTime*10));
         }
     }
 
@@ -76,7 +79,7 @@ public class Player : BaseEntity
         var verticalRotation = headRotation.eulerAngles.x;
         var horizontalRotation = headRotation.eulerAngles.y;
 
-        verticalRotation += mouseY*sensitivity;
+        verticalRotation += -mouseY*sensitivity;
         horizontalRotation += mouseX*sensitivity;
 
         verticalRotation = verticalRotation switch
@@ -102,18 +105,21 @@ public class Player : BaseEntity
         // verticalRotation = Mathf.Clamp(verticalRotation, -90f, 90f);
         headRotation = Quaternion.Euler(verticalRotation, horizontalRotation, 0f);
         objects.head.localRotation = headRotation;
-        
+        objects.camera.localRotation = headRotation;
+
         // body.Rotate(Vector3.up, mouseX);
         
-        objects.moveDirection.localRotation = Quaternion.Euler(180, horizontalRotation, 180);
+        objects.moveDirection.localRotation = Quaternion.Euler(0, horizontalRotation, 0);
     }
 
     public override void Update()
     {
         base.Update();
+        if (!Application.isPlaying) return;
         GetPlayerInput();
         var vel = new Vector3(velocity.x, 0, velocity.z);
         animator.SetFloat(Speed, (vel.magnitude/Time.fixedDeltaTime)/walkSpeed);
+        animator.SetBool(Sneaking, isCrouching);
         DoHeadRotation();
     }
     

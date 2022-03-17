@@ -211,7 +211,7 @@ public partial class World : MonoBehaviour
 
     public Block GetBlock(Vector3 globalPos)
     {
-        return GetBlock(Vector3Int.RoundToInt(globalPos));
+        return GetBlock(Vector3Int.FloorToInt(globalPos));
     }
 
     public async void LoadAdditionalChunks(GameObject localPlayer)

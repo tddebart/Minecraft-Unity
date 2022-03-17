@@ -130,34 +130,32 @@ public abstract class BaseEntity : MonoBehaviour
         // Check collisions
         if(velocity.z > 0 && front())
         {
-            transform.SetZPosition(Mathf.Floor(transform.position.z)+(0.5f-entityWidth-0.005f));
+            transform.SetZPosition(Mathf.Floor(transform.position.z)+(0.5f+(entityWidth/2f+0.019f)));
             velocity.z = 0;
         }
 
         if (velocity.z < 0 && back())
         {
-            transform.SetZPosition(Mathf.Floor(transform.position.z)+(0.5f+entityWidth));
+            transform.SetZPosition(Mathf.Floor(transform.position.z)+(0.5f-entityWidth/2f-0.019f));
             velocity.z = 0;
         }
         
         if(velocity.x > 0 && right())
         {
-            transform.SetXPosition(Mathf.Floor(transform.position.x)+(0.5f-entityWidth-0.005f));
+            transform.SetXPosition(Mathf.Floor(transform.position.x)+(0.5f+entityWidth/2f+0.019f));
             velocity.x = 0;
         }
 
         if (velocity.x < 0 && left())
         {
-            transform.SetXPosition(Mathf.Floor(transform.position.x)+(0.5f+entityWidth+0.005f));
+            transform.SetXPosition(Mathf.Floor(transform.position.x)+(0.5f-entityWidth/2f-0.019f));
             velocity.x = 0;
         }
 
         if (velocity.y == 0 && !isFlying)
         {
-            this.ExecuteAfterFrames(1, () =>
-            {
-                transform.SetYPosition(Mathf.Floor(transform.position.y)+0.51f);
-            });
+            var yLerp = Mathf.Lerp(transform.position.y, Mathf.Floor(transform.position.y), Time.deltaTime * -gravity);
+            transform.SetYPosition(yLerp);
         }
 
         // If velocity y has more than 3 decimals, round it to 0
@@ -202,10 +200,10 @@ public abstract class BaseEntity : MonoBehaviour
     private float CheckUpCollision(float upSpeed)
     {
         if (
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y + entityHeight + upSpeed, transform.position.z - entityWidth)).type].generateCollider && !left() && !back() ||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth,  transform.position.y + entityHeight + upSpeed, transform.position.z - entityWidth)).type].generateCollider && !right() && !back()||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth,  transform.position.y + entityHeight + upSpeed, transform.position.z + entityWidth)).type].generateCollider && !right() && !front()||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y + entityHeight + upSpeed, transform.position.z + entityWidth)).type].generateCollider && !left() && !front()
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y + entityHeight-0.15f + upSpeed, transform.position.z - entityWidth)).type].generateCollider && !left() && !back() ||
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth,  transform.position.y + entityHeight-0.15f + upSpeed, transform.position.z - entityWidth)).type].generateCollider && !right() && !back()||
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth,  transform.position.y + entityHeight-0.15f + upSpeed, transform.position.z + entityWidth)).type].generateCollider && !right() && !front()||
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y + entityHeight-0.15f + upSpeed, transform.position.z + entityWidth)).type].generateCollider && !left() && !front()
         )
         {
             verticalMomentum = 0;
