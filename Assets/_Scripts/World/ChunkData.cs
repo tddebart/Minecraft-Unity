@@ -138,13 +138,13 @@ public class ChunkData
         );
     }
     
-    public static Vector3Int GetGlobalBlockCoords(ChunkData chunkData, Vector3Int localPos)
+    public Vector3Int GetGlobalBlockCoords(Vector3Int localPos)
     {
         return new Vector3Int
         (
-            localPos.x + chunkData.worldPos.x, 
-            localPos.y + chunkData.worldPos.y, 
-            localPos.z + chunkData.worldPos.z
+            localPos.x + worldPos.x, 
+            localPos.y + worldPos.y, 
+            localPos.z + worldPos.z
         );
     }
 

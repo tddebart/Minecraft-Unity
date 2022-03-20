@@ -129,6 +129,18 @@ public partial class World : MonoBehaviour
         return true;
     }
 
+    public void SetBlock(Vector3 pos, BlockType blockType)
+    {
+        SetBlock(Vector3Int.FloorToInt(pos), blockType);
+    }
+    
+    public void SetBlock(Vector3Int blockPos, BlockType blockType)
+    {
+        var chunkPos = WorldDataHelper.GetChunkPosition(this, blockPos);
+        var chunk = WorldDataHelper.GetChunk(this, chunkPos);
+        SetBlock(chunk, blockPos, blockType);
+    }
+
     public async void SetBlocks(ChunkRenderer chunk, IEnumerable<Vector3Int> blockPoss, BlockType blockType)
     {
         var neightBourUpdates = new List<ChunkRenderer>();

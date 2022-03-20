@@ -2,7 +2,7 @@
 
 public class PlayerObjects : MonoBehaviour
 {
-    public Transform camera;
+    public Transform cam;
     public Transform body;
     public Transform head;
     public Transform leftArm;

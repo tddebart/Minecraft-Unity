@@ -688,6 +688,8 @@ MonoBehaviour:
   isFlying: 0
   drawBounds: 1
   sensitivity: 5
+  checkIncrement: 0.1
+  reach: 4.5
 --- !u!114 &1296084350405261148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -700,7 +702,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 165a7d9f02394de990f305d87bf36a34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camera: {fileID: 3114816152506633376}
+  cam: {fileID: 3114816152506633376}
   body: {fileID: 1974891805155746924}
   head: {fileID: 3852983267467412356}
   leftArm: {fileID: 8948706892230993062}

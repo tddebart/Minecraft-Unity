@@ -7,9 +7,12 @@ using Gizmos = Popcron.Gizmos;
 
 public class Player : BaseEntity
 {
+    [Space]
     public float sensitivity = 10f;
+    public float checkIncrement = 0.1f;
+    public float reach = 4.5f;
     
-    private Transform _camera;
+    private Transform cam;
     private PlayerObjects objects;
     private Animator animator;
     
@@ -25,19 +28,49 @@ public class Player : BaseEntity
         base.Start();
         Cursor.lockState = CursorLockMode.Locked;
         objects = GetComponent<PlayerObjects>();
-        _camera = objects.camera;
+        cam = objects.cam;
         direction = objects.moveDirection;
         animator = GetComponent<Animator>();
     }
 
     private void OnEnable()
     {
-        Gizmos.CameraFilter += cam => cam.transform == _camera;
+        Gizmos.CameraFilter += cam => cam.transform == this.cam;
     }
 
     public override void FixedUpdate()
     {
         base.FixedUpdate();
+    }
+
+    public void BreakBlock()
+    {
+        var targetedBlock = TargetedBlock(reach, out _);
+        if (targetedBlock != null)
+        {
+            var blockPos = targetedBlock.section.dataRef.GetGlobalBlockCoords(targetedBlock.position);
+            blockPos.y += targetedBlock.section.yOffset;
+            world.SetBlock(blockPos, BlockType.Air);
+        }
+    }
+
+    public Block TargetedBlock(float tReach,out Vector3Int lastPos)
+    {
+        lastPos = Vector3Int.zero;
+        var step = checkIncrement;
+        while (step < tReach)
+        {
+            var pos = cam.position + cam.forward * step;
+            var block = world.GetBlock(pos);
+            lastPos = Vector3Int.FloorToInt(pos);
+            if (block.type != BlockType.Air && block.type != BlockType.Nothing)
+            {
+                return block;
+            }
+            
+            step += checkIncrement;
+        }
+        return null;
     }
 
     public override void Move()
@@ -105,7 +138,7 @@ public class Player : BaseEntity
         // verticalRotation = Mathf.Clamp(verticalRotation, -90f, 90f);
         headRotation = Quaternion.Euler(verticalRotation, horizontalRotation, 0f);
         objects.head.localRotation = headRotation;
-        objects.camera.localRotation = headRotation;
+        objects.cam.localRotation = headRotation;
 
         // body.Rotate(Vector3.up, mouseX);
         
@@ -119,8 +152,29 @@ public class Player : BaseEntity
         GetPlayerInput();
         var vel = new Vector3(velocity.x, 0, velocity.z);
         animator.SetFloat(Speed, (vel.magnitude/Time.fixedDeltaTime)/walkSpeed);
-        animator.SetBool(Sneaking, isCrouching);
+        if (!isFlying)
+        {
+            animator.SetBool(Sneaking, isCrouching);
+        }
         DoHeadRotation();
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            BreakBlock();
+        }
+        
+        if (Input.GetMouseButton(1))
+        {
+            BreakBlock();
+        }
+
+        var targetedBlock = TargetedBlock(reach, out _);
+        if (targetedBlock != null)
+        {
+            var blockPos = targetedBlock.section.dataRef.GetGlobalBlockCoords(targetedBlock.position);
+            blockPos.y += targetedBlock.section.yOffset;
+            Gizmos.Draw<CubeDrawer>(Color.black, false, blockPos+ new Vector3(0.5f,0.5f,0.5f),Quaternion.identity, Vector3.one*1.01f);
+        }
     }
     
     // When the body is rotated, the head needs to be rotated as well to keep the head in the same position
