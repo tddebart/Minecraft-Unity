@@ -21,6 +21,7 @@ public partial class World : MonoBehaviour
     [RangeEx(16, 240, 16)]
     public byte worldHeight = 240; // 256 blocks high
     public byte chunksPerFrame = 2;
+    public int chunksGenerationPerFrame = 4;
     public WorldRenderer worldRenderer;
     
     public TerrainGenerator terrainGenerator;

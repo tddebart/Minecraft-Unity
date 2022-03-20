@@ -679,14 +679,14 @@ MonoBehaviour:
   flySprintSpeed: 20
   jumpForce: 10.15
   gravity: -32
-  entityWidth: 0.32
+  entityWidth: 0.3
   entityHeight: 1.8
   eyeHeight: 1.578
   isGrounded: 1
   isSprinting: 0
   isCrouching: 0
   isFlying: 0
-  drawBounds: 0
+  drawBounds: 1
   sensitivity: 5
 --- !u!114 &1296084350405261148
 MonoBehaviour:

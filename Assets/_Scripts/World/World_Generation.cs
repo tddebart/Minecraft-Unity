@@ -148,16 +148,38 @@ public partial class World
         return UniTask.RunOnThreadPool(() =>
         {
             var dict = new ConcurrentDictionary<Vector3Int, MeshData>();
-            Parallel.ForEach(dataToRender, data =>
+            if (IsWorldCreated)
             {
-                if(taskTokenSource.IsCancellationRequested)
+                while (dataToRender.Count > 0)
                 {
-                    taskTokenSource.Token.ThrowIfCancellationRequested();
+                    Parallel.For(0, chunksGenerationPerFrame, i =>
+                    {
+                        if(taskTokenSource.IsCancellationRequested)
+                        {
+                            taskTokenSource.Token.ThrowIfCancellationRequested();
+                        }
+
+                        var data = dataToRender.First();
+                        var meshData = data.GetMeshData();
+                        dict.TryAdd(data.worldPos, meshData);
+                        dataToRender.RemoveAt(0);
+                    });
+                    UniTask.NextFrame();
                 }
-                
-                var meshData = data.GetMeshData();
-                dict.TryAdd(data.worldPos, meshData);
-            });
+            }
+            else
+            {
+                Parallel.ForEach(dataToRender, data =>
+                {
+                    if(taskTokenSource.IsCancellationRequested)
+                    {
+                        taskTokenSource.Token.ThrowIfCancellationRequested();
+                    }
+                    
+                    var meshData = data.GetMeshData();
+                    dict.TryAdd(data.worldPos, meshData);
+                });
+            }
 
             // foreach (var data in dataToRender)
             // {
@@ -197,19 +219,29 @@ public partial class World
         {
             Profiler.BeginThreadProfiling("MyThreads","CalculateWorldChunkData");
             var dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
-
-            Parallel.ForEach(chunkDataPositionsToCreate, pos =>
+            while (chunkDataPositionsToCreate.Count > 0)
             {
-                if(taskTokenSource.IsCancellationRequested)
+                if(chunkDataPositionsToCreate.Count < chunksGenerationPerFrame)
                 {
-                    taskTokenSource.Token.ThrowIfCancellationRequested();
+                    chunksGenerationPerFrame = chunkDataPositionsToCreate.Count;
                 }
+                
+                Parallel.For(0,chunksGenerationPerFrame, i =>
+                {
+                    if(taskTokenSource.IsCancellationRequested)
+                    {
+                        taskTokenSource.Token.ThrowIfCancellationRequested();
+                    }
 
-                var data = new ChunkData(chunkSize, chunkHeight, this, pos);
-                var newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
-                dataDict.TryAdd(pos, newData);
-
-            });
+                    var pos = chunkDataPositionsToCreate.First();
+                    var data = new ChunkData(chunkSize, chunkHeight, this, pos);
+                    var newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
+                    dataDict.TryAdd(pos, newData);
+                    
+                    chunkDataPositionsToCreate.Remove(pos);
+                });
+                UniTask.NextFrame();
+            }
             // foreach(var pos in chunkDataPositionsToCreate)
             // {
             //     if(taskTokenSource.IsCancellationRequested)

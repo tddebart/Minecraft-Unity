@@ -20,10 +20,13 @@ public class WorldRenderer : MonoBehaviour
             newChunk = chunkObj.GetComponent<ChunkRenderer>();
             
         }
-        
-        newChunk.Initialize(worldData.chunkDataDict[pos]);
-        newChunk.UpdateChunk(meshData);
-        newChunk.gameObject.SetActive(true);
+
+        if (worldData.chunkDataDict.ContainsKey(pos))
+        {
+            newChunk.Initialize(worldData.chunkDataDict[pos]);
+            newChunk.UpdateChunk(meshData);
+            newChunk.gameObject.SetActive(true);
+        }
         
         return newChunk;
     }

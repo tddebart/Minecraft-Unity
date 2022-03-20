@@ -5,16 +5,22 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
+    public static GameManager Instance;
     
     public GameObject playerPrefab;
     public GameObject localPlayer;
     public Vector3Int playerChunkPosition;
     private Vector3Int currentChunkCenter = Vector3Int.zero;
+    public bool playerSpawned = false;
 
     public World world;
 
     public float detectionTime = 1;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     public void SpawnPlayer()
     {
@@ -25,6 +31,7 @@ public class GameManager : MonoBehaviour
             if (world.GetBlock(new Vector3Int(0, i, 0)).type != BlockType.Air)
             {
                 localPlayer = Instantiate(playerPrefab, new Vector3(world.chunkSize/2, i + 1, world.chunkSize/2), Quaternion.identity);
+                playerSpawned = true;
                 StartCheckingForChunks();
                 break;
             }

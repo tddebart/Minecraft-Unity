@@ -130,25 +130,25 @@ public abstract class BaseEntity : MonoBehaviour
         // Check collisions
         if(velocity.z > 0 && front())
         {
-            transform.SetZPosition(Mathf.Floor(transform.position.z)+(0.5f+(entityWidth/2f+0.019f)));
+            transform.SetZPosition(Mathf.Floor(transform.position.z)+1-entityWidth);
             velocity.z = 0;
         }
 
         if (velocity.z < 0 && back())
         {
-            transform.SetZPosition(Mathf.Floor(transform.position.z)+(0.5f-entityWidth/2f-0.019f));
+            transform.SetZPosition(Mathf.Floor(transform.position.z)+entityWidth);
             velocity.z = 0;
         }
         
         if(velocity.x > 0 && right())
         {
-            transform.SetXPosition(Mathf.Floor(transform.position.x)+(0.5f+entityWidth/2f+0.019f));
+            transform.SetXPosition(Mathf.Floor(transform.position.x)+1-entityWidth);
             velocity.x = 0;
         }
 
         if (velocity.x < 0 && left())
         {
-            transform.SetXPosition(Mathf.Floor(transform.position.x)+(0.5f-entityWidth/2f-0.019f));
+            transform.SetXPosition(Mathf.Floor(transform.position.x)+entityWidth);
             velocity.x = 0;
         }
 
@@ -182,8 +182,8 @@ public abstract class BaseEntity : MonoBehaviour
         if (
             BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y-0.11f + downSpeed, transform.position.z - entityWidth)).type].generateCollider && !left() && !back() ||
             BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth,  transform.position.y-0.11f + downSpeed, transform.position.z - entityWidth)).type].generateCollider && !right() && !back() ||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth,  transform.position.y-0.11f + downSpeed, transform.position.z + entityWidth)).type].generateCollider && !right() && !front()||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y-0.11f + downSpeed, transform.position.z + entityWidth)).type].generateCollider && !left() && !front()
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth,  transform.position.y-0.11f + downSpeed, transform.position.z + entityWidth-0.001f)).type].generateCollider && !right() && !front()||
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y-0.11f + downSpeed, transform.position.z + entityWidth-0.001f)).type].generateCollider && !left() && !front()
         )
         {
             isGrounded = true;
