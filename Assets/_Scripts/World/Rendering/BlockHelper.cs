@@ -38,24 +38,24 @@ public static class BlockHelper
                     {
                         if (neighbourBlockType != BlockType.Water && neighbourTextureData.isTransparent)
                         {
-                            meshData.transparentMesh = GetFaceDataIn(dir, chunk, pos, meshData.transparentMesh, blockType,textureData);
+                            meshData.transparentMesh = GetFaceDataIn(dir, pos, meshData.transparentMesh, blockType,textureData);
                         }
                     }
                     else if (neighbourTextureData.isTransparent)
                     {
-                        meshData.transparentMesh = GetFaceDataIn(dir, chunk, pos, meshData.transparentMesh, blockType,textureData);
+                        meshData.transparentMesh = GetFaceDataIn(dir, pos, meshData.transparentMesh, blockType,textureData);
                     }
                 }
                 else if(neighbourTextureData.isTransparent)
                 {
-                    meshData = GetFaceDataIn(dir, chunk, pos, meshData, blockType,textureData);
+                    meshData = GetFaceDataIn(dir, pos, meshData, blockType,textureData);
                 }
             }
         }
         return meshData;
     }
 
-    public static MeshData GetFaceDataIn(Direction dir, ChunkData chunk, Vector3Int pos, MeshData meshData, BlockType blockType, TextureData textureData)
+    public static MeshData GetFaceDataIn(Direction dir, Vector3Int pos, MeshData meshData, BlockType blockType, TextureData textureData)
     {
         GetFaceVertices(dir, pos, meshData, blockType);
         meshData.AddQuadTriangles();

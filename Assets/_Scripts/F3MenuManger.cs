@@ -17,7 +17,12 @@ public class F3MenuManger : MonoBehaviour
     {
         if (Input.GetKeyUp(KeyCode.F3))
         {
-            f3Container.gameObject.SetActive(!f3Container.gameObject.activeSelf);
+            if (!GameManager.Instance.localPlayer.f3KeyComboUsed)
+            {
+                f3Container.gameObject.SetActive(!f3Container.gameObject.activeSelf);
+            }
+
+            GameManager.Instance.localPlayer.f3KeyComboUsed = false;
         }
         
         if (GameManager.Instance.playerSpawned && f3Container.gameObject.activeSelf)

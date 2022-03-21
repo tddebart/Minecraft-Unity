@@ -635,6 +635,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1296084350405261151}
   - component: {fileID: 1296084350405261150}
+  - component: {fileID: -873992875956742777}
   - component: {fileID: 1296084350405261148}
   - component: {fileID: 1296084350405261149}
   m_Layer: 0
@@ -686,10 +687,25 @@ MonoBehaviour:
   isSprinting: 0
   isCrouching: 0
   isFlying: 0
-  drawBounds: 1
+  drawBounds: 0
   sensitivity: 5
-  checkIncrement: 0.1
+  checkIncrement: 0.05
   reach: 4.5
+--- !u!114 &-873992875956742777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1296084350405261137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 902052ece0e448bbaa15e3e525dee68c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UIBlockPrefab: {fileID: 5473999293706167032, guid: b9c00b5cbe799e346886fcb7bf49d692,
+    type: 3}
+  selectedSlot: 0
 --- !u!114 &1296084350405261148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -721,7 +737,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 084e5e303d084a24c974aab45f98713a, type: 2}
-  m_CullingMode: 1
+  m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0

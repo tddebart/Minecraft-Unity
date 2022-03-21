@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using Popcron;
 using UnityEditor;
 using UnityEngine;
@@ -15,6 +16,16 @@ public class Player : BaseEntity
     private Transform cam;
     private PlayerObjects objects;
     private Animator animator;
+    private PlayerInventory inventory;
+    
+    private bool leftMouseDown;
+    private bool rightMouseDown;
+    private const float breakDelay = 0.3f;
+    private const float placeDelay = 0.21f;
+    private Coroutine breakCoroutine;
+    private Coroutine placeCoroutine;
+    [HideInInspector]
+    public bool f3KeyComboUsed;
     
     private static readonly int Speed = Animator.StringToHash("speed");
     private static readonly int Sneaking = Animator.StringToHash("sneaking");
@@ -31,6 +42,16 @@ public class Player : BaseEntity
         cam = objects.cam;
         direction = objects.moveDirection;
         animator = GetComponent<Animator>();
+        inventory = GetComponent<PlayerInventory>();
+        if (!Application.isPlaying) return; 
+        
+        GameObject.Find("Rendering/Camera").SetActive(false);
+        
+        GameObject.Find("Rendering").transform.GetChild(2).gameObject.SetActive(false);
+        this.ExecuteAfterFrames(1, () =>
+        {
+            GameObject.Find("Rendering").transform.GetChild(2).gameObject.SetActive(true);
+        });
     }
 
     private void OnEnable()
@@ -43,7 +64,7 @@ public class Player : BaseEntity
         base.FixedUpdate();
     }
 
-    public void BreakBlock()
+    public bool BreakBlock()
     {
         var targetedBlock = TargetedBlock(reach, out _);
         if (targetedBlock != null)
@@ -51,7 +72,67 @@ public class Player : BaseEntity
             var blockPos = targetedBlock.section.dataRef.GetGlobalBlockCoords(targetedBlock.position);
             blockPos.y += targetedBlock.section.yOffset;
             world.SetBlock(blockPos, BlockType.Air);
+            inventory.AddItem(targetedBlock.type);
+            return true;
         }
+        else
+        {
+            return false;
+        }
+        
+        // if (hit.distance > reach) return;
+        // if (block.breakSound != null)
+        // {
+        //     AudioSource.PlayClipAtPoint(block.breakSound, objects.transform.position);
+        // }
+        // targetedBlock.section.dataRef.SetBlock(blockPos, null);
+        // if (block.breakParticles != null)
+        // {
+        //     var particles = Instantiate(block.breakParticles, blockPos, Quaternion.identity);
+        //     Destroy(particles, particles.main.duration);
+        // }
+    }
+    
+    public bool PlaceBlock()
+    {
+        var type = inventory.slots[inventory.selectedSlot].type;
+        if (type != BlockType.Nothing)
+        {
+            var targetedBlock = TargetedBlock(reach, out var blockPos);
+            if (targetedBlock != null)
+            {
+                // Check if the block is not in the player
+                if (!IsPlayerStandingIn(blockPos))
+                {
+                    world.SetBlock(blockPos, type);
+                    inventory.RemoveHeldItem();
+                    return true;
+                }
+                
+            }
+        }
+        return false;
+    }
+
+    public bool IsPlayerStandingIn(Vector3 posU)
+    {
+        var pos = Vector3Int.FloorToInt(posU);
+        var blockPoss = new List<Vector3Int>();
+
+        var position = transform.position;
+        blockPoss.Add(Vector3Int.FloorToInt(new Vector3(position.x - entityWidth, position.y, position.z - entityWidth)));
+        blockPoss.Add( Vector3Int.FloorToInt(new Vector3(position.x - entityWidth, position.y + 1, position.z - entityWidth)));
+        
+        blockPoss.Add(Vector3Int.FloorToInt(new Vector3(position.x + entityWidth, position.y, position.z - entityWidth)));
+        blockPoss.Add(Vector3Int.FloorToInt(new Vector3(position.x + entityWidth, position.y + 1, position.z - entityWidth)));
+        
+        blockPoss.Add(Vector3Int.FloorToInt(new Vector3(position.x - entityWidth, position.y, position.z + entityWidth)));
+        blockPoss.Add(Vector3Int.FloorToInt(new Vector3(position.x - entityWidth, position.y + 1, position.z + entityWidth)));
+        
+        blockPoss.Add(Vector3Int.FloorToInt(new Vector3(position.x + entityWidth, position.y, position.z + entityWidth)));
+        blockPoss.Add(Vector3Int.FloorToInt(new Vector3(position.x + entityWidth, position.y + 1, position.z + entityWidth)));
+        
+        return blockPoss.Contains(pos);
     }
 
     public Block TargetedBlock(float tReach,out Vector3Int lastPos)
@@ -62,24 +143,52 @@ public class Player : BaseEntity
         {
             var pos = cam.position + cam.forward * step;
             var block = world.GetBlock(pos);
-            lastPos = Vector3Int.FloorToInt(pos);
-            if (block.type != BlockType.Air && block.type != BlockType.Nothing)
+            if (BlockDataManager.textureDataDictionary[(int)block.type].generateCollider)
             {
                 return block;
             }
+
+            lastPos = Vector3Int.FloorToInt(pos + FindNormal(pos, lastPos));
             
             step += checkIncrement;
         }
         return null;
     }
 
+    // I am a fucking genius, I just fully came up with this shit
+    // Loop through all vector directions and return the one that has less then 90 degrees between the camera and the block
+    public Vector3 FindNormal(Vector3 pos, Vector3Int lastPos)
+    {
+        var directions = new Vector3Int[]
+        {
+            Vector3Int.forward,
+            Vector3Int.back,
+            Vector3Int.left,
+            Vector3Int.right,
+            Vector3Int.up,
+            Vector3Int.down
+        };
+        
+        var angle = Vector3.Angle(pos, lastPos);
+        
+        var normal = Vector3Int.zero;
+        
+        foreach (var dir in directions)
+        {
+            var angleToDir = Vector3.Angle(lastPos - pos, dir);
+            if (angleToDir < angle)
+            {
+                normal = dir;
+                angle = angleToDir;
+            }
+        }
+        
+        return normal;
+    }
+
     public override void Move()
     {
         base.Move();
-        // transform.Rotate(Vector3.up * mouseX);
-        // _camera.Rotate(Vector3.left * mouseY);
-     
-        // DoHeadRotation();
         DoBodyRotation();
     }
 
@@ -158,16 +267,6 @@ public class Player : BaseEntity
         }
         DoHeadRotation();
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            BreakBlock();
-        }
-        
-        if (Input.GetMouseButton(1))
-        {
-            BreakBlock();
-        }
-
         var targetedBlock = TargetedBlock(reach, out _);
         if (targetedBlock != null)
         {
@@ -185,6 +284,37 @@ public class Player : BaseEntity
         var headRotation = objects.head.localRotation.eulerAngles;
         headRotation += new Vector3(0, -bodyYawRotation, 0);
         objects.head.localRotation = Quaternion.Euler(headRotation);
+    }
+    
+    public IEnumerator BreakLoop()
+    {
+        while (true)
+        {
+            if (BreakBlock())
+            {
+                yield return new WaitForSeconds(breakDelay);
+            }
+            else
+            {
+                yield return new WaitForSeconds(0.05f);
+            }
+            
+        }
+    }
+    
+    public IEnumerator PlaceLoop()
+    {
+        while (true)
+        {
+            if (PlaceBlock())
+            {
+                yield return new WaitForSeconds(placeDelay);
+            } else
+            {
+                yield return new WaitForSeconds(0.05f);
+            }
+            
+        }
     }
 
     private void GetPlayerInput()
@@ -205,6 +335,25 @@ public class Player : BaseEntity
             isFlying = !isFlying;
             verticalMomentum = 0;
         }
+        
+        if (Input.GetMouseButtonDown(0))
+        {
+            breakCoroutine = StartCoroutine(BreakLoop());
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            StopCoroutine(breakCoroutine);
+        }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            placeCoroutine = StartCoroutine(PlaceLoop());
+        }
+        
+        if (Input.GetMouseButtonUp(1))
+        {
+            StopCoroutine(placeCoroutine);
+        }
 
         if (Input.GetButtonDown("Crouch"))
         {
@@ -218,6 +367,18 @@ public class Player : BaseEntity
         if (Input.GetButtonUp("Crouch"))
         {
             isCrouching = false;
+        }
+
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if (Input.GetKey(KeyCode.F3))
+            {
+                foreach (var entity in FindObjectsOfType<BaseEntity>())
+                {
+                    entity.drawBounds = !entity.drawBounds;
+                }
+                f3KeyComboUsed = true;
+            }
         }
 
 
@@ -250,7 +411,7 @@ public class Player : BaseEntity
             if(Input.GetButtonDown("Jump"))
             {
                 isWaitingOnJumpDelay = false;
-                StopAllCoroutines();
+                StopCoroutine(nameof(WaitOnJumpDelay));
             }
             if(Input.GetButtonUp("Jump"))
             {

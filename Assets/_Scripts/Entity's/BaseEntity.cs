@@ -76,9 +76,11 @@ public abstract class BaseEntity : MonoBehaviour
 
     public virtual void Update()
     {
-        Gizmos.Enabled = drawBounds;
-        Gizmos.Draw<CubeDrawer>(Color.white, false, transform.position + (Vector3.up*entityHeight/2),Quaternion.identity, new Vector3(entityWidth * 2, entityHeight, entityWidth * 2));
-        Gizmos.Draw<CubeDrawer>(Color.red, false, transform.position + (Vector3.up*eyeHeight),Quaternion.identity, new Vector3(entityWidth * 2, 0.01f, entityWidth * 2));
+        if (drawBounds)
+        {
+            Gizmos.Draw<CubeDrawer>(Color.white, false, transform.position + (Vector3.up*entityHeight/2),Quaternion.identity, new Vector3(entityWidth * 2, entityHeight, entityWidth * 2));
+            Gizmos.Draw<CubeDrawer>(Color.red, false, transform.position + (Vector3.up*eyeHeight),Quaternion.identity, new Vector3(entityWidth * 2, 0.01f, entityWidth * 2));
+        }
     }
     
     private void Jump()
@@ -89,7 +91,7 @@ public abstract class BaseEntity : MonoBehaviour
         StartCoroutine(WaitOnJumpDelay());
     }
     
-    private IEnumerator WaitOnJumpDelay()
+    public IEnumerator WaitOnJumpDelay()
     {
         isWaitingOnJumpDelay = true;
         yield return new WaitForSeconds(0.5f);
@@ -130,25 +132,66 @@ public abstract class BaseEntity : MonoBehaviour
         // Check collisions
         if(velocity.z > 0 && front())
         {
-            transform.SetZPosition(Mathf.Floor(transform.position.z)+1-entityWidth);
+            if (!(isCrouching && isGrounded && CheckDownCollision(velocity.y == 0 ? 0.1f : velocity.y, false, new Vector3(0,0,0.03f)) != 0
+                /*only false if we are on the edge of a block*/ &&
+                transform.position.z%1 > (Mathf.Floor(transform.position.z)+entityWidth-0.02f)%1 &&
+                transform.position.z%1 < (Mathf.Floor(transform.position.z)+entityWidth+0.02f)%1))
+            {
+                transform.SetZPosition(Mathf.Floor(transform.position.z)+1-entityWidth);
+            }
+            else
+            {
+                transform.SetZPosition(Mathf.Floor(transform.position.z)+entityWidth-0.001f);
+            }
             velocity.z = 0;
         }
 
         if (velocity.z < 0 && back())
         {
-            transform.SetZPosition(Mathf.Floor(transform.position.z)+entityWidth);
+            if (!(isCrouching && isGrounded &&
+                  CheckDownCollision(velocity.y == 0 ? 0.1f : velocity.y, false, new Vector3(0, 0, -0.03f)) != 0 &&
+                  transform.position.z % 1 > (Mathf.Floor(transform.position.z) - entityWidth - 0.02f) % 1 &&
+                  transform.position.z % 1 < (Mathf.Floor(transform.position.z) - entityWidth + 0.02f) % 1))
+            {
+                transform.SetZPosition(Mathf.Floor(transform.position.z)+entityWidth);
+            }
+            else
+            {
+                transform.SetZPosition(Mathf.Floor(transform.position.z)+1-entityWidth+0.001f);
+            }
+
             velocity.z = 0;
         }
         
         if(velocity.x > 0 && right())
         {
-            transform.SetXPosition(Mathf.Floor(transform.position.x)+1-entityWidth);
+            if (!(isCrouching && isGrounded &&
+                  CheckDownCollision(velocity.y == 0 ? 0.1f : velocity.y, false, new Vector3(0.03f, 0, 0)) != 0 &&
+                  transform.position.x % 1 > (Mathf.Floor(transform.position.x) + entityWidth - 0.02f) % 1 &&
+                  transform.position.x % 1 < (Mathf.Floor(transform.position.x) + entityWidth + 0.02f) % 1))
+            {
+                transform.SetXPosition(Mathf.Floor(transform.position.x)+1-entityWidth);
+            }
+            else
+            {
+                transform.SetXPosition(Mathf.Floor(transform.position.x)+entityWidth-0.001f);
+            }
             velocity.x = 0;
         }
 
         if (velocity.x < 0 && left())
         {
-            transform.SetXPosition(Mathf.Floor(transform.position.x)+entityWidth);
+            if (!(isCrouching && isGrounded &&
+                  CheckDownCollision(velocity.y == 0 ? 0.1f : velocity.y, false, new Vector3(-0.03f, 0, 0)) != 0 &&
+                  transform.position.x % 1 > (Mathf.Floor(transform.position.x) - entityWidth - 0.02f) % 1 &&
+                  transform.position.x % 1 < (Mathf.Floor(transform.position.x) - entityWidth + 0.02f) % 1))
+            {
+                transform.SetXPosition(Mathf.Floor(transform.position.x)+entityWidth);
+            }
+            else
+            {
+                transform.SetXPosition(Mathf.Floor(transform.position.x)+1-entityWidth+0.001f);
+            }
             velocity.x = 0;
         }
 
@@ -177,26 +220,34 @@ public abstract class BaseEntity : MonoBehaviour
     
     #region Collision checks
     
-    private float CheckDownCollision(float downSpeed)
+    private float CheckDownCollision(float downSpeed, bool setGrounded = true, Vector3? extraMovementNull = null)
     {
+        extraMovementNull ??= Vector3.zero;
+        var extraMovement = extraMovementNull.Value;
+
         if (
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y-0.11f + downSpeed, transform.position.z - entityWidth)).type].generateCollider && !left() && !back() ||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth,  transform.position.y-0.11f + downSpeed, transform.position.z - entityWidth)).type].generateCollider && !right() && !back() ||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth,  transform.position.y-0.11f + downSpeed, transform.position.z + entityWidth-0.001f)).type].generateCollider && !right() && !front()||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y-0.11f + downSpeed, transform.position.z + entityWidth-0.001f)).type].generateCollider && !left() && !front()
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth+extraMovement.x,  transform.position.y-0.11f + downSpeed + extraMovement.y, transform.position.z - entityWidth + extraMovement.z )).type].generateCollider && !left(false) && !back(false) ||
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+extraMovement.x,  transform.position.y-0.11f + downSpeed + extraMovement.y, transform.position.z - entityWidth + extraMovement.z )).type].generateCollider && !right(false) && !back(false) ||
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+extraMovement.x,  transform.position.y-0.11f + downSpeed + extraMovement.y, transform.position.z + entityWidth + extraMovement.z -0.001f)).type].generateCollider && !right(false) && !front(false)||
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth+extraMovement.x,  transform.position.y-0.11f + downSpeed + extraMovement.y, transform.position.z + entityWidth + extraMovement.z -0.001f)).type].generateCollider && !left(false) && !front(false)
         )
         {
-            isGrounded = true;
+            if(setGrounded)
+            {
+                isGrounded = true;
+            }
             return 0;
         }
         else
         {
-            isGrounded = false;
+            if(setGrounded)
+            {
+                isGrounded = false;
+            }
             return downSpeed;
         }
-
     }
-    
+
     private float CheckUpCollision(float upSpeed)
     {
         if (
@@ -230,8 +281,15 @@ public abstract class BaseEntity : MonoBehaviour
             BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth,  transform.position.y + 1, transform.position.z + entityWidth+0.03f)).type].generateCollider) || 
             !left(false) && (
             BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y, transform.position.z + entityWidth+0.03f)).type].generateCollider ||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y + 1, transform.position.z + entityWidth+0.03f)).type].generateCollider))
-        ) 
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y + 1, transform.position.z + entityWidth+0.03f)).type].generateCollider) ||
+            
+            // If we are crouching make sure we don't fall off the edge
+            isCrouching && isGrounded && CheckDownCollision(0.1f, false, new Vector3(0,0,0.03f)) != 0 && 
+            transform.position.z%1 > (Mathf.Floor(transform.position.z)+entityWidth-0.02f)%1 &&
+            transform.position.z%1 < (Mathf.Floor(transform.position.z)+entityWidth+0.02f)%1
+            
+            ) 
+        )
         {
             return true;
         }
@@ -240,7 +298,7 @@ public abstract class BaseEntity : MonoBehaviour
             return false;
         }
     }
-    
+
     public bool back(bool extra = true)
     {
         if(
@@ -254,15 +312,53 @@ public abstract class BaseEntity : MonoBehaviour
             BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth,  transform.position.y + 1, transform.position.z - entityWidth-0.03f)).type].generateCollider) ||
             !left(false) && (
             BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y, transform.position.z - entityWidth-0.03f)).type].generateCollider ||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y + 1, transform.position.z - entityWidth-0.03f)).type].generateCollider))
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth,  transform.position.y + 1, transform.position.z - entityWidth-0.03f)).type].generateCollider) ||
+            
+            // If we are crouching make sure we don't fall off the edge
+            isCrouching && isGrounded && CheckDownCollision(0.1f, false, new Vector3(0,0,-0.03f)) != 0 && 
+            transform.position.z%1 > (Mathf.Floor(transform.position.z)-entityWidth-0.02f)%1 &&
+            transform.position.z%1 < (Mathf.Floor(transform.position.z)-entityWidth+0.02f)%1
             )
+        )
+        {
             return true;
+        }
         else
         {
             return false;
         }
     }
     
+    public bool right(bool extra = true)
+    {
+        if(
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y, transform.position.z)).type].generateCollider ||
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y + 1, transform.position.z)).type].generateCollider ||
+            
+            // Blocks to the front and back
+            extra && (
+                !front(false) && (
+                    BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y, transform.position.z + entityWidth)).type].generateCollider ||
+                    BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y + 1, transform.position.z + entityWidth)).type].generateCollider) ||
+                !back(false) && (
+                    BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y, transform.position.z - entityWidth)).type].generateCollider ||
+                    BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y + 1, transform.position.z - entityWidth)).type].generateCollider) ||
+                
+                // If we are crouching make sure we don't fall off the edge
+                isCrouching && isGrounded && CheckDownCollision(0.1f, false, new Vector3(0.03f,0,0)) != 0 && 
+                transform.position.x%1 > (Mathf.Floor(transform.position.x)+entityWidth-0.02f)%1 &&
+                transform.position.x%1 < (Mathf.Floor(transform.position.x)+entityWidth+0.02f)%1
+                
+                
+                )
+        )
+            return true;
+        else
+        {
+            return false;
+        }
+    }
+
     public bool left(bool extra = true)
     {
 
@@ -277,7 +373,15 @@ public abstract class BaseEntity : MonoBehaviour
             BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth-0.03f,  transform.position.y + 1, transform.position.z + entityWidth)).type].generateCollider) ||
             !back(false) && (
             BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth-0.03f,  transform.position.y, transform.position.z - entityWidth)).type].generateCollider ||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth-0.03f,  transform.position.y + 1, transform.position.z - entityWidth)).type].generateCollider))
+            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x - entityWidth-0.03f,  transform.position.y + 1, transform.position.z - entityWidth)).type].generateCollider) ||
+            
+            // If we are crouching make sure we don't fall off the edge
+            isCrouching && isGrounded && CheckDownCollision(0.1f, false, new Vector3(-0.03f, 0, 0)) != 0 &&
+            transform.position.x % 1 > (Mathf.Floor(transform.position.x) - entityWidth - 0.02f) % 1 &&
+            transform.position.x % 1 < (Mathf.Floor(transform.position.x) - entityWidth + 0.02f) % 1
+            
+            
+            )
         )
             return true;
         else
@@ -286,28 +390,5 @@ public abstract class BaseEntity : MonoBehaviour
         }
         
     }
-    
-    public bool right(bool extra = true)
-    {
-        if(
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y, transform.position.z)).type].generateCollider ||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y + 1, transform.position.z)).type].generateCollider ||
-            
-            // Blocks to the front and back
-            extra && (
-            !front(false) && (
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y, transform.position.z + entityWidth)).type].generateCollider ||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y + 1, transform.position.z + entityWidth)).type].generateCollider) ||
-            !back(false) && (
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y, transform.position.z - entityWidth)).type].generateCollider ||
-            BlockDataManager.textureDataDictionary[(int)world.GetBlock(new Vector3(transform.position.x + entityWidth+0.03f,  transform.position.y + 1, transform.position.z - entityWidth)).type].generateCollider))
-        )
-            return true;
-        else
-        {
-            return false;
-        }
-    }
-    
     #endregion
 }
