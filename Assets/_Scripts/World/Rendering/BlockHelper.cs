@@ -126,31 +126,8 @@ public static class BlockHelper
 
     public static void GetFaceColors(Direction direction, Vector3Int pos, MeshData meshData, ChunkData chunk)
     {
-        float lightLevel;
-        
-        var yPos = pos.y+1;
-        var inShade = false;
+        float lightLevel = chunk.GetBlock(pos+direction.GetVector()).globalLightPercent;
 
-        while (yPos < World.Instance.worldHeight)
-        {
-            if (chunk.GetBlock(new Vector3Int(pos.x, yPos, pos.z)).type != BlockType.Air)
-            {
-                inShade = true;
-                break;
-            }
-
-            yPos++;
-        }
-        
-        if (inShade)
-        {
-            lightLevel = 0.4f;
-        }
-        else
-        {
-            lightLevel = 0f;
-        }
-        
         meshData.AddColor(new Color(0,0,0,lightLevel));
         meshData.AddColor(new Color(0,0,0,lightLevel));
         meshData.AddColor(new Color(0,0,0,lightLevel));

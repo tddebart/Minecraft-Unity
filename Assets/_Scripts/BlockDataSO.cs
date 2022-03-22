@@ -16,6 +16,7 @@ public class TextureData
 {
     public BlockType blockType;
     public Vector2Int up, down, side;
-    [FormerlySerializedAs("isSolid")] public bool isTransparent = false;
+    public bool isTransparent = false;
     public bool generateCollider = true;
+    public float transparency = 0;
 }

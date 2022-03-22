@@ -26,8 +26,9 @@ public partial class World
 
     private void Update()
     {
+        //TODO: remove this because it is slow
         Shader.SetGlobalFloat("GlobalLightLevel", globalLightLevel);
-        Camera.main.backgroundColor = Color.Lerp(dayColor, nightColor, globalLightLevel);
+        Camera.main.backgroundColor = Color.Lerp(nightColor,dayColor , globalLightLevel);
     }
 
     public void UpdateBlocks()

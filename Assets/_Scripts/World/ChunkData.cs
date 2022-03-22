@@ -40,7 +40,7 @@ public class ChunkData
             }
         }
     }
-    
+
     public ChunkSection GetSection(int y)
     {
         return sections[Mathf.FloorToInt(y / chunkHeight)];
@@ -152,6 +152,8 @@ public class ChunkData
     {
         MeshData meshData = new MeshData(true);
         
+        CalculateLights();
+        
         LoopThroughTheBlocks(this, (x, y, z,block) =>
         {
             meshData = BlockHelper.GetMeshData(this, new Vector3Int(x, y, z), meshData, block);
@@ -159,6 +161,65 @@ public class ChunkData
         
         
         return meshData;
+    }
+
+    public void CalculateLights()
+    {
+        Queue<Vector3Int> litBlocks = new Queue<Vector3Int>();
+
+        for (var x = 0; x < chunkSize; x++)
+        {
+            for (var z = 0; z < chunkSize; z++)
+            {
+                var lightRay = 1f;
+                
+                for (var y = worldRef.worldHeight-1; y >= 0; y--)
+                {
+                    var block = GetBlock(new Vector3Int(x, y, z));
+                    var transparency = BlockDataManager.textureDataDictionary[(int)block.type].transparency;
+                    if (block.type is not BlockType.Air and not BlockType.Nothing && transparency < lightRay)
+                    {
+                        lightRay = transparency;
+                    }
+                    if (block.type == BlockType.GlowStone)
+                    {
+                        lightRay = 1f;
+                    }
+                    
+                    block.globalLightPercent = lightRay;
+
+                    if (lightRay > worldRef.lightFalloff)
+                    {
+                        litBlocks.Enqueue(new Vector3Int(x, y, z));
+                    }
+                }
+            }
+        }
+
+        while (litBlocks.Count > 0)
+        {
+            var blockPos = litBlocks.Dequeue();
+            
+            foreach (var dir in BlockHelper.directions)
+            {
+                var block = GetBlock(blockPos);
+                var neighborPos = blockPos + dir.GetVector();
+                if (IsInRange(this, neighborPos))
+                {
+                    var neighborBlock = GetBlock(neighborPos);
+                    if (neighborBlock.type == BlockType.Air && neighborBlock.globalLightPercent < block.globalLightPercent - worldRef.lightFalloff)
+                    {
+                        neighborBlock.globalLightPercent = block.globalLightPercent - worldRef.lightFalloff;
+            
+                        if (neighborBlock.globalLightPercent > worldRef.lightFalloff)
+                        {
+                            litBlocks.Enqueue(neighborPos);
+                        }
+                    }
+                }
+            }
+        }
+        
     }
 
     public bool IsOnEdge(Vector3Int blockWorldPos)

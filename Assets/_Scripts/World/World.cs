@@ -33,10 +33,13 @@ public partial class World : MonoBehaviour
     public bool GenerateMoreChunks = true;
     [Space]
     [Header("Lighting")] 
-    [Range(0.95f, 0)]
+    [Range(0, 1)]
     public float globalLightLevel = 1f;
     public Color dayColor;
     public Color nightColor;
+    public float minLightLevel = 0.1f;
+    public float maxLightLevel = 0.90f;
+    public float lightFalloff = 0.08f;
 
     private CancellationTokenSource taskTokenSource = new CancellationTokenSource();
 
@@ -50,10 +53,13 @@ public partial class World : MonoBehaviour
     
     public Dictionary<Vector3Int, BlockType> blocksToPlaceAfterGeneration = new Dictionary<Vector3Int, BlockType>();
 
+    public bool validateDone;
+
 
     private void Awake()
     {
         Instance = this;
+        validateDone = false;
         OnValidate();
         ClearVisable();
         GenerateWorld();
@@ -62,7 +68,7 @@ public partial class World : MonoBehaviour
     private void OnValidate()
     {
         Update();
-        if (!Application.isPlaying)
+        if (!Application.isPlaying || !validateDone)
         {
             worldData = new WorldData
             {
@@ -70,6 +76,11 @@ public partial class World : MonoBehaviour
                 chunkDict = new Dictionary<Vector3Int, ChunkRenderer>()
             };
             Instance = this;
+            
+            Shader.SetGlobalFloat("minGlobalLightLevel", minLightLevel);
+            Shader.SetGlobalFloat("maxGlobalLightLevel", maxLightLevel);
+            
+            validateDone = true;
         }
     }
 

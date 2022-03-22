@@ -41,13 +41,14 @@ public class F3MenuManger : MonoBehaviour
             
             // Right
             // CreateF3Text("fps", "FPS: " + Mathf.RoundToInt(1 / Time.deltaTime));
-            var targetedBlock = GameManager.Instance.localPlayer.TargetedBlock(20,out _);
+            var targetedBlock = GameManager.Instance.localPlayer.TargetedBlock(20,out var frontBlock);
             if (targetedBlock != null)
             {
                 var blockPos = targetedBlock.section.dataRef.GetGlobalBlockCoords(targetedBlock.position);
                 blockPos.y += targetedBlock.section.yOffset;
                 CreateF3Text("Target", "Targeted Block: " + blockPos.x + ", " + blockPos.y + ", " + blockPos.z, false);
                 CreateF3Text("BlockType", targetedBlock.type.ToString(), false);
+                CreateF3Text("GlobalLightPercentage", World.Instance.GetBlock(frontBlock).globalLightPercent.ToString(), false);
             }
             else
             {

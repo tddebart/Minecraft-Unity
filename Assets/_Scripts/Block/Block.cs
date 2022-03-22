@@ -8,6 +8,8 @@ public class Block
     public BlockType type;
     public ChunkSection section;
 
+    public float globalLightPercent;
+
     public Block(BlockType type, Vector3Int position, [CanBeNull] ChunkSection section = null)
     {
         this.type = type;

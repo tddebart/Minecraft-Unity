@@ -2061,7 +2061,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e113280f9ab044168541f6fef84d3095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 2
+  renderDistance: 3
   chunkSize: 16
   chunkHeight: 16
   worldHeight: 96
@@ -2071,9 +2071,12 @@ MonoBehaviour:
   terrainGenerator: {fileID: 1658937128}
   mapSeedOffset: {x: -251, y: 150, z: 0}
   GenerateMoreChunks: 1
-  globalLightLevel: 0
+  globalLightLevel: 0.814
   dayColor: {r: 0, g: 0.90196085, b: 1, a: 1}
   nightColor: {r: 0, g: 0.019607844, b: 0.30588236, a: 1}
+  minLightLevel: 0.1
+  maxLightLevel: 0.9
+  lightFalloff: 0.07
   OnWorldCreated:
     m_PersistentCalls:
       m_Calls:
@@ -2104,6 +2107,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  validateDone: 1
 --- !u!4 &1422854026
 Transform:
   m_ObjectHideFlags: 0
@@ -2682,7 +2686,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0.90196085, b: 1, a: 1}
+  m_BackGroundColor: {r: 0, g: 0.7378432, b: 0.87089413, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
