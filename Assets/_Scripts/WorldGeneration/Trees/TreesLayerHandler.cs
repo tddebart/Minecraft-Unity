@@ -18,10 +18,15 @@ public class TreesLayerHandler : BlockLayerHandler
     // the second is a 2 high plus with corners randomly placed
     //
     // there will always be 3 logs hidden in the leaves
-    //
-    // for now i will just make a array with the basic non random leaves
     
-    
+    public Vector3Int[] directions = {
+        new(0, 0, 1),
+        new(0, 0, -1),
+        new(1, 0, 0),
+        new(-1, 0, 0)
+    };
+
+
     protected override bool TryHandling(ChunkData chunk, Vector3Int worldPos, Vector3Int localPos, int surfaceHeightNoise, Vector3Int mapSeedOffset)
     {
         if (chunk.worldPos.y < 0)
@@ -35,18 +40,30 @@ public class TreesLayerHandler : BlockLayerHandler
             if(blockCoords.y < 0)
             {
                 return false;
-            }
+            } 
             var type = chunk.GetBlock(blockCoords).type;
 
             if (type is BlockType.Grass or BlockType.Dirt)
             {
+                // Check if there is a tree around us
+                // I have disabled this for now because it is too slow
+                //
+                // for (var i = 0; i < 2; i++)
+                // {
+                //     var coords = new Vector3Int(localPos.x, surfaceHeightNoise+1+i, localPos.z);
+                //     if (directions.Any(dir => chunk.GetBlock(coords + dir).type == BlockType.Log))
+                //     {
+                //         return false;
+                //     }
+                // }
+                
                 chunk.SetBlock(blockCoords, BlockType.Dirt);
 
-                for (var i = 1; i < 6; i++)
+                var treeHeight = Mathf.RoundToInt(Mathf.Lerp(5, 7, MyNoise.OctavePerlin(worldPos.x, worldPos.z, chunk.treeData.treeNoiseSettings)));
+
+                for (var i = 1; i < treeHeight; i++)
                 {
                     blockCoords.y = surfaceHeightNoise-chunk.worldPos.y + i;
-                    // WorldDataHelper.SetBlock(chunk.worldRef, Chunk.GetGlobalBlockCoords(chunk, blockCoords), BlockType.Log);
-                    // chunk.worldRef.blocksToPlaceAfterGeneration[Chunk.GetGlobalBlockCoords(chunk, blockCoords)] = BlockType.Log;
                     chunk.SetBlock(blockCoords, BlockType.Log);
                 }
                 
@@ -86,22 +103,29 @@ public class TreesLayerHandler : BlockLayerHandler
                 {
                     if (chunk.GetBlock(l).type is not BlockType.Air and not BlockType.Leaves and not BlockType.Log and not BlockType.Nothing)
                     {
-                        blockCoords = new Vector3Int(localPos.x, surfaceHeightNoise-chunk.worldPos.y, localPos.z);
-                        chunk.SetBlock(blockCoords, type);
-                        for (var i = 1; i < 6; i++)
-                        {
-                            blockCoords.y = surfaceHeightNoise-chunk.worldPos.y + i;
-                            chunk.SetBlock(blockCoords, BlockType.Air);
-                        }
+                        RemoveTree();
 
                         return false;
                     }
                 }
 
+                void RemoveTree()
+                {
+                    blockCoords = new Vector3Int(localPos.x, surfaceHeightNoise, localPos.z);
+                    chunk.SetBlock(blockCoords, type);
+                    for (var i = 1; i < treeHeight; i++)
+                    {
+                        blockCoords.y = surfaceHeightNoise-chunk.worldPos.y + i;
+                        chunk.SetBlock(blockCoords, BlockType.Air);
+                    }
+                }
+
                 foreach (var leavePos in leavePositions)
                 {
-                    chunk.SetBlock(leavePos, BlockType.Leaves);
-                    // chunk.treeData.leavePositions.Add(leavePos);
+                    if (chunk.GetBlock(leavePos).type != BlockType.Log)
+                    {
+                        chunk.SetBlock(leavePos, BlockType.Leaves);
+                    }
                 }
 
             }

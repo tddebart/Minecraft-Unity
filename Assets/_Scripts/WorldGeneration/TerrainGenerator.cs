@@ -23,14 +23,8 @@ public class TerrainGenerator : MonoBehaviour
     
     public ChunkData GenerateChunkData(ChunkData data, Vector3Int mapSeedOffset)
     {
-        BiomeGeneratorSelection biomeSelection;// = SelectBiomeGeneratorWeight(data.worldPos, data,false);
-        //TODO: enable this if want trees and enable features in world generator
-        // TreeData treeData = biomeGenerator.GenerateTreeData(data, mapSeedOffset);
-        // data.treeData = biomeSelection.biomeGenerator.GenerateTreeData(data, mapSeedOffset);
-        data.treeData = new TreeData
-        {
-            treePositions = new HashSet<Vector2Int>()
-        };
+        BiomeGeneratorSelection biomeSelection = SelectBiomeGeneratorWeight(data.worldPos, data,false);
+        data.treeData = biomeSelection.biomeGenerator.GenerateTreeData(data, mapSeedOffset);
 
         for (var x = 0; x < data.chunkSize; x++)
         {

@@ -28,7 +28,7 @@ public static class BlockHelper
             Vector3Int neighbourPos = pos + dir.GetVector();
 
             BlockType neighbourBlockType = chunk.GetBlock(neighbourPos).type;
-            if (true/*neighbourBlockType != BlockType.Nothing*/)
+            if (neighbourBlockType != BlockType.Nothing)
             {
                 TextureData neighbourTextureData = BlockDataManager.textureDataDictionary[(int)neighbourBlockType];
 

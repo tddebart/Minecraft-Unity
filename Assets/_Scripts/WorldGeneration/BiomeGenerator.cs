@@ -61,17 +61,6 @@ public class BiomeGenerator : MonoBehaviour
         var worldPos = new Vector3Int(data.worldPos.x + x, 0, data.worldPos.z + z);
         var localPos = new Vector3Int(x, 0, z);
 
-        foreach (var layer in featureLayerHandlers)
-        {
-            for (var y = 0; y < data.worldRef.worldHeight; y++)
-            {
-                worldPos.y = y;
-                localPos.y = y;
-                
-                layer.Handle(data, worldPos,localPos, groundPos, mapSeedOffset);
-            }
-        }
-        
         // Process lodes
         foreach (var lode in lodes)
         {
@@ -95,6 +84,17 @@ public class BiomeGenerator : MonoBehaviour
                     }
                     data.SetBlock(localPos, lode.blockType);
                 }
+            }
+        }
+        
+        foreach (var layer in featureLayerHandlers)
+        {
+            for (var y = 0; y < data.worldRef.worldHeight; y++)
+            {
+                worldPos.y = y;
+                localPos.y = y;
+                
+                layer.Handle(data, worldPos,localPos, groundPos, mapSeedOffset);
             }
         }
     }

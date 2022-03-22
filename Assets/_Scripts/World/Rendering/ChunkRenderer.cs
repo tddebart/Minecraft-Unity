@@ -74,7 +74,7 @@ public class ChunkRenderer : MonoBehaviour
             }
             
             Gizmos.DrawCube(transform.position + new Vector3(ChunkData.chunkSize / 2f, ChunkData.worldRef.worldHeight / 2f, ChunkData.chunkSize / 2f),
-                new Vector3(ChunkData.chunkSize, ChunkData.worldRef.worldHeight, ChunkData.chunkSize));
+                new Vector3(ChunkData.chunkSize+1, ChunkData.worldRef.worldHeight, ChunkData.chunkSize+1));
         }
         
     }

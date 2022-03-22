@@ -44,7 +44,7 @@ public static class DataProcessing
                 continue;
             
             // Check if the new position is a local maximum
-            if (!(noiseData[newPos.x, newPos.y] < noiseVal))
+            if (!(noiseData[newPos.x, newPos.y] > noiseVal))
                 return false;
         }
         
