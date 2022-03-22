@@ -16,10 +16,13 @@ public partial class World : MonoBehaviour
 {
     public static World Instance;
     public byte renderDistance = 6;
+    [Space]
+    [Header("Sizes")]
     public byte chunkSize = 16; // 16x16 chunks
     public byte chunkHeight = 100; // 100 blocks high
     [RangeEx(16, 240, 16)]
     public byte worldHeight = 240; // 256 blocks high
+    [Space]
     public byte chunksPerFrame = 2;
     public int chunksGenerationPerFrame = 4;
     public WorldRenderer worldRenderer;
@@ -28,6 +31,12 @@ public partial class World : MonoBehaviour
     public Vector3Int mapSeedOffset;
     
     public bool GenerateMoreChunks = true;
+    [Space]
+    [Header("Lighting")] 
+    [Range(0.95f, 0)]
+    public float globalLightLevel = 1f;
+    public Color dayColor;
+    public Color nightColor;
 
     private CancellationTokenSource taskTokenSource = new CancellationTokenSource();
 
@@ -52,6 +61,7 @@ public partial class World : MonoBehaviour
 
     private void OnValidate()
     {
+        Update();
         if (!Application.isPlaying)
         {
             worldData = new WorldData

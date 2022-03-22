@@ -38,26 +38,30 @@ public static class BlockHelper
                     {
                         if (neighbourBlockType != BlockType.Water && neighbourTextureData.isTransparent)
                         {
-                            meshData.transparentMesh = GetFaceDataIn(dir, pos, meshData.transparentMesh, blockType,textureData);
+                            meshData.transparentMesh = GetFaceDataIn(dir, pos, meshData.transparentMesh, blockType,textureData, chunk);
                         }
                     }
                     else if (neighbourTextureData.isTransparent)
                     {
-                        meshData.transparentMesh = GetFaceDataIn(dir, pos, meshData.transparentMesh, blockType,textureData);
+                        meshData.transparentMesh = GetFaceDataIn(dir, pos, meshData.transparentMesh, blockType,textureData, chunk);
                     }
                 }
                 else if(neighbourTextureData.isTransparent)
                 {
-                    meshData = GetFaceDataIn(dir, pos, meshData, blockType,textureData);
+                    meshData = GetFaceDataIn(dir, pos, meshData, blockType,textureData, chunk);
                 }
             }
         }
         return meshData;
     }
 
-    public static MeshData GetFaceDataIn(Direction dir, Vector3Int pos, MeshData meshData, BlockType blockType, TextureData textureData)
+    public static MeshData GetFaceDataIn(Direction dir, Vector3Int pos, MeshData meshData, BlockType blockType, TextureData textureData, ChunkData chunk)
     {
-        GetFaceVertices(dir, pos, meshData, blockType);
+        GetFaceVertices(dir, pos, meshData);
+        if (chunk != null)
+        {
+            GetFaceColors(dir,pos,meshData,chunk);
+        }
         meshData.AddQuadTriangles();
         var uvs = FaceUVs(dir, blockType, textureData);
         meshData.uv.AddRange(uvs);
@@ -75,9 +79,8 @@ public static class BlockHelper
         };
     }
 
-    public static void GetFaceVertices(Direction direction, Vector3Int pos, MeshData meshData, BlockType blockType)
+    public static void GetFaceVertices(Direction direction, Vector3Int pos, MeshData meshData)
     {
-        var generatesCollider = BlockDataManager.textureDataDictionary[(int)blockType].generateCollider;
         //order of vertices matters for the normals and how we render the mesh
         switch (direction)
         {
@@ -119,6 +122,39 @@ public static class BlockHelper
                 meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z - 0.5f));
                 break;
         }
+    }
+
+    public static void GetFaceColors(Direction direction, Vector3Int pos, MeshData meshData, ChunkData chunk)
+    {
+        float lightLevel;
+        
+        var yPos = pos.y+1;
+        var inShade = false;
+
+        while (yPos < World.Instance.worldHeight)
+        {
+            if (chunk.GetBlock(new Vector3Int(pos.x, yPos, pos.z)).type != BlockType.Air)
+            {
+                inShade = true;
+                break;
+            }
+
+            yPos++;
+        }
+        
+        if (inShade)
+        {
+            lightLevel = 0.4f;
+        }
+        else
+        {
+            lightLevel = 0f;
+        }
+        
+        meshData.AddColor(new Color(0,0,0,lightLevel));
+        meshData.AddColor(new Color(0,0,0,lightLevel));
+        meshData.AddColor(new Color(0,0,0,lightLevel));
+        meshData.AddColor(new Color(0,0,0,lightLevel));
     }
     
     public static Vector2[] FaceUVs(Direction dir, BlockType blockType, TextureData textureData = null)

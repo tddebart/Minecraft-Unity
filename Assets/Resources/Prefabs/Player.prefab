@@ -691,6 +691,7 @@ MonoBehaviour:
   sensitivity: 5
   checkIncrement: 0.05
   reach: 4.5
+  f3KeyComboUsed: 0
 --- !u!114 &-873992875956742777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -830,7 +831,7 @@ GameObject:
   - component: {fileID: 9194467120323258366}
   m_Layer: 6
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

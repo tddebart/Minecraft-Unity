@@ -26,6 +26,8 @@ public class PlayerInventory : MonoBehaviour
         {
             slots[i] = new Slot();
         }
+
+        AddItem(BlockType.GlowStone, 64);
     }
 
     private void Update()
@@ -109,7 +111,7 @@ public class PlayerInventory : MonoBehaviour
             foreach (var direction in BlockHelper.directions)
             {
                 BlockHelper.GetFaceDataIn(direction, Vector3Int.zero, meshData, type,
-                    BlockDataManager.textureDataDictionary[(int)type]);
+                    BlockDataManager.textureDataDictionary[(int)type], null);
             }
             
             var mesh = new Mesh();

@@ -24,6 +24,12 @@ public partial class World
         yield return null;
     }
 
+    private void Update()
+    {
+        Shader.SetGlobalFloat("GlobalLightLevel", globalLightLevel);
+        Camera.main.backgroundColor = Color.Lerp(dayColor, nightColor, globalLightLevel);
+    }
+
     public void UpdateBlocks()
     {
         while (blockToUpdate.Count > 0)

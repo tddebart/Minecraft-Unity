@@ -69,3 +69,9 @@ MonoBehaviour:
     side: {x: 7, y: 19}
     isTransparent: 1
     generateCollider: 1
+  - blockType: 10
+    up: {x: 12, y: 25}
+    down: {x: 12, y: 25}
+    side: {x: 12, y: 25}
+    isTransparent: 0
+    generateCollider: 1
