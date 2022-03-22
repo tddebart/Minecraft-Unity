@@ -22,8 +22,8 @@ public class Player : BaseEntity
     private bool rightMouseDown;
     private const float breakDelay = 0.3f;
     private const float placeDelay = 0.21f;
-    private Coroutine breakCoroutine;
-    private Coroutine placeCoroutine;
+    private IEnumerator breakCoroutine;
+    private IEnumerator placeCoroutine;
     [HideInInspector]
     public bool f3KeyComboUsed;
     
@@ -336,24 +336,26 @@ public class Player : BaseEntity
             verticalMomentum = 0;
         }
         
-        if (Input.GetMouseButtonDown(0))
-        {
-            breakCoroutine = StartCoroutine(BreakLoop());
-        }
         if (Input.GetMouseButtonUp(0))
         {
             StopCoroutine(breakCoroutine);
         }
-
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(0))
         {
-            placeCoroutine = StartCoroutine(PlaceLoop());
+            breakCoroutine = BreakLoop();
+            StartCoroutine(breakCoroutine);
         }
-        
+
         if (Input.GetMouseButtonUp(1))
         {
             StopCoroutine(placeCoroutine);
         }
+        if (Input.GetMouseButtonDown(1))
+        {
+            placeCoroutine = PlaceLoop();
+            StartCoroutine(placeCoroutine);
+        }
+        
 
         if (Input.GetButtonDown("Crouch"))
         {

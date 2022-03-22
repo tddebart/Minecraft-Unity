@@ -53,7 +53,7 @@ public partial class World : MonoBehaviour
     
     public Dictionary<Vector3Int, BlockType> blocksToPlaceAfterGeneration = new Dictionary<Vector3Int, BlockType>();
 
-    public bool validateDone;
+    private bool validateDone;
 
 
     private void Awake()
