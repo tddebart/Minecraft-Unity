@@ -8,8 +8,6 @@ public class Block
     public BlockType type;
     public ChunkSection section;
 
-    public float globalLightPercent;
-
     public Block(BlockType type, Vector3Int position, [CanBeNull] ChunkSection section = null)
     {
         this.type = type;
@@ -21,7 +19,38 @@ public class Block
     {
         this.type = type;
     }
+
+    public int GetBlockLight()
+    {
+        return section.GetBlockLight(position);
+    }
     
+    public int GetSkyLight()
+    {
+        return section.GetSkylight(position);
+    }
+    
+    public void SetBlockLight(int value)
+    {
+        section.SetBlockLight(position, value);
+    }
+    
+    public void SetSkyLight(int value)
+    {
+        section.SetSunlight(position, value);
+    }
+    
+    // This will return the highest value of either the block or the sunlight
+    public int GetLight()
+    {
+        return Mathf.Max(GetSkyLight(), GetBlockLight());
+    }
+    
+    public TextureData GetTextureData()
+    {
+        return BlockDataManager.textureDataDictionary[(int)type];
+    }
+
     public virtual void OnBlockPlaced()
     {
         if(!section.dataRef.worldRef.IsWorldCreated) return;

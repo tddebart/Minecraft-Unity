@@ -126,7 +126,8 @@ public static class BlockHelper
 
     public static void GetFaceColors(Direction direction, Vector3Int pos, MeshData meshData, ChunkData chunk)
     {
-        float lightLevel = chunk.GetBlock(pos+direction.GetVector()).globalLightPercent;
+        float lightLevel = chunk.GetBlock(pos + direction.GetVector()).GetLight();
+        lightLevel = Mathf.InverseLerp(0, 15, lightLevel);
 
         meshData.AddColor(new Color(0,0,0,lightLevel));
         meshData.AddColor(new Color(0,0,0,lightLevel));

@@ -21,67 +21,77 @@ MonoBehaviour:
     side: {x: 0, y: 0}
     isTransparent: 1
     generateCollider: 0
-    transparency: 1
+    transparency: 0
+    lightEmission: 0
   - blockType: 1
     up: {x: 0, y: 0}
     down: {x: 0, y: 0}
     side: {x: 0, y: 0}
     isTransparent: 1
     generateCollider: 0
-    transparency: 1
+    transparency: 0
+    lightEmission: 0
   - blockType: 3
     up: {x: 11, y: 1}
     down: {x: 13, y: 6}
     side: {x: 12, y: 30}
     isTransparent: 0
     generateCollider: 1
-    transparency: 0
+    transparency: 15
+    lightEmission: 0
   - blockType: 2
     up: {x: 13, y: 6}
     down: {x: 13, y: 6}
     side: {x: 13, y: 6}
     isTransparent: 0
     generateCollider: 1
-    transparency: 0
+    transparency: 15
+    lightEmission: 0
   - blockType: 8
     up: {x: 19, y: 16}
     down: {x: 19, y: 16}
     side: {x: 19, y: 16}
     isTransparent: 1
     generateCollider: 0
-    transparency: 0
+    transparency: 15
+    lightEmission: 0
   - blockType: 7
     up: {x: 2, y: 3}
     down: {x: 2, y: 3}
     side: {x: 2, y: 3}
     isTransparent: 0
     generateCollider: 1
-    transparency: 0
+    transparency: 15
+    lightEmission: 0
   - blockType: 4
     up: {x: 1, y: 17}
     down: {x: 1, y: 17}
     side: {x: 1, y: 17}
     isTransparent: 0
     generateCollider: 1
-    transparency: 0
+    transparency: 15
+    lightEmission: 0
   - blockType: 5
     up: {x: 7, y: 21}
     down: {x: 7, y: 21}
     side: {x: 7, y: 20}
     isTransparent: 0
     generateCollider: 1
-    transparency: 0
+    transparency: 15
+    lightEmission: 1
   - blockType: 6
     up: {x: 7, y: 19}
     down: {x: 7, y: 19}
     side: {x: 7, y: 19}
     isTransparent: 1
     generateCollider: 1
-    transparency: 0.5
+    transparency: 1
+    lightEmission: 0
   - blockType: 10
     up: {x: 12, y: 25}
     down: {x: 12, y: 25}
     side: {x: 12, y: 25}
     isTransparent: 0
     generateCollider: 1
-    transparency: 0
+    transparency: 15
+    lightEmission: 15

@@ -152,8 +152,9 @@ public class ChunkData
     {
         MeshData meshData = new MeshData(true);
         
-        CalculateLights();
-        
+        CalculateBlockLight();
+        CalculateSunLight();
+
         LoopThroughTheBlocks(this, (x, y, z,block) =>
         {
             meshData = BlockHelper.GetMeshData(this, new Vector3Int(x, y, z), meshData, block);
@@ -163,32 +164,72 @@ public class ChunkData
         return meshData;
     }
 
-    public void CalculateLights()
+    public void CalculateBlockLight()
     {
         Queue<Vector3Int> litBlocks = new Queue<Vector3Int>();
+    
+        for (int x = 0; x < chunkSize; x++)
+        {
+            for (int y = 0; y < worldRef.worldHeight; y++)
+            {
+                for (int z = 0; z < chunkSize; z++)
+                {
+                    var block = GetBlock(new Vector3Int(x, y, z));
+                    if (block.GetTextureData().lightEmission > 0)
+                    {
+                        block.SetBlockLight(block.GetTextureData().lightEmission);
+                        litBlocks.Enqueue(new Vector3Int(x, y, z));
+                    }
+                    else
+                    {
+                        block.SetBlockLight(0);
+                    }
+                }
+            }
+        }
+        
+        while (litBlocks.Count > 0)
+        {
+            var blockPos = litBlocks.Dequeue();
+            var block = GetBlock(blockPos);
+            var lightLevel = block.GetBlockLight();
+            
+            foreach (var direction in BlockHelper.directions)
+            {
+                var neighborPos = blockPos + direction.GetVector();
+                if (IsInRange(this, neighborPos))
+                {
+                    var neighborBlock = GetBlock(neighborPos);
+                    if (BlockDataManager.textureDataDictionary[(int)neighborBlock.type].transparency < 15 && neighborBlock.GetBlockLight() < lightLevel - 1)
+                    {
+                        neighborBlock.SetBlockLight(lightLevel-1);
+                        litBlocks.Enqueue(neighborPos);
+                    }
+                }
+            }
+        }
+    }
 
+    public void CalculateSunLight()
+    {
+        Queue<Vector3Int> litBlocks = new Queue<Vector3Int>();
+    
         for (var x = 0; x < chunkSize; x++)
         {
             for (var z = 0; z < chunkSize; z++)
             {
-                var lightRay = 1f;
+                var lightRay = 15;
                 
                 for (var y = worldRef.worldHeight-1; y >= 0; y--)
                 {
                     var block = GetBlock(new Vector3Int(x, y, z));
                     var transparency = BlockDataManager.textureDataDictionary[(int)block.type].transparency;
-                    if (block.type is not BlockType.Air and not BlockType.Nothing && transparency < lightRay)
-                    {
-                        lightRay = transparency;
-                    }
-                    if (block.type == BlockType.GlowStone)
-                    {
-                        lightRay = 1f;
-                    }
-                    
-                    block.globalLightPercent = lightRay;
+                    lightRay -= transparency;
+                    lightRay = Mathf.Clamp(lightRay, 0, 15);
 
-                    if (lightRay > worldRef.lightFalloff)
+                    block.SetSkyLight(lightRay);
+
+                    if (block.section.GetLight(block.position) > 1)
                     {
                         litBlocks.Enqueue(new Vector3Int(x, y, z));
                     }
@@ -207,11 +248,11 @@ public class ChunkData
                 if (IsInRange(this, neighborPos))
                 {
                     var neighborBlock = GetBlock(neighborPos);
-                    if (neighborBlock.type == BlockType.Air && neighborBlock.globalLightPercent < block.globalLightPercent - worldRef.lightFalloff)
+                    if (BlockDataManager.textureDataDictionary[(int)neighborBlock.type].transparency < 15 && neighborBlock.GetSkyLight() < block.GetSkyLight()-1)
                     {
-                        neighborBlock.globalLightPercent = block.globalLightPercent - worldRef.lightFalloff;
-            
-                        if (neighborBlock.globalLightPercent > worldRef.lightFalloff)
+                        neighborBlock.SetSkyLight(block.GetSkyLight() - 1);
+
+                        if (neighborBlock.GetSkyLight() > 1)
                         {
                             litBlocks.Enqueue(neighborPos);
                         }
@@ -219,7 +260,6 @@ public class ChunkData
                 }
             }
         }
-        
     }
 
     public bool IsOnEdge(Vector3Int blockWorldPos)

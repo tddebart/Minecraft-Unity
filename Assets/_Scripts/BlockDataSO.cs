@@ -18,5 +18,8 @@ public class TextureData
     public Vector2Int up, down, side;
     public bool isTransparent = false;
     public bool generateCollider = true;
-    public float transparency = 0;
+    [Range(0,15)]
+    public int transparency = 15;
+    [FormerlySerializedAs("lightValue")] [Range(0, 15)] 
+    public int lightEmission = 0;
 }

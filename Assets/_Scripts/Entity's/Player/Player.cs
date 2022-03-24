@@ -290,6 +290,10 @@ public class Player : BaseEntity
     {
         while (true)
         {
+            if (!Input.GetMouseButton(0))
+            {
+                break;
+            }
             if (BreakBlock())
             {
                 yield return new WaitForSeconds(breakDelay);
@@ -298,7 +302,6 @@ public class Player : BaseEntity
             {
                 yield return new WaitForSeconds(0.05f);
             }
-            
         }
     }
     
@@ -306,6 +309,10 @@ public class Player : BaseEntity
     {
         while (true)
         {
+            if (!Input.GetMouseButton(1))
+            {
+                break;
+            }
             if (PlaceBlock())
             {
                 yield return new WaitForSeconds(placeDelay);
@@ -313,7 +320,6 @@ public class Player : BaseEntity
             {
                 yield return new WaitForSeconds(0.05f);
             }
-            
         }
     }
 

@@ -39,7 +39,6 @@ public partial class World : MonoBehaviour
     public Color nightColor;
     public float minLightLevel = 0.1f;
     public float maxLightLevel = 0.90f;
-    public float lightFalloff = 0.08f;
 
     private CancellationTokenSource taskTokenSource = new CancellationTokenSource();
 
