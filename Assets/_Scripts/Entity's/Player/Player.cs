@@ -135,20 +135,20 @@ public class Player : BaseEntity
         return blockPoss.Contains(pos);
     }
 
-    public Block TargetedBlock(float tReach,out Vector3Int lastPos)
+    public Block TargetedBlock(float tReach,out Vector3Int lastGlobalPos)
     {
-        lastPos = Vector3Int.zero;
+        lastGlobalPos = Vector3Int.zero;
         var step = checkIncrement;
         while (step < tReach)
         {
             var pos = cam.position + cam.forward * step;
             var block = world.GetBlock(pos);
-            if (BlockDataManager.textureDataDictionary[(int)block.type].generateCollider)
+            if (BlockDataManager.blockTypeDataDictionary[(int)block.type].generateCollider)
             {
                 return block;
             }
 
-            lastPos = Vector3Int.FloorToInt(pos + FindNormal(pos, lastPos));
+            lastGlobalPos = Vector3Int.FloorToInt(pos + FindNormal(pos, lastGlobalPos));
             
             step += checkIncrement;
         }

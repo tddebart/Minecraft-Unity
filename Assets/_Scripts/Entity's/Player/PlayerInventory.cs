@@ -111,7 +111,7 @@ public class PlayerInventory : MonoBehaviour
             foreach (var direction in BlockHelper.directions)
             {
                 BlockHelper.GetFaceDataIn(direction, Vector3Int.zero, meshData, type,
-                    BlockDataManager.textureDataDictionary[(int)type], null);
+                    BlockDataManager.blockTypeDataDictionary[(int)type], null);
             }
             
             var mesh = new Mesh();

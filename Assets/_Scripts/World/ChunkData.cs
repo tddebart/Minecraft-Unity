@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 public class ChunkData
 {
@@ -16,6 +15,7 @@ public class ChunkData
     public bool modifiedByPlayer = false;
     public bool isGenerated = false;
     public TreeData treeData;
+    [CanBeNull] public ChunkRenderer renderer => WorldDataHelper.GetChunk(worldRef, worldPos);
 
     public ChunkData(int chunkSize, int chunkHeight, World worldRef, Vector3Int worldPos)
     {
@@ -52,18 +52,20 @@ public class ChunkData
         return axisCoord >= 0 && axisCoord < chunkData.chunkSize;
     }
 
-    private static bool IsInRange(ChunkData chunkData, Vector3Int pos)
+    public static bool IsInRange(Vector3Int pos)
     {
         var x = pos.x;
         var y = pos.y;
         var z = pos.z;
+
+        var world = World.Instance;
         
-        return x>= 0 && x < chunkData.chunkSize && y >= 0 && y < chunkData.worldRef.worldHeight && z >= 0 && z < chunkData.chunkSize;
+        return x>= 0 && x < world.chunkSize && y >= 0 && y < world.worldHeight && z >= 0 && z < world.chunkSize;
     }
     
-    private static bool IsInRangeHeight(ChunkData chunkData, int axisCoord)
+    private static bool IsInRangeHeight(int axisCoord)
     {
-        return axisCoord >= 0 && axisCoord < chunkData.worldRef.worldHeight;
+        return axisCoord >= 0 && axisCoord < World.Instance.worldHeight;
     }
 
     /// <summary>
@@ -80,7 +82,7 @@ public class ChunkData
             return Blocks.NOTHING;
         }
         
-        if (IsInRange(this, localPos))
+        if (IsInRange(localPos))
         {
             return GetSection(localPos.y).GetBlock(localPos);
         }
@@ -95,7 +97,7 @@ public class ChunkData
             return;
         }
         
-        if (IsInRange(this, localPos))
+        if (IsInRange(localPos))
         {
             GetSection(localPos.y).SetBlock(localPos, block);
         }
@@ -107,7 +109,7 @@ public class ChunkData
 
     public void SetBlock(Vector3Int localPos, Block block, bool updateChunk = false)
     {
-        if (IsInRange(this, localPos))
+        if (IsInRange(localPos))
         {
             GetSection(localPos.y).SetBlock(localPos, block);
             if (updateChunk)
@@ -175,9 +177,9 @@ public class ChunkData
                 for (int z = 0; z < chunkSize; z++)
                 {
                     var block = GetBlock(new Vector3Int(x, y, z));
-                    if (block.GetTextureData().lightEmission > 0)
+                    if (block.BlockData.lightEmission > 0)
                     {
-                        block.SetBlockLight(block.GetTextureData().lightEmission);
+                        block.SetBlockLight(block.BlockData.lightEmission);
                         litBlocks.Enqueue(new Vector3Int(x, y, z));
                     }
                     else
@@ -197,10 +199,10 @@ public class ChunkData
             foreach (var direction in BlockHelper.directions)
             {
                 var neighborPos = blockPos + direction.GetVector();
-                if (IsInRange(this, neighborPos))
+                if (IsInRange(neighborPos))
                 {
                     var neighborBlock = GetBlock(neighborPos);
-                    if (BlockDataManager.textureDataDictionary[(int)neighborBlock.type].transparency < 15 && neighborBlock.GetBlockLight() < lightLevel - 1)
+                    if (neighborBlock.BlockData.opacity < 15 && neighborBlock.GetBlockLight() < lightLevel - 1)
                     {
                         neighborBlock.SetBlockLight(lightLevel-1);
                         litBlocks.Enqueue(neighborPos);
@@ -223,7 +225,7 @@ public class ChunkData
                 for (var y = worldRef.worldHeight-1; y >= 0; y--)
                 {
                     var block = GetBlock(new Vector3Int(x, y, z));
-                    var transparency = BlockDataManager.textureDataDictionary[(int)block.type].transparency;
+                    var transparency = block.BlockData.opacity;
                     lightRay -= transparency;
                     lightRay = Mathf.Clamp(lightRay, 0, 15);
 
@@ -245,10 +247,10 @@ public class ChunkData
             {
                 var block = GetBlock(blockPos);
                 var neighborPos = blockPos + dir.GetVector();
-                if (IsInRange(this, neighborPos))
+                if (IsInRange(neighborPos))
                 {
                     var neighborBlock = GetBlock(neighborPos);
-                    if (BlockDataManager.textureDataDictionary[(int)neighborBlock.type].transparency < 15 && neighborBlock.GetSkyLight() < block.GetSkyLight()-1)
+                    if (neighborBlock.BlockData.opacity < 15 && neighborBlock.GetSkyLight() < block.GetSkyLight()-1)
                     {
                         neighborBlock.SetSkyLight(block.GetSkyLight() - 1);
 

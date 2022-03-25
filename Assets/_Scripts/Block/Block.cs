@@ -1,12 +1,19 @@
-﻿
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 
+[System.Serializable]
 public class Block
 {
     public Vector3Int position;
+    public Vector3Int localChunkPosition => position + new Vector3Int(0, section.yOffset, 0);
+    public Vector3Int globalWorldPosition => section.dataRef.GetGlobalBlockCoords(localChunkPosition);
+    
     public BlockType type;
-    public ChunkSection section;
+    public BlockTypeData BlockData => BlockDataManager.blockTypeDataDictionary[(int)type];
+    
+    [System.NonSerialized] public ChunkSection section;
+    public ChunkData chunkData => section.dataRef;
 
     public Block(BlockType type, Vector3Int position, [CanBeNull] ChunkSection section = null)
     {
@@ -44,11 +51,6 @@ public class Block
     public int GetLight()
     {
         return Mathf.Max(GetSkyLight(), GetBlockLight());
-    }
-    
-    public TextureData GetTextureData()
-    {
-        return BlockDataManager.textureDataDictionary[(int)type];
     }
 
     public virtual void OnBlockPlaced()

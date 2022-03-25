@@ -16,7 +16,37 @@ public class ChunkSection
         this.yOffset = yOffset;
         blocks = new Block[dataRef.chunkSize, dataRef.chunkHeight, dataRef.chunkSize];
         lightMap = new char[dataRef.chunkSize, dataRef.chunkHeight, dataRef.chunkSize];
+        // Populate();
     }
+    
+    // This will populate the chunk with nothing blocks
+    // private void Populate()
+    // {
+    //     for (int x = 0; x < dataRef.chunkSize; x++)
+    //     {
+    //         for (int y = 0; y < dataRef.chunkHeight-1; y++)
+    //         {
+    //             for (int z = 0; z < dataRef.chunkSize; z++)
+    //             {
+    //                 blocks[x, y, z] = new Block(BlockType.Nothing, new Vector3Int(x, y, z), this);
+    //                 var block = blocks[x, y, z];
+    //
+    //                 foreach (var direction in BlockHelper.directions)
+    //                 {
+    //                     var neighborPos = new Vector3Int(x, y, z) + direction.GetVector();
+    //                     if (ChunkData.IsInRange(neighborPos))
+    //                     {
+    //                         block.neighbours[(int)direction] = blocks[neighborPos.x, neighborPos.y, neighborPos.z];
+    //                     }
+    //                     else
+    //                     {
+    //                         block.neighbours[(int)direction] = dataRef.worldRef.GetBlock(block.globalWorldPosition);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     /// <summary>
     /// Returns the block at the given position
@@ -42,8 +72,8 @@ public class ChunkSection
     public void SetBlock(Vector3Int pos, Block block, bool spreadLight = false)
     {
         pos.y -= yOffset;
-        block.position = pos;
         block.section = this;
+        block.position = pos;
 
         // if (dataRef.isGenerated && block.type == BlockType.Air)
         // {

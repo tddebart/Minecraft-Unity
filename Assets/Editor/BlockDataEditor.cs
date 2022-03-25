@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 
@@ -10,7 +11,7 @@ using UnityEngine.UIElements;
 public class BlockDataEditor : EditorWindow
 {
     public BlockDataManager blockDataManager;
-    public TextureData selectedTextureData;
+    [FormerlySerializedAs("selectedTextureData")] public BlockTypeData selectedBlockTypeData;
 
     private PreviewRenderUtility previewRenderer;
     private Mesh cubeMesh;
@@ -66,21 +67,21 @@ public class BlockDataEditor : EditorWindow
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button(blockData.blockType.ToString(), new GUIStyle(GUI.skin.button) { alignment = TextAnchor.MiddleCenter }))
             {
-                selectedTextureData = blockData;
+                selectedBlockTypeData = blockData;
             }
             EditorGUILayout.EndHorizontal();
         }
         
         EditorGUILayout.EndVertical();
 
-        if (selectedTextureData != null)
+        if (selectedBlockTypeData != null)
         {
             
             EditorGUILayout.BeginVertical();
             
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Block type: ", GUILayout.Width(80));
-            selectedTextureData.blockType = (BlockType)EditorGUILayout.EnumPopup(selectedTextureData.blockType);
+            selectedBlockTypeData.blockType = (BlockType)EditorGUILayout.EnumPopup(selectedBlockTypeData.blockType);
             EditorGUILayout.EndHorizontal();
             
             
@@ -93,7 +94,7 @@ public class BlockDataEditor : EditorWindow
             var uvs = new List<Vector2>();
             foreach (Direction direction in BlockHelper.directions)
             {
-                uvs.AddRange(BlockHelper.FaceUVs(direction, selectedTextureData.blockType));
+                uvs.AddRange(BlockHelper.FaceUVs(direction, selectedBlockTypeData.blockType));
             }
             
             cubeMesh.uv = uvs.ToArray();

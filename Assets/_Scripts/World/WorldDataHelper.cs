@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
 
 public static class WorldDataHelper
@@ -134,6 +135,7 @@ public static class WorldDataHelper
         }
     }
 
+    [CanBeNull]
     public static ChunkRenderer GetChunk(World world, Vector3Int worldPos)
     {
         if (world.worldData.chunkDict.ContainsKey(worldPos))

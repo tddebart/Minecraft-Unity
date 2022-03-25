@@ -1266,8 +1266,13 @@ MonoBehaviour:
   - {fileID: 1241654582}
   lodes:
   - blockType: 1
-    minHeight: 1
+    minHeight: 40
     maxHeight: 50
+    threshold: 0.55
+    noiseSettings: {fileID: 11400000, guid: 1a7d427598b59324e9262e091044b05b, type: 2}
+  - blockType: 1
+    minHeight: 1
+    maxHeight: 40
     threshold: 0.5
     noiseSettings: {fileID: 11400000, guid: 1a7d427598b59324e9262e091044b05b, type: 2}
   extraTerrainHeightPercentage: 20
@@ -2061,7 +2066,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e113280f9ab044168541f6fef84d3095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 3
+  renderDistance: 2
   chunkSize: 16
   chunkHeight: 16
   worldHeight: 96
@@ -2071,9 +2076,9 @@ MonoBehaviour:
   terrainGenerator: {fileID: 1658937128}
   mapSeedOffset: {x: -251, y: 150, z: 0}
   GenerateMoreChunks: 1
-  globalLightLevel: 0.633
-  dayColor: {r: 0, g: 0.90196085, b: 1, a: 1}
-  nightColor: {r: 0, g: 0.019607844, b: 0.30588236, a: 1}
+  globalLightLevel: 0.788
+  dayColor: {r: 0.46666667, g: 0.8156863, b: 0.9137255, a: 1}
+  nightColor: {r: 0.22792809, g: 0.5295162, b: 0.6132076, a: 1}
   minLightLevel: 0.1
   maxLightLevel: 0.9
   OnWorldCreated:
@@ -2684,7 +2689,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0.57813734, b: 0.74525887, a: 1}
+  m_BackGroundColor: {r: 0.4160541, g: 0.75501823, b: 0.8500157, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0

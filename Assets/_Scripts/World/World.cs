@@ -121,32 +121,33 @@ public partial class World : MonoBehaviour
         });
     }
     
-    public bool SetBlock(RaycastHit hit, BlockType blockType)
+    public void UpdateChunk(Vector3Int chunkPos)
     {
-        var pos = WorldDataHelper.GetChunkPosition(this, Vector3Int.RoundToInt(hit.point));
-        var chunk = WorldDataHelper.GetChunk(this, pos);
-
-        var blockPos = GetBlockPos(hit);
+        UpdateChunks(new [] {chunkPos});
+    }
+    
+    public async void UpdateChunks(IEnumerable<Vector3Int> chunkPositions)
+    {
+        var dataToRender = new List<ChunkRenderer>();
+        foreach (var chunkPos in chunkPositions)
+        {
+            worldData.chunkDict.TryGetValue(chunkPos, out var chunk);
+            if (chunk != null)
+            {
+                dataToRender.Add(chunk);
+            }
+            else
+            {
+                Debug.LogError("Chunk not found at pos: " + chunkPos);
+            }
+        }
         
-        var blocksToDig = new List<Vector3Int>();
-        
-        // Dig out a 3x3x3 cube around the block
-        // for (var x = -1; x <= 2; x++)
-        // {
-        //     for (var y = -1; y <= 2; y++)
-        //     {
-        //         for (var z = -1; z <= 2; z++)
-        //         {
-        //             var blockPosToDig = new Vector3Int(blockPos.x + x, blockPos.y + y, blockPos.z + z);
-        //             blocksToDig.Add(blockPosToDig);
-        //         }
-        //     }
-        // }
-        //
-        // SetBlocks(chunk, blocksToDig, blockType);
-
-        SetBlock(chunk, blockPos, blockType);
-        return true;
+        var meshData = await UpdateMeshDataAsync(dataToRender);
+        foreach (var chunkRenderer in dataToRender)
+        {
+            meshData.TryGetValue(chunkRenderer, out var data);
+            chunkRenderer.UpdateChunk(data);
+        }
     }
 
     public void SetBlock(Vector3 pos, BlockType blockType)
@@ -242,7 +243,7 @@ public partial class World : MonoBehaviour
         
         if (containerChunk == null)
         {
-            return Blocks.NOTHING;
+            return null;
         }
 
         var blockPos = containerChunk.GetLocalBlockCoords(new Vector3Int(globalPos.x, globalPos.y, globalPos.z));

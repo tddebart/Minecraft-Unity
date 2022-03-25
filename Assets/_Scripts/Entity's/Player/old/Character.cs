@@ -41,7 +41,7 @@ public class Character : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(playerRay, out hit, playerReach))
         {
-            world.SetBlock(hit, BlockType.Air);
+            // world.SetBlock(hit, BlockType.Air);
         }
     }
 
