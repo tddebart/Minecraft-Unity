@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class WaterBlock : Block
 {
-    public static Direction[] Directions = { Direction.forwards, Direction.backwards, Direction.left, Direction.right, Direction.down };    
-    public WaterBlock(Vector3Int position, [CanBeNull] ChunkSection section = null) : base(BlockType.Water, position, section)
+    public static Direction[] Directions = { Direction.forwards, Direction.backwards, Direction.left, Direction.right, Direction.down };
+
+    public WaterBlock(Vector3Int position, ChunkSection section) : base(BlockType.Water, position,
+        section)
     {
-        
+
     }
 
-    public WaterBlock() : base(BlockType.Water)
+    public WaterBlock(Block block) : base(block)
     {
-        
     }
 
     public override void OnBlockUpdate()
@@ -22,7 +23,7 @@ public class WaterBlock : Block
         {
             if(section.dataRef.GetBlock(position + dir.GetVector()).type == BlockType.Air)
             {
-                section.dataRef.SetBlock(position + dir.GetVector(), Blocks.WATER, true);
+                // section.dataRef.SetBlock(position + dir.GetVector(), Blocks.WATER, true);
             }
         }
     }

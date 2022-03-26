@@ -1,7 +1,7 @@
 ﻿
 using System;
-using System.Collections.Generic;
 using UnityEngine;
+using Random = System.Random;
 
 public class ChunkSection
 {
@@ -16,37 +16,23 @@ public class ChunkSection
         this.yOffset = yOffset;
         blocks = new Block[dataRef.chunkSize, dataRef.chunkHeight, dataRef.chunkSize];
         lightMap = new char[dataRef.chunkSize, dataRef.chunkHeight, dataRef.chunkSize];
-        // Populate();
+        Populate();
     }
     
     // This will populate the chunk with nothing blocks
-    // private void Populate()
-    // {
-    //     for (int x = 0; x < dataRef.chunkSize; x++)
-    //     {
-    //         for (int y = 0; y < dataRef.chunkHeight-1; y++)
-    //         {
-    //             for (int z = 0; z < dataRef.chunkSize; z++)
-    //             {
-    //                 blocks[x, y, z] = new Block(BlockType.Nothing, new Vector3Int(x, y, z), this);
-    //                 var block = blocks[x, y, z];
-    //
-    //                 foreach (var direction in BlockHelper.directions)
-    //                 {
-    //                     var neighborPos = new Vector3Int(x, y, z) + direction.GetVector();
-    //                     if (ChunkData.IsInRange(neighborPos))
-    //                     {
-    //                         block.neighbours[(int)direction] = blocks[neighborPos.x, neighborPos.y, neighborPos.z];
-    //                     }
-    //                     else
-    //                     {
-    //                         block.neighbours[(int)direction] = dataRef.worldRef.GetBlock(block.globalWorldPosition);
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    private void Populate()
+    {
+        for (int x = 0; x < dataRef.chunkSize; x++)
+        {
+            for (int y = 0; y < dataRef.chunkHeight; y++)
+            {
+                for (int z = 0; z < dataRef.chunkSize; z++)
+                {
+                    blocks[x, y, z] = new Block(BlockType.Nothing, new Vector3Int(x, y, z), this);
+                }
+            }
+        }
+    }
 
     /// <summary>
     /// Returns the block at the given position
@@ -63,28 +49,29 @@ public class ChunkSection
     ///
     /// </summary>
     /// <param name="pos">The x and z should be local and the y global</param>
-    /// <param name="block">The block type to set</param>
-    public void SetBlock(Vector3Int pos, BlockType block)
-    {
-        SetBlock(pos, new Block(block));
-    }
-    
-    public void SetBlock(Vector3Int pos, Block block, bool spreadLight = false)
+    /// <param name="type">The block type to set</param>
+    public void SetBlock(Vector3Int pos, BlockType type)
     {
         pos.y -= yOffset;
-        block.section = this;
-        block.position = pos;
-
-        // if (dataRef.isGenerated && block.type == BlockType.Air)
-        // {
-        //     // blocks[pos.x,pos.y,pos.z]?.OnBlockDestroyed();
-        // }
-        blocks[pos.x, pos.y, pos.z] = block;
-        if (dataRef.isGenerated)
-        {
-            // blocks[pos.x,pos.y,pos.z].OnBlockPlaced();
-        }
+        blocks[pos.x, pos.y, pos.z].SetType(type);
     }
+    
+    // public void SetBlock(Vector3Int pos, Block block)
+    // {
+    //     pos.y -= yOffset;
+    //     block.section = this;
+    //     block.position = pos;
+    //
+    //     // if (dataRef.isGenerated && block.type == BlockType.Air)
+    //     // {
+    //     //     // blocks[pos.x,pos.y,pos.z]?.OnBlockDestroyed();
+    //     // }
+    //     blocks[pos.x, pos.y, pos.z] = block;
+    //     if (dataRef.isGenerated)
+    //     {
+    //         // blocks[pos.x,pos.y,pos.z].OnBlockPlaced();
+    //     }
+    // }
     
     #region Lighting
 

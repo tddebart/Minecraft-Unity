@@ -27,7 +27,7 @@ public class ChunkRenderer : MonoBehaviour
         this.ChunkData = data;
     }
 
-    private void RenderMesh(MeshData meshData)
+    public void RenderMesh(MeshData meshData)
     {
         //NOTE: using AddRange instead of concat and then ToArray is a lot faster. Try to avoid concat and ToArray/ToList if possible
         
@@ -47,10 +47,10 @@ public class ChunkRenderer : MonoBehaviour
         mesh.Optimize();
     }
 
-    public void UpdateChunk()
+    public async void UpdateChunkAsync()
     {
-        var data = ChunkData.GetMeshData();
-        RenderMesh(data);
+        var data = await World.Instance.CreateMeshDataAsync(new List<ChunkData> {ChunkData});
+        RenderMesh(data.Values.First());
     }
 
     public void UpdateChunk(MeshData meshData)
@@ -79,6 +79,12 @@ public class ChunkRenderer : MonoBehaviour
                 new Vector3(ChunkData.chunkSize, ChunkData.worldRef.worldHeight, ChunkData.chunkSize));
         }
         
+    }
+
+    public struct MeshChunkObject
+    {
+        public ChunkRenderer chunk;
+        public MeshData meshData;
     }
 
 #endif

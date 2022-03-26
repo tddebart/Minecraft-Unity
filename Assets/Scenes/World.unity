@@ -159,6 +159,7 @@ MonoBehaviour:
   settings: {fileID: 11400000, guid: 4892130aa49e0d94aaa8166c9c0ab5ba, type: 2}
   domainWarping: {fileID: 6577205}
   useWarping: 1
+  enableLodes: 1
   startLayerHandler: {fileID: 334016699}
   treeNoiseGenerator: {fileID: 6577203}
   featureLayerHandlers: []
@@ -1259,6 +1260,7 @@ MonoBehaviour:
   settings: {fileID: 11400000, guid: 8eb4b95ff5c263440861f78887f9a842, type: 2}
   domainWarping: {fileID: 975012412}
   useWarping: 1
+  enableLodes: 1
   startLayerHandler: {fileID: 521203639}
   treeNoiseGenerator: {fileID: 975012413}
   featureLayerHandlers:
@@ -2111,6 +2113,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  chunksToUpdate: []
 --- !u!4 &1422854026
 Transform:
   m_ObjectHideFlags: 0

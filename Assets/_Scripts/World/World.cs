@@ -19,12 +19,12 @@ public partial class World : MonoBehaviour
     [Space]
     [Header("Sizes")]
     public byte chunkSize = 16; // 16x16 chunks
-    public byte chunkHeight = 100; // 100 blocks high
+    public byte chunkHeight = 16; // 100 blocks high
     [RangeEx(16, 240, 16)]
-    public byte worldHeight = 240; // 256 blocks high
+    public byte worldHeight = 96; // 256 blocks high
     [Space]
-    public byte chunksPerFrame = 2;
-    public int chunksGenerationPerFrame = 4;
+    public byte chunksPerFrame = 1;
+    public int chunksGenerationPerFrame = 1;
     public WorldRenderer worldRenderer;
     
     public TerrainGenerator terrainGenerator;
@@ -60,7 +60,7 @@ public partial class World : MonoBehaviour
         Instance = this;
         validateDone = false;
         OnValidate();
-        ClearVisable();
+        Clear();
         GenerateWorld();
     }
 
@@ -264,7 +264,7 @@ public partial class World : MonoBehaviour
         OnNewChunksGenerated?.Invoke();
     }
     
-    private void ClearVisable()
+    private void Clear()
     {
         worldData = new WorldData
         {
@@ -274,6 +274,8 @@ public partial class World : MonoBehaviour
         worldData.chunkDataDict?.Clear();
         worldData.chunkDict?.Clear();
         worldRenderer.chunkPool?.Clear();
+        
+        chunksToUpdate?.Clear();
         
         MyNoise.noiseStopwatch.Reset();
         MyNoise.noise3DStopwatch.Reset();
@@ -286,6 +288,7 @@ public partial class World : MonoBehaviour
 
     public void OnDisable()
     {
+        updateThread.Abort();
         taskTokenSource.Cancel();
     }
 
@@ -308,13 +311,13 @@ public partial class World : MonoBehaviour
             var world = target as World;
             if (GUILayout.Button("Generate World"))
             {
-                world.ClearVisable();
+                world.Clear();
                 world.GenerateWorld();
             }
 
             if (GUILayout.Button("Clear World"))
             {
-                world.ClearVisable();
+                world.Clear();
             }
             
             base.OnInspectorGUI();

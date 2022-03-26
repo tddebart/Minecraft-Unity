@@ -9,22 +9,24 @@ public class Block
     public Vector3Int localChunkPosition => position + new Vector3Int(0, section.yOffset, 0);
     public Vector3Int globalWorldPosition => section.dataRef.GetGlobalBlockCoords(localChunkPosition);
     
-    public BlockType type;
+    public BlockType type { get; private set; }
     public BlockTypeData BlockData => BlockDataManager.blockTypeDataDictionary[(int)type];
     
     [System.NonSerialized] public ChunkSection section;
     public ChunkData chunkData => section.dataRef;
 
-    public Block(BlockType type, Vector3Int position, [CanBeNull] ChunkSection section = null)
+    public Block(BlockType type, Vector3Int position, ChunkSection section)
     {
         this.type = type;
         this.position = position;
         this.section = section;
     }
 
-    public Block(BlockType type)
+    public Block(Block block)
     {
-        this.type = type;
+        this.type = block.type;
+        this.position = block.position;
+        this.section = block.section;
     }
 
     public int GetBlockLight()
@@ -34,6 +36,8 @@ public class Block
     
     public int GetSkyLight()
     {
+        if (type == BlockType.Nothing) return 0;
+        
         return section.GetSkylight(position);
     }
     
@@ -44,13 +48,40 @@ public class Block
     
     public void SetSkyLight(int value)
     {
+        if (type == BlockType.Nothing || value == GetSkyLight()) return;
+
         section.SetSunlight(position, value);
     }
     
     // This will return the highest value of either the block or the sunlight
     public int GetLight()
     {
+        if (type == BlockType.Nothing) return 0;
+        
         return Mathf.Max(GetSkyLight(), GetBlockLight());
+    }
+    
+    public void SetType(BlockType type)
+    {
+        var x = position.x;
+        var y = position.y;
+        var z = position.z;
+        
+        var oldOpacity = BlockData.opacity;
+
+        section.blocks[x, y, z] = BlockMapping.MapTypeToBlock(type, this);
+        this.type = type;
+        
+        // If the block opacity has changed and the block above is in direct sunlight (or top of world)
+        // if(BlockData.opacity != oldOpacity && (localChunkPosition.y == World.Instance.worldHeight-1 || chunkData.GetBlock(localChunkPosition + Vector3Int.up).GetSkyLight() == 15))
+        // {
+        //     Lighting.RecastSunLight(chunkData, new Vector3Int(x, localChunkPosition.y+1, z));
+        // }
+
+        if (BlockData.lightEmission > 0)
+        {
+            SetBlockLight(BlockData.lightEmission);
+        }
     }
 
     public virtual void OnBlockPlaced()

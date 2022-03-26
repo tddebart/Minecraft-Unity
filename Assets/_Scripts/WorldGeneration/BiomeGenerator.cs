@@ -12,6 +12,8 @@ public class BiomeGenerator : MonoBehaviour
 
     public bool useWarping = true;
 
+    public bool enableLodes = true;
+
     public BlockLayerHandler startLayerHandler;
     
     public TreeNoiseGenerator treeNoiseGenerator;
@@ -61,28 +63,31 @@ public class BiomeGenerator : MonoBehaviour
         var worldPos = new Vector3Int(data.worldPos.x + x, 0, data.worldPos.z + z);
         var localPos = new Vector3Int(x, 0, z);
 
-        // Process lodes
-        foreach (var lode in lodes)
+        if (enableLodes)
         {
-            for (var y = lode.maxHeight - 1; y >= lode.minHeight; y--)
+            // Process lodes
+            foreach (var lode in lodes)
             {
-                worldPos.y = y;
-                localPos.y = y;
-                
-                if (data.GetBlock(localPos) == Blocks.AIR)
+                for (var y = lode.maxHeight - 1; y >= lode.minHeight; y--)
                 {
-                    continue;
-                }
-                
-                lode.noiseSettings.worldSeedOffset = mapSeedOffset;
-
-                if (MyNoise.OctavePerlin3D(worldPos, lode.noiseSettings, lode.threshold))
-                {
-                    if (data.GetBlock(localPos).type == BlockType.Grass && data.GetBlock(localPos+Vector3Int.down).type == BlockType.Dirt)
+                    worldPos.y = y;
+                    localPos.y = y;
+                    
+                    if (data.GetBlock(localPos).type == BlockType.Air)
                     {
-                        data.SetBlock(localPos+Vector3Int.down, BlockType.Grass);
+                        continue;
                     }
-                    data.SetBlock(localPos, lode.blockType);
+                    
+                    lode.noiseSettings.worldSeedOffset = mapSeedOffset;
+
+                    if (MyNoise.OctavePerlin3D(worldPos, lode.noiseSettings, lode.threshold))
+                    {
+                        if (data.GetBlock(localPos).type == BlockType.Grass && data.GetBlock(localPos+Vector3Int.down).type == BlockType.Dirt)
+                        {
+                            data.SetBlock(localPos+Vector3Int.down, BlockType.Grass);
+                        }
+                        data.SetBlock(localPos, lode.blockType);
+                    }
                 }
             }
         }

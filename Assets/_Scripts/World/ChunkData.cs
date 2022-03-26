@@ -79,7 +79,7 @@ public class ChunkData
         var y = localPos.y;
         if (localPos.y < 0 || localPos.y >= worldRef.worldHeight)
         {
-            return Blocks.NOTHING;
+            return BlockHelper.NOTHING;
         }
         
         if (IsInRange(localPos))
@@ -104,23 +104,6 @@ public class ChunkData
         else
         {
             WorldDataHelper.SetBlock(this.worldRef, localPos + this.worldPos, block);
-        }
-    }
-
-    public void SetBlock(Vector3Int localPos, Block block, bool updateChunk = false)
-    {
-        if (IsInRange(localPos))
-        {
-            GetSection(localPos.y).SetBlock(localPos, block);
-            if (updateChunk)
-            {
-                var chunkPos = WorldDataHelper.GetChunkPosition(worldRef, localPos + this.worldPos);
-                WorldDataHelper.GetChunk(worldRef, chunkPos)?.UpdateChunk();
-            }
-        }
-        else
-        {
-            WorldDataHelper.SetBlock(this.worldRef, localPos + this.worldPos, block, updateChunk);
         }
     }
 
@@ -154,8 +137,8 @@ public class ChunkData
     {
         MeshData meshData = new MeshData(true);
         
-        CalculateBlockLight();
-        CalculateSunLight();
+        // CalculateBlockLight();
+        // CalculateSunLight();
 
         LoopThroughTheBlocks(this, (x, y, z,block) =>
         {

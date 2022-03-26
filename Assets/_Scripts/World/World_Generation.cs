@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -15,6 +16,11 @@ public partial class World
     public async void GenerateWorld()
     {
         IsWorldCreated = false;
+        
+        updateThread?.Abort();
+        updateThread = new Thread(UpdateLoop);
+        updateThread.Start();
+        
         await GenerateWorld(Vector3Int.zero);
     }
 
@@ -296,7 +302,6 @@ public partial class World
         if (!IsWorldCreated && Application.isPlaying)
         {
             IsWorldCreated = true;
-            StartCoroutine(UpdateLoop());
             OnWorldCreated?.Invoke();
         }
 

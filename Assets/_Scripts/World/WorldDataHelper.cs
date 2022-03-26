@@ -29,8 +29,8 @@ public static class WorldDataHelper
     {
         var startX = playerPos.x - (world.renderDistance+1) * world.chunkSize;
         var startZ = playerPos.z - (world.renderDistance+1) * world.chunkSize;
-        var endX = playerPos.x + (world.renderDistance+1) * world.chunkSize;
-        var endZ = playerPos.z + (world.renderDistance+1) * world.chunkSize;
+        var endX = playerPos.x +   (world.renderDistance+1) * world.chunkSize;
+        var endZ = playerPos.z +   (world.renderDistance+1) * world.chunkSize;
         
         return GetPositionsInRenderDistance(world,playerPos, startX, startZ, endX, endZ);
     }
@@ -122,16 +122,6 @@ public static class WorldDataHelper
         {
             Vector3Int localPos = chunkData.GetLocalBlockCoords(worldBlockPos);
             chunkData.SetBlock(localPos, blockType);
-        }
-    }
-    
-    public static void SetBlock(World world, Vector3Int worldBlockPos, Block block, bool UpdateChunk = false)
-    {
-        var chunkData = GetChunkData(world, worldBlockPos);
-        if (chunkData != null)
-        {
-            Vector3Int localPos = chunkData.GetLocalBlockCoords(worldBlockPos);
-            chunkData.SetBlock(localPos, block, UpdateChunk);
         }
     }
 

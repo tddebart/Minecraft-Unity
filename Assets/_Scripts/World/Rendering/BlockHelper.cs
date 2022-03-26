@@ -23,6 +23,8 @@ public static class BlockHelper
         Direction.down,
         Direction.up,
     };
+    
+    public static readonly Block NOTHING = new Block(BlockType.Nothing, Vector3Int.zero, null);
 
     public static MeshData GetMeshData(ChunkData chunk, Vector3Int pos, MeshData meshData, BlockType blockType)
     {
@@ -38,7 +40,7 @@ public static class BlockHelper
             Vector3Int neighbourPos = pos + dir.GetVector();
 
             BlockType neighbourBlockType = chunk.GetBlock(neighbourPos).type;
-            if (neighbourBlockType != BlockType.Nothing)
+            if (true/*neighbourBlockType != BlockType.Nothing*/)
             {
                 BlockTypeData neighbourBlockTypeData = BlockDataManager.blockTypeDataDictionary[(int)neighbourBlockType];
 
@@ -136,7 +138,8 @@ public static class BlockHelper
 
     public static void GetFaceColors(Direction direction, Vector3Int pos, MeshData meshData, ChunkData chunk)
     {
-        float lightLevel = chunk.GetBlock(pos + direction.GetVector()).GetLight();
+        var block = chunk.GetBlock(pos + direction.GetVector());
+        float lightLevel = block.GetLight();
         lightLevel = Mathf.InverseLerp(0, 15, lightLevel);
 
         meshData.AddColor(new Color(0,0,0,lightLevel));

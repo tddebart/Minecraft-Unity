@@ -13,7 +13,8 @@ public class Player : BaseEntity
     public float checkIncrement = 0.1f;
     public float reach = 4.5f;
     
-    private Transform cam;
+    [HideInInspector]
+    public Transform cam;
     private PlayerObjects objects;
     private Animator animator;
     private PlayerInventory inventory;
@@ -71,8 +72,8 @@ public class Player : BaseEntity
         {
             var blockPos = targetedBlock.section.dataRef.GetGlobalBlockCoords(targetedBlock.position);
             blockPos.y += targetedBlock.section.yOffset;
-            world.SetBlock(blockPos, BlockType.Air);
             inventory.AddItem(targetedBlock.type);
+            world.SetBlock(blockPos, BlockType.Air);
             return true;
         }
         else
