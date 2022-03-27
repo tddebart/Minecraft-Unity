@@ -691,6 +691,7 @@ MonoBehaviour:
   sensitivity: 5
   checkIncrement: 0.05
   reach: 4.5
+  cam: {fileID: 0}
   f3KeyComboUsed: 0
 --- !u!114 &-873992875956742777
 MonoBehaviour:
@@ -706,7 +707,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   UIBlockPrefab: {fileID: 5473999293706167032, guid: b9c00b5cbe799e346886fcb7bf49d692,
     type: 3}
-  selectedSlot: 0
+  SlotTextPrefab: {fileID: 3992299508821768992, guid: a222424fde0043148a65b49b909fca6e,
+    type: 3}
+  isOpen: 0
+  inventoryHighlightRect: {fileID: 0}
+  selectedSlotIndex: 0
 --- !u!114 &1296084350405261148
 MonoBehaviour:
   m_ObjectHideFlags: 0

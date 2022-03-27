@@ -58,7 +58,14 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             {
                 if (mySlot.type != BlockType.Nothing)
                 {
-                    playerInventory.PickUpHalfSlot(mySlot);
+                    if (mySlot.count > 1)
+                    {
+                        playerInventory.PickUpHalfSlot(mySlot);
+                    }
+                    else
+                    {
+                        playerInventory.PickUpSlot(mySlot);
+                    }
                 }
             }
             else
@@ -66,7 +73,21 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                 if (mySlot.type == BlockType.Nothing || mySlot.type == playerInventory.pickedUpSlot.type)
                 {
                     playerInventory.pickedUpSlot.index = slotIndex;
-                    playerInventory.DropOneItemSlot();
+                    if (playerInventory.pickedUpSlot.count > 1)
+                    {
+                        playerInventory.DropOneItemSlot();
+                    }
+                    else
+                    {
+                        if (mySlot.type == BlockType.Nothing)
+                        {
+                            playerInventory.DropSlot();
+                        }
+                        else
+                        {
+                            playerInventory.CombineSlots(mySlot);
+                        }
+                    }
                 }
             }
         }

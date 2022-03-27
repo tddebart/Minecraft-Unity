@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class PlayerInventory : MonoBehaviour
 {
     public GameObject UIBlockPrefab;
+    public GameObject SlotTextPrefab;
     
     public Slot[] slots = new Slot[slotAmount];
     
@@ -50,6 +51,7 @@ public class PlayerInventory : MonoBehaviour
                 var slotObj = Instantiate(emptyObj, inventorySlotsRect);
                 slotObj.AddComponent<RectTransform>();
                 slotObj.AddComponent<Image>().color = Color.clear;
+                var text = Instantiate(SlotTextPrefab, slotObj.transform);
                 var slotRect = slotObj.GetComponent<RectTransform>();
                 slotRect.localPosition = new Vector3(i * 18-72f, (j==0 ? -19-16*3 : (-j+1) * 18-9), -35);
                 slotRect.sizeDelta = new Vector2(18, 18);
@@ -59,6 +61,11 @@ public class PlayerInventory : MonoBehaviour
                 invSlot.slotIndex = i + j * 9;
                 
                 slots[i + j*9] = new Slot(i+j*9);
+                slots[i + j*9].countText = text.GetComponent<TextMeshProUGUI>();
+                if (j == 0)
+                {
+                    slots[i + j*9].hotbarCountText = hotbarRect.GetChild((i + j*9 )+ 1).GetChild(0).GetComponent<TextMeshProUGUI>();
+                }
             }
         }
         Destroy(emptyObj);
@@ -197,8 +204,6 @@ public class PlayerInventory : MonoBehaviour
         {
             return;
         }
-        
-        //TODO: text in hotbar doesn't work on the swapped item, why?
 
         var tempSlot = new Slot(pickedUpSlot);
         pickedUpSlot = new Slot(slot);
@@ -207,10 +212,6 @@ public class PlayerInventory : MonoBehaviour
         
         SetSlotBlockType(slot.index, tempSlot.type);
         slots[slot.index].SetCount(tempSlot.count);
-        this.ExecuteAfterFrames(1, () =>
-        {
-            slots[slot.index].SetCount(tempSlot.count);
-        });
     }
     
     public void PickUpHalfSlot(Slot slot)
@@ -268,12 +269,13 @@ public class PlayerInventory : MonoBehaviour
         if (pickedUpSlot == null) return;
         
         // Destroy any existing block mesh
-        if(pickedUpItemRect.childCount > 0)
+        if(pickedUpItemRect.childCount > 1)
         {
-            Destroy(pickedUpItemRect.GetChild(0).gameObject);
+            Destroy(pickedUpItemRect.GetChild(1).gameObject);
         }
 
-        CreateBlockMesh(pickedUpSlot.type, pickedUpItemRect, pickedUpSlot);
+        CreateBlockMesh(pickedUpSlot.type, pickedUpItemRect);
+        pickedUpSlot.countText = pickedUpItemRect.GetChild(0).GetComponent<TextMeshProUGUI>();
         pickedUpSlot!.SetCount(pickedUpSlot.count);
     }
     
@@ -341,32 +343,32 @@ public class PlayerInventory : MonoBehaviour
         // If slot is in hotbar
         if (slot < 9)
         {
-            if (hotbarRect.GetChild(slot + 1).childCount > 0)
+            if (hotbarRect.GetChild(slot + 1).childCount > 1)
             {
-                var existingItem = hotbarRect.GetChild(slot + 1).GetChild(0);
+                var existingItem = hotbarRect.GetChild(slot + 1).GetChild(1);
                 if (existingItem != null)
                 {
                     Destroy(existingItem.gameObject);
                 }
             }
-            CreateBlockMesh(type,hotbarRect.GetChild(slot + 1),slots[slot]);
+            CreateBlockMesh(type,hotbarRect.GetChild(slot + 1));
         }
         
         // Create inventory slot mesh
         var parent = inventorySlotsRect.GetChild(slot);
-        if(parent.childCount > 0)
+        if(parent.childCount > 1)
         {
-            var existingItem = parent.GetChild(0);
+            var existingItem = parent.GetChild(1);
             if (existingItem != null)
             {
                 Destroy(existingItem.gameObject);
             }
         }
         
-        CreateBlockMesh(type,parent,slots[slot]);
+        CreateBlockMesh(type,parent);
     }
-    
-    public void CreateBlockMesh(BlockType type, Transform parent, Slot slot)
+
+    private void CreateBlockMesh(BlockType type, Transform parent)
     {
         if (type == BlockType.Nothing) return;
         
@@ -385,14 +387,6 @@ public class PlayerInventory : MonoBehaviour
         mesh.SetUVs(0, meshData.uv);
         mesh.RecalculateNormals();
         blockItem.GetComponent<MeshFilter>().mesh = mesh;
-        slot.countText = blockItem.GetComponentInChildren<TextMeshProUGUI>();
-        slot.countText.raycastTarget = false;
-        if (slot.index < 9)
-        {
-            slot.hotbarCountText = hotbarRect.GetChild(slot.index + 1).GetChild(0).GetComponentInChildren<TextMeshProUGUI>();
-            slot.hotbarCountText!.enabled = true;
-            slot.hotbarCountText.raycastTarget = false;
-        }
     }
     
     public class Slot
