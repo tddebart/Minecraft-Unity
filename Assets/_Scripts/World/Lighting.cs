@@ -1,38 +1,72 @@
-﻿
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class Lighting
+public static class Lighting
 {
-    public static void RecastSunLightFirstTime(ChunkData chunkData)
+    public static void CalculateLight(ChunkData data)
     {
-        for (var x = 0; x < chunkData.chunkSize; x++)
+        // Block light calculation
+        if(data.blockLightRemoveQueue.Count > 0)
         {
-            for (var z = 0; z < chunkData.chunkSize; z++)
+            while(data.blockLightRemoveQueue.Count > 0)
             {
-                RecastSunLight(chunkData, new Vector3Int(x,chunkData.worldRef.worldHeight,z));
+                var node = data.blockLightRemoveQueue.Dequeue();
+                RemoveBlockLightBFS(data, node.block, node.lightLevel);
+            }
+        }
+        
+        
+        if (data.blockLightUpdateQueue.Count > 0)
+        {
+            while (data.blockLightUpdateQueue.Count > 0)
+            {
+                var node = data.blockLightUpdateQueue.Dequeue();
+                PlaceBlockLightBFS(data, node.block, node.lightLevel);
+            }
+        }
+
+        data.chunkToUpdateAfterLighting = data.chunkToUpdateAfterLighting.Distinct().ToList();
+        foreach (var chunk in data.chunkToUpdateAfterLighting)
+        {
+            World.Instance.AddChunkToUpdate(chunk, true);
+        }
+        data.chunkToUpdateAfterLighting.Clear();
+    }
+
+    public static void RemoveBlockLightBFS(ChunkData data, Block block, byte oldLightValue)
+    {
+        foreach (var neighbor in block.GetNeighbors())
+        {
+            var neighbourLightValue = neighbor.GetBlockLight();
+            if (neighbourLightValue != 0 && neighbourLightValue < oldLightValue)
+            {
+                neighbor.SetBlockLight(0);
+                if (neighbor.chunkData != data)
+                {
+                    data.chunkToUpdateAfterLighting.Add(neighbor.chunkData.renderer);
+                }
+                data.blockLightRemoveQueue.Enqueue(new BlockLightNode(neighbor, (byte)neighbourLightValue));
+            } else if (neighbourLightValue >= oldLightValue)
+            {
+                data.blockLightUpdateQueue.Enqueue(new BlockLightNode(neighbor, (byte)neighbourLightValue));
             }
         }
     }
-    
-    public static void RecastSunLight(ChunkData chunkData, Vector3Int startPos)
+
+    public static void PlaceBlockLightBFS(ChunkData data, Block block, byte lightValue)
     {
-        return;
-        bool obstructed = false;
-
-        // Loop from top to bottom of chunk.
-        for (int y = startPos.y; y > -1; y--) {
-            var block = chunkData.GetBlock(new Vector3Int(startPos.x, y, startPos.z));
-
-            // If light has been obstructed, all blocks below that point are set to 0.
-            if (obstructed) {
-                block.SetSkyLight(0);
-                // Else if block has opacity, set light to 0 and obstructed to true.
-            } else if (block.BlockData.opacity > 0) {
-                block.SetSkyLight(0);
-                obstructed = true;
-                // Else set light to 15.
-            } else {
-                block.SetSkyLight(15);
+        var currentLight = block.GetBlockLight();
+        foreach (var neighbor in block.GetNeighbors())
+        {
+            if (neighbor.BlockData.opacity < 15 && neighbor.GetBlockLight() < currentLight-1)
+            {
+                neighbor.SetBlockLight(currentLight-1);
+                if (neighbor.chunkData != data)
+                {
+                    data.chunkToUpdateAfterLighting.Add(neighbor.chunkData.renderer);
+                }
+                data.blockLightUpdateQueue.Enqueue(new BlockLightNode(neighbor, (byte)(currentLight-1)));
             }
         }
     }

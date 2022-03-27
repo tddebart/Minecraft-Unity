@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -31,6 +32,8 @@ public class Block
 
     public int GetBlockLight()
     {
+        if (type == BlockType.Nothing) return 0;
+        
         return section.GetBlockLight(position);
     }
     
@@ -68,6 +71,9 @@ public class Block
         var z = position.z;
         
         var oldOpacity = BlockData.opacity;
+        var oldEmission = BlockData.lightEmission;
+        var brokeBlock = this.type != BlockType.Nothing && type == BlockType.Air;
+        var oldType = this.type;
 
         section.blocks[x, y, z] = BlockMapping.MapTypeToBlock(type, this);
         this.type = type;
@@ -78,10 +84,44 @@ public class Block
         //     Lighting.RecastSunLight(chunkData, new Vector3Int(x, localChunkPosition.y+1, z));
         // }
 
-        if (BlockData.lightEmission > 0)
+        if (brokeBlock)
         {
-            SetBlockLight(BlockData.lightEmission);
+            if (BlockDataManager.blockTypeDataDictionary[(int)oldType].opacity == 15 && GetNeighbors().Any(n => n.GetBlockLight() > 0))
+            {
+                chunkData.blockLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetBlockLight()));
+                SetBlockLight(0);
+            }
         }
+        else
+        {
+            if (BlockData.opacity == 15)
+            {
+                if (GetBlockLight() > 0)
+                {
+                    chunkData.blockLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetBlockLight()));
+                    SetBlockLight(0);
+                }
+            }
+
+            if (BlockData.lightEmission > 0)
+            {
+                SetBlockLight(BlockData.lightEmission);
+                chunkData.blockLightUpdateQueue.Enqueue(new BlockLightNode(this, BlockData.lightEmission));
+            }
+        }
+
+    }
+    
+    public Block[] GetNeighbors()
+    {
+        return new Block[] {
+            chunkData.GetBlock(localChunkPosition + Vector3Int.left),
+            chunkData.GetBlock(localChunkPosition + Vector3Int.right),
+            chunkData.GetBlock(localChunkPosition + Vector3Int.forward),
+            chunkData.GetBlock(localChunkPosition + Vector3Int.back),
+            chunkData.GetBlock(localChunkPosition + Vector3Int.up),
+            chunkData.GetBlock(localChunkPosition + Vector3Int.down),
+        };
     }
 
     public virtual void OnBlockPlaced()

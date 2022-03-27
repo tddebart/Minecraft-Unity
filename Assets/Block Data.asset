@@ -30,7 +30,7 @@ MonoBehaviour:
     isTransparent: 1
     generateCollider: 0
     opacity: 0
-    lightEmission: 15
+    lightEmission: 0
   - blockType: 3
     up: {x: 11, y: 1}
     down: {x: 13, y: 6}

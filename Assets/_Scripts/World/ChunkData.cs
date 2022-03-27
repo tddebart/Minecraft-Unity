@@ -16,6 +16,10 @@ public class ChunkData
     public bool isGenerated = false;
     public TreeData treeData;
     [CanBeNull] public ChunkRenderer renderer => WorldDataHelper.GetChunk(worldRef, worldPos);
+    
+    public readonly Queue<BlockLightNode> blockLightUpdateQueue = new(); 
+    public readonly Queue<BlockLightNode> blockLightRemoveQueue = new(); 
+    public List<ChunkRenderer> chunkToUpdateAfterLighting = new List<ChunkRenderer>();
 
     public ChunkData(int chunkSize, int chunkHeight, World worldRef, Vector3Int worldPos)
     {
@@ -137,8 +141,7 @@ public class ChunkData
     {
         MeshData meshData = new MeshData(true);
         
-        // CalculateBlockLight();
-        // CalculateSunLight();
+        Lighting.CalculateLight(this);
 
         LoopThroughTheBlocks(this, (x, y, z,block) =>
         {
@@ -281,5 +284,17 @@ public class ChunkData
         }
         
         return neighbourChunks;
+    }
+}
+
+public struct BlockLightNode
+{
+    public Block block;
+    public byte lightLevel;
+    
+    public BlockLightNode(Block block, byte lightLevel)
+    {
+        this.block = block;
+        this.lightLevel = lightLevel;
     }
 }
