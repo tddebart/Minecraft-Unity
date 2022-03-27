@@ -121,34 +121,34 @@ public partial class World : MonoBehaviour
         });
     }
     
-    public void UpdateChunk(Vector3Int chunkPos)
-    {
-        UpdateChunks(new [] {chunkPos});
-    }
-    
-    public async void UpdateChunks(IEnumerable<Vector3Int> chunkPositions)
-    {
-        var dataToRender = new List<ChunkRenderer>();
-        foreach (var chunkPos in chunkPositions)
-        {
-            worldData.chunkDict.TryGetValue(chunkPos, out var chunk);
-            if (chunk != null)
-            {
-                dataToRender.Add(chunk);
-            }
-            else
-            {
-                Debug.LogError("Chunk not found at pos: " + chunkPos);
-            }
-        }
-        
-        var meshData = await UpdateMeshDataAsync(dataToRender);
-        foreach (var chunkRenderer in dataToRender)
-        {
-            meshData.TryGetValue(chunkRenderer, out var data);
-            chunkRenderer.UpdateChunk(data);
-        }
-    }
+    // public void UpdateChunk(Vector3Int chunkPos)
+    // {
+    //     UpdateChunks(new [] {chunkPos});
+    // }
+    //
+    // public async void UpdateChunks(IEnumerable<Vector3Int> chunkPositions)
+    // {
+    //     var dataToRender = new List<ChunkRenderer>();
+    //     foreach (var chunkPos in chunkPositions)
+    //     {
+    //         worldData.chunkDict.TryGetValue(chunkPos, out var chunk);
+    //         if (chunk != null)
+    //         {
+    //             dataToRender.Add(chunk);
+    //         }
+    //         else
+    //         {
+    //             Debug.LogError("Chunk not found at pos: " + chunkPos);
+    //         }
+    //     }
+    //     
+    //     var meshData = await UpdateMeshDataAsync(dataToRender);
+    //     foreach (var chunkRenderer in dataToRender)
+    //     {
+    //         meshData.TryGetValue(chunkRenderer, out var data);
+    //         chunkRenderer.UpdateChunk(data);
+    //     }
+    // }
 
     public void SetBlock(Vector3 pos, BlockType blockType)
     {

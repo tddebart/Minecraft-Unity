@@ -96,7 +96,7 @@ public class Player : BaseEntity
     
     public bool PlaceBlock()
     {
-        var type = inventory.slots[inventory.selectedSlot].type;
+        var type = inventory.slots[inventory.selectedSlotIndex].type;
         if (type != BlockType.Nothing)
         {
             var targetedBlock = TargetedBlock(reach, out var blockPos);
@@ -326,6 +326,19 @@ public class Player : BaseEntity
 
     private void GetPlayerInput()
     {
+        if (inventory.isOpen)
+        {
+            horizontal = 0;
+            vertical = 0;
+            mouseX = 0;
+            mouseY = 0;
+            
+            isCrouching = false;
+            jumpRequest = false;
+            
+            return;
+        }
+        
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
 

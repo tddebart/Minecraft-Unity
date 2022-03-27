@@ -125,6 +125,11 @@ public class TreesLayerHandler : BlockLayerHandler
                     if (chunk.GetBlock(leavePos).type != BlockType.Log)
                     {
                         chunk.SetBlock(leavePos, BlockType.Leaves);
+                        // TODO: this lags?
+                        // if (!ChunkData.IsInRange(leavePos))
+                        // {
+                        //     World.Instance.AddChunkToUpdate(WorldDataHelper.GetChunkData(World.Instance, chunk.GetGlobalBlockCoords(leavePos)).renderer);
+                        // }
                     }
                 }
 
