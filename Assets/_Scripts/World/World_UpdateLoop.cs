@@ -14,7 +14,7 @@ public partial class World
 
     public void UpdateLoop()
     {
-        while (true)
+        while (!disabled)
         {
             if (chunksToUpdate.Count > 0)
             {

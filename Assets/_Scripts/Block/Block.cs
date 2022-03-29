@@ -77,25 +77,51 @@ public class Block
 
         section.blocks[x, y, z] = BlockMapping.MapTypeToBlock(type, this);
         this.type = type;
-        
-        // If the block opacity has changed and the block above is in direct sunlight (or top of world)
-        // if(BlockData.opacity != oldOpacity && (localChunkPosition.y == World.Instance.worldHeight-1 || chunkData.GetBlock(localChunkPosition + Vector3Int.up).GetSkyLight() == 15))
-        // {
-        //     Lighting.RecastSunLight(chunkData, new Vector3Int(x, localChunkPosition.y+1, z));
-        // }
 
         if (brokeBlock)
         {
-            if (BlockDataManager.blockTypeDataDictionary[(int)oldType].opacity == 15 && GetNeighbors().Any(n => n.GetBlockLight() > 0))
+            if (BlockDataManager.blockTypeDataDictionary[(int)oldType].opacity == 15)
             {
-                chunkData.blockLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetBlockLight()));
-                SetBlockLight(0);
+                // Block
+                if(GetNeighbors().Any(n => n.GetBlockLight() > 0))
+                {
+                    chunkData.blockLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetBlockLight()));
+                    SetBlockLight(0);
+                }
+
+
+                if (localChunkPosition.y == World.Instance.worldHeight - 1 || chunkData.GetBlock(localChunkPosition + Vector3Int.up).GetSkyLight() == 15)
+                {
+                    SetSkyLight(15);
+                    chunkData.skyExtendList.Insert(chunkData.skyExtendList.Count, this);
+                }
+                else
+                {
+                    chunkData.skyLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetSkyLight()));
+                    SetSkyLight(0);
+                }
+                
             }
         }
         else
         {
             if (BlockData.opacity == 15)
             {
+                if (GetSkyLight() > 0)
+                {
+                    if (GetSkyLight() == 15)
+                    {
+                        SetSkyLight(0);
+                        chunkData.skyRemoveList.Insert(chunkData.skyRemoveList.Count, this);
+                    }
+                    else
+                    {
+                        chunkData.skyLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetSkyLight()));
+                        SetSkyLight(0);
+                    }
+                }
+                
+                
                 if (GetBlockLight() > 0)
                 {
                     chunkData.blockLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetBlockLight()));

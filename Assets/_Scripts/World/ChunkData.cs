@@ -19,6 +19,10 @@ public class ChunkData
     
     public readonly Queue<BlockLightNode> blockLightUpdateQueue = new(); 
     public readonly Queue<BlockLightNode> blockLightRemoveQueue = new(); 
+    public readonly Queue<BlockLightNode> skyLightUpdateQueue = new(); 
+    public readonly Queue<BlockLightNode> skyLightRemoveQueue = new(); 
+    public readonly List<Block> skyRemoveList = new(); 
+    public readonly List<Block> skyExtendList = new();
     public List<ChunkRenderer> chunkToUpdateAfterLighting = new List<ChunkRenderer>();
 
     public ChunkData(int chunkSize, int chunkHeight, World worldRef, Vector3Int worldPos)
@@ -80,7 +84,6 @@ public class ChunkData
     /// <exception cref="Exception"></exception>
     public Block GetBlock(Vector3Int localPos)
     {
-        var y = localPos.y;
         if (localPos.y < 0 || localPos.y >= worldRef.worldHeight)
         {
             return BlockHelper.NOTHING;
@@ -141,7 +144,7 @@ public class ChunkData
     {
         MeshData meshData = new MeshData(true);
         
-        Lighting.CalculateLight(this);
+        UpdateLight();
 
         LoopThroughTheBlocks(this, (x, y, z,block) =>
         {
@@ -150,6 +153,14 @@ public class ChunkData
         
         
         return meshData;
+    }
+
+    public void UpdateLight()
+    {
+        Lighting.CalculateSkyLightRemove(this);
+        Lighting.CalculateSkyLightExtend(this);
+        
+        Lighting.CalculateLight(this);
     }
 
     public void CalculateBlockLight()

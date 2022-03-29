@@ -39,6 +39,7 @@ public partial class World : MonoBehaviour
     public Color nightColor;
     public float minLightLevel = 0.1f;
     public float maxLightLevel = 0.90f;
+    private bool disabled;
 
     private CancellationTokenSource taskTokenSource = new CancellationTokenSource();
 
@@ -290,6 +291,7 @@ public partial class World : MonoBehaviour
     {
         updateThread.Abort();
         taskTokenSource.Cancel();
+        disabled = true;
     }
 
     public struct WorldGenerationData

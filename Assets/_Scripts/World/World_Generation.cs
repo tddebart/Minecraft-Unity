@@ -126,6 +126,8 @@ public partial class World
             .Select(x => x.Value)
             .ToList();
 
+        await CastLightFirstTime(dataToRender);
+
         try
         {
             meshDataDict = await CreateMeshDataAsync(dataToRender);
@@ -147,6 +149,14 @@ public partial class World
         StartCoroutine(ChunkCreationCoroutine(meshDataDict, position));
         
         Profiler.EndThreadProfiling();
+    }
+
+    public UniTask CastLightFirstTime(List<ChunkData> dataToCast)
+    {
+        return UniTask.RunOnThreadPool(() =>
+        {
+            Parallel.ForEach(dataToCast, Lighting.RecastSunLightFirstTime);
+        });
     }
     
     public UniTask<ConcurrentDictionary<Vector3Int, MeshData>> CreateMeshDataAsync(List<ChunkData> dataToRender)
