@@ -60,11 +60,11 @@ public class F3MenuManger : MonoBehaviour
                 CreateF3Text("SkyLight", "",false);
             }
             
-            foreach (var sizeFitter in f3Groups.Values)
-            {
-                sizeFitter.enabled = false;
-                sizeFitter.enabled = true;
-            }
+            // foreach (var sizeFitter in f3Groups.Values)
+            // {
+            //     sizeFitter.enabled = false;
+            //     sizeFitter.enabled = true;
+            // }
         }
     }
 

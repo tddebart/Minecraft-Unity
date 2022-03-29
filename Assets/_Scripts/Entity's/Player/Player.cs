@@ -149,7 +149,8 @@ public class Player : BaseEntity
                 return block;
             }
 
-            lastGlobalPos = Vector3Int.FloorToInt(pos + FindNormal(pos, lastGlobalPos));
+            // lastGlobalPos = Vector3Int.FloorToInt(pos + FindNormal(pos, lastGlobalPos));
+            lastGlobalPos = Vector3Int.FloorToInt(pos);
             
             step += checkIncrement;
         }
@@ -158,7 +159,7 @@ public class Player : BaseEntity
 
     // I am a fucking genius, I just fully came up with this shit
     // Loop through all vector directions and return the one that has less then 90 degrees between the camera and the block
-    public Vector3 FindNormal(Vector3 pos, Vector3Int lastPos)
+    public Vector3 FindNormal(Vector3 pos, Vector3 lastPos)
     {
         var directions = new Vector3Int[]
         {
