@@ -34,11 +34,10 @@ public partial class World : MonoBehaviour
     [Space]
     [Header("Lighting")] 
     [Range(0, 1)]
+    public float gamma = 0.0f;
     public float globalLightLevel = 1f;
     public Color dayColor;
     public Color nightColor;
-    public float minLightLevel = 0.1f;
-    public float maxLightLevel = 0.90f;
     private bool disabled;
 
     private CancellationTokenSource taskTokenSource = new CancellationTokenSource();
@@ -77,9 +76,10 @@ public partial class World : MonoBehaviour
             };
             Instance = this;
             
-            Shader.SetGlobalFloat("minGlobalLightLevel", minLightLevel);
-            Shader.SetGlobalFloat("maxGlobalLightLevel", maxLightLevel);
-            
+            LightTextureCreator.gamma = gamma;
+            LightTextureCreator.CreateLightTexture();
+            Shader.SetGlobalVectorArray("lightColors", LightTextureCreator.lightColors);
+
             validateDone = true;
         }
     }

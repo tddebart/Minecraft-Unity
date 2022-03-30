@@ -139,13 +139,24 @@ public static class BlockHelper
     public static void GetFaceColors(Direction direction, Vector3Int pos, MeshData meshData, ChunkData chunk)
     {
         var block = chunk.GetBlock(pos + direction.GetVector());
-        float lightLevel = block.GetLight();
-        lightLevel = Mathf.InverseLerp(0, 15, lightLevel);
 
-        meshData.AddColor(new Color(0,0,0,lightLevel));
-        meshData.AddColor(new Color(0,0,0,lightLevel));
-        meshData.AddColor(new Color(0,0,0,lightLevel));
-        meshData.AddColor(new Color(0,0,0,lightLevel));
+        float skyLightLevel = block.GetSkyLight();
+        float blockLightLevel = block.GetBlockLight();
+
+        meshData.skyLight.Add(skyLightLevel);
+        meshData.skyLight.Add(skyLightLevel);
+        meshData.skyLight.Add(skyLightLevel);
+        meshData.skyLight.Add(skyLightLevel);
+        
+        meshData.blockLight.Add(blockLightLevel);
+        meshData.blockLight.Add(blockLightLevel);
+        meshData.blockLight.Add(blockLightLevel);
+        meshData.blockLight.Add(blockLightLevel);
+    }
+
+    public static int GetLightIndex(Vector3Int pos, ChunkData chunk)
+    {
+        return pos.x + pos.y * chunk.chunkSize + pos.z * chunk.chunkSize * World.Instance.worldHeight;
     }
 
     public static Vector2[] FaceUVs(Direction dir, BlockType type, BlockTypeData blockTypeData = null)
