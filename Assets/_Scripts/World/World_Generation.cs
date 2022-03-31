@@ -15,8 +15,9 @@ public partial class World
 {
     public async void GenerateWorld()
     {
+        OnValidate();
         IsWorldCreated = false;
-        
+
         updateThread?.Abort();
         updateThread = new Thread(UpdateLoop);
         updateThread.Start();
@@ -53,21 +54,7 @@ public partial class World
         dataStopWatch.Start();
         
         Profiler.BeginThreadProfiling("GenerateWorld", "GenerateData");
-        
-        
-        // foreach(var pos in worldGenerationData.chunkDataPositionsToCreate)
-        // {
-        //     if(taskTokenSource.IsCancellationRequested)
-        //     {
-        //         taskTokenSource.Token.ThrowIfCancellationRequested();
-        //     }
-        //     
-        //     var data = new ChunkData(chunkSize, chunkHeight, this, pos);
-        //     var newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
-        //     dataDict.TryAdd(pos, newData);
-        //
-        // };
-        
+
         try
         {
             dataDict = await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate);
@@ -168,7 +155,7 @@ public partial class World
             {
                 while (dataToRender.Count > 0)
                 {
-                    Parallel.For(0, chunksGenerationPerFrame, i =>
+                    Parallel.For(0, 1, i =>
                     {
                         if(taskTokenSource.IsCancellationRequested)
                         {
@@ -235,29 +222,43 @@ public partial class World
         {
             Profiler.BeginThreadProfiling("MyThreads","CalculateWorldChunkData");
             var dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
-            while (chunkDataPositionsToCreate.Count > 0)
+            // while (chunkDataPositionsToCreate.Count > 0)
+            // {
+            //     if(chunkDataPositionsToCreate.Count < chunksGenerationPerFrame)
+            //     {
+            //         chunksGenerationPerFrame = chunkDataPositionsToCreate.Count;
+            //     }
+            //     
+            //     Parallel.For(0,chunksGenerationPerFrame, i =>
+            //     {
+            //         if(taskTokenSource.IsCancellationRequested)
+            //         {
+            //             taskTokenSource.Token.ThrowIfCancellationRequested();
+            //         }
+            //
+            //         var pos = chunkDataPositionsToCreate.First();
+            //         var data = new ChunkData(chunkSize, chunkHeight, this, pos);
+            //         var newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
+            //         dataDict.TryAdd(pos, newData);
+            //         
+            //         chunkDataPositionsToCreate.Remove(pos);
+            //     });
+            //     UniTask.NextFrame();
+            // }
+            
+            Parallel.ForEach(chunkDataPositionsToCreate, pos =>
             {
-                if(chunkDataPositionsToCreate.Count < chunksGenerationPerFrame)
+                if(taskTokenSource.IsCancellationRequested)
                 {
-                    chunksGenerationPerFrame = chunkDataPositionsToCreate.Count;
+                    taskTokenSource.Token.ThrowIfCancellationRequested();
                 }
-                
-                Parallel.For(0,chunksGenerationPerFrame, i =>
-                {
-                    if(taskTokenSource.IsCancellationRequested)
-                    {
-                        taskTokenSource.Token.ThrowIfCancellationRequested();
-                    }
 
-                    var pos = chunkDataPositionsToCreate.First();
-                    var data = new ChunkData(chunkSize, chunkHeight, this, pos);
-                    var newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
-                    dataDict.TryAdd(pos, newData);
-                    
-                    chunkDataPositionsToCreate.Remove(pos);
-                });
-                UniTask.NextFrame();
-            }
+                var data = new ChunkData(chunkSize, chunkHeight, this, pos);
+                var newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
+                dataDict.TryAdd(pos, newData);
+
+            });
+            
             // foreach(var pos in chunkDataPositionsToCreate)
             // {
             //     if(taskTokenSource.IsCancellationRequested)

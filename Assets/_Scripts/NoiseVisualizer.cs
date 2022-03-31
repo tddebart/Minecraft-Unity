@@ -28,7 +28,12 @@ public class NoiseVisualizer : MonoBehaviour
         {
             for (var y = 0; y < resolution; y++)
             {
-                var color = Color.Lerp(Color.black, Color.white, MyNoise.Redistribution(MyNoise.OctavePerlin(x, y, settings), settings));
+                var value = MyNoise.OctavePerlin(x, y, settings);
+                if (value > 0.9f)
+                {
+                    var g = 0;
+                }
+                var color = new Color(value, value, value);
                 pixs[y * resolution + x] = color;
             }
         }

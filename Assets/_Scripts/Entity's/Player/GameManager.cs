@@ -53,9 +53,14 @@ public class GameManager : MonoBehaviour
         currentChunkCenter.y = playerChunkPosition.y + world.chunkHeight / 2;
     }
 
+    public Vector3Int GetCurrentChunkCenter()
+    {
+        return WorldDataHelper.GetChunkPosition(world, Vector3Int.RoundToInt(localPlayer.transform.position));
+    }
+
     private IEnumerator CheckForChunkLoading()
     {
-        yield return new WaitForSeconds(detectionTime);
+        yield return null;
         if (
             Mathf.Abs(currentChunkCenter.x - localPlayer.transform.position.x) > world.chunkSize / 2 ||
             Mathf.Abs(currentChunkCenter.z - localPlayer.transform.position.z) > world.chunkSize / 2 ||

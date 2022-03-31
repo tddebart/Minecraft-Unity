@@ -157,10 +157,17 @@ public class ChunkData
 
     public void UpdateLight()
     {
-        Lighting.CalculateSkyLightRemove(this);
-        Lighting.CalculateSkyLightExtend(this);
-        
-        Lighting.CalculateLight(this);
+        try
+        {
+            Lighting.CalculateSkyLightRemove(this);
+            Lighting.CalculateSkyLightExtend(this);
+
+            Lighting.CalculateLight(this);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
     }
 
     public void CalculateBlockLight()

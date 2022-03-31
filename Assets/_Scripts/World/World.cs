@@ -40,7 +40,8 @@ public partial class World : MonoBehaviour
     [Space]
     public Color dayColor;
     public Color nightColor;
-    private bool disabled;
+    [HideInInspector]
+    public bool disabled;
 
     private CancellationTokenSource taskTokenSource = new CancellationTokenSource();
 
@@ -54,7 +55,7 @@ public partial class World : MonoBehaviour
     
     public Dictionary<Vector3Int, BlockType> blocksToPlaceAfterGeneration = new Dictionary<Vector3Int, BlockType>();
 
-    private bool validateDone;
+    public bool validateDone;
 
 
     private void Awake()
@@ -164,6 +165,7 @@ public partial class World : MonoBehaviour
     {
         var chunkPos = WorldDataHelper.GetChunkPosition(this, blockPos);
         var chunk = WorldDataHelper.GetChunk(this, chunkPos);
+        if (chunk == null) return;
         chunk.ModifiedByPlayer = true;
         SetBlock(chunk, blockPos, blockType);
     }
@@ -249,7 +251,7 @@ public partial class World : MonoBehaviour
         
         if (containerChunk == null)
         {
-            return null;
+            return BlockHelper.NOTHING;
         }
 
         var blockPos = containerChunk.GetLocalBlockCoords(new Vector3Int(globalPos.x, globalPos.y, globalPos.z));

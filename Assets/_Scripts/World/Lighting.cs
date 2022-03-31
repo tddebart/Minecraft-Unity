@@ -145,6 +145,8 @@ public static class Lighting
     
     public static void RemoveSkyLight(ChunkData data, Block block, int oldLightValue)
     {
+        if (block == null) return;
+        
         if (oldLightValue > 0)
         {
             oldLightValue--;

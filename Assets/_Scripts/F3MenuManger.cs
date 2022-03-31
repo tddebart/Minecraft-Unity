@@ -49,8 +49,11 @@ public class F3MenuManger : MonoBehaviour
                 CreateF3Text("Target", "Targeted Block: " + blockPos.x + ", " + blockPos.y + ", " + blockPos.z, false);
                 CreateF3Text("BlockType", targetedBlock.type.ToString(), false);
                 var frontBlock = World.Instance.GetBlock(frontGlobalBlockPos);
-                CreateF3Text("BlockLight", "Block light level: " + frontBlock.GetBlockLight(), false);
-                CreateF3Text("SkyLight", "Sky light level: " + frontBlock.GetSkyLight(), false);
+                if (frontBlock != null)
+                {
+                    CreateF3Text("BlockLight", "Block light level: " + frontBlock.GetBlockLight(), false);
+                    CreateF3Text("SkyLight", "Sky light level: " + frontBlock.GetSkyLight(), false);
+                }
             }
             else
             {

@@ -144,6 +144,7 @@ public class Player : BaseEntity
         {
             var pos = cam.position + cam.forward * step;
             var block = world.GetBlock(pos);
+            if (block == null) return null;
             if (BlockDataManager.blockTypeDataDictionary[(int)block.type].generateCollider)
             {
                 return block;

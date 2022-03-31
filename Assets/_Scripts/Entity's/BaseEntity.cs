@@ -215,6 +215,14 @@ public abstract class BaseEntity : MonoBehaviour
             velocity.y = CheckUpCollision(velocity.y);
         }
         
+        // If our feet are in a block we we shouldn't fall
+        if (world.GetBlock(transform.position).BlockData.generateCollider)
+        {
+            velocity.y = 0;
+            isGrounded = true;
+            verticalMomentum = 0;
+        }
+        
     }
     
     

@@ -17,20 +17,20 @@ public static class WorldDataHelper
 
     public static List<Vector3Int> GetChunkPositionsInRenderDistance(World world, Vector3Int playerPos)
     {
-        var startX = playerPos.x - world.renderDistance * world.chunkSize;
-        var startZ = playerPos.z - world.renderDistance * world.chunkSize;
-        var endX = playerPos.x + world.renderDistance * world.chunkSize;
-        var endZ = playerPos.z + world.renderDistance * world.chunkSize;
+        var startX = playerPos.x - Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8) * world.chunkSize;
+        var startZ = playerPos.z - Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8) * world.chunkSize;
+        var endX = playerPos.x + Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8) * world.chunkSize;
+        var endZ = playerPos.z + Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8) * world.chunkSize;
         
         return GetPositionsInRenderDistance(world,playerPos, startX, startZ, endX, endZ);
     }
 
     public static List<Vector3Int> GetDataPositionsInRenderDistance(World world, Vector3Int playerPos)
     {
-        var startX = playerPos.x - (world.renderDistance+1) * world.chunkSize;
-        var startZ = playerPos.z - (world.renderDistance+1) * world.chunkSize;
-        var endX = playerPos.x +   (world.renderDistance+1) * world.chunkSize;
-        var endZ = playerPos.z +   (world.renderDistance+1) * world.chunkSize;
+        var startX = playerPos.x - (Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8)+1) * world.chunkSize;
+        var startZ = playerPos.z - (Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8)+1) * world.chunkSize;
+        var endX = playerPos.x +   (Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8)+1) * world.chunkSize;
+        var endZ = playerPos.z +   (Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8)+1) * world.chunkSize;
         
         return GetPositionsInRenderDistance(world,playerPos, startX, startZ, endX, endZ);
     }
@@ -68,7 +68,7 @@ public static class WorldDataHelper
     {
         return allChunkPositionsNeeded
             .Where(pos => !worldData.chunkDict.ContainsKey(pos))
-            .OrderBy(pos => Vector3.Distance(playerPos, pos))
+            .OrderBy(pos => Vector3.Distance(playerPos, pos)).Take(World.Instance.IsWorldCreated ? World.Instance.chunksGenerationPerFrame : allChunkPositionsNeeded.Count)
             .ToHashSet();
     }
 
@@ -76,7 +76,7 @@ public static class WorldDataHelper
     {
         return allChunkDataPositionsNeeded
             .Where(pos => !worldData.chunkDataDict.ContainsKey(pos))
-            .OrderBy(pos => Vector3.Distance(playerPos, pos))
+            .OrderBy(pos => Vector3.Distance(playerPos, pos)).Take(World.Instance.IsWorldCreated ? 9 + World.Instance.chunksGenerationPerFrame*3 : allChunkDataPositionsNeeded.Count)
             .ToHashSet();
     }
 
