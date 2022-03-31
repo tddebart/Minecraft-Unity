@@ -35,7 +35,9 @@ public partial class World : MonoBehaviour
     [Header("Lighting")] 
     [Range(0, 1)]
     public float gamma = 0.0f;
-    public float globalLightLevel = 1f;
+    public float skyLightMultiplier = 0.75f;
+    public float blockLightMultiplier = 1.18f;
+    [Space]
     public Color dayColor;
     public Color nightColor;
     private bool disabled;
@@ -76,12 +78,14 @@ public partial class World : MonoBehaviour
             };
             Instance = this;
             
-            LightTextureCreator.gamma = gamma;
-            LightTextureCreator.CreateLightTexture();
-            Shader.SetGlobalVectorArray("lightColors", LightTextureCreator.lightColors);
 
             validateDone = true;
         }
+        LightTextureCreator.gamma = gamma;
+        LightTextureCreator.skyLightMultiplier = skyLightMultiplier;
+        LightTextureCreator.blockLightMultiplier = blockLightMultiplier;
+        LightTextureCreator.CreateLightTexture();
+        Shader.SetGlobalVectorArray("lightColors", LightTextureCreator.lightColors);
     }
 
     private WorldGenerationData GetPositionsInRenderDistance(Vector3Int playerPos)
@@ -160,6 +164,7 @@ public partial class World : MonoBehaviour
     {
         var chunkPos = WorldDataHelper.GetChunkPosition(this, blockPos);
         var chunk = WorldDataHelper.GetChunk(this, chunkPos);
+        chunk.ModifiedByPlayer = true;
         SetBlock(chunk, blockPos, blockType);
     }
 

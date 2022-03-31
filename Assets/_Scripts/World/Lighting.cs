@@ -175,6 +175,8 @@ public static class Lighting
     
     public static void PlaceSkyLight(ChunkData data, Block block, int lightLevel)
     {
+        if (block == null) return;
+        
         if (lightLevel > block.GetSkyLight())
         {
             block.SetSkyLight(lightLevel);
@@ -222,7 +224,7 @@ public static class Lighting
     public static void PlaceBlockLight(ChunkData data, Block block, byte lightValue)
     {
         var currentLight = block.GetBlockLight();
-        foreach (var neighbor in block.GetNeighbors())
+        foreach (var neighbor in block.GetNeighbors().Where(b => b.type != BlockType.Nothing))
         {
             if (neighbor.BlockData.opacity < 15 && neighbor.GetBlockLight() < currentLight-1)
             {

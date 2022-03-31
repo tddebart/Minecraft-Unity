@@ -7,6 +7,8 @@ public static class LightTextureCreator
     public static readonly Vector4[] lightColors = new Vector4[16*16];
     private static float[] lightBrightnessTable = new float[16];
     public static float gamma;
+    public static float skyLightMultiplier = 0.75f;
+    public static float blockLightMultiplier = 1.5f;
 
     public static void CreateLightTexture()
     {
@@ -19,8 +21,8 @@ public static class LightTextureCreator
         for (var k = 0; k < 16; ++k) {
             for (var l = 0; l < 16; ++l) {
                 float n;
-                var m = lightBrightnessTable[k] * 0.75f;
-                var o = n = lightBrightnessTable[l] * 1.5f;
+                var m = lightBrightnessTable[k] * skyLightMultiplier;
+                var o = n = lightBrightnessTable[l] * blockLightMultiplier;
                 var p = n * ((n * 0.6f + 0.4f) * 0.6f + 0.4f);
                 var q = n * (n * n * 0.6f + 0.4f);
                 var vector3f2 = new Vector3(o, p, q);

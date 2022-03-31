@@ -54,8 +54,7 @@ public partial class World
     private void Update()
     {
         //TODO: remove this because it is slow
-        Shader.SetGlobalFloat("GlobalLightLevel", globalLightLevel);
-        Camera.main.backgroundColor = Color.Lerp(nightColor,dayColor , globalLightLevel);
+        Camera.main.backgroundColor = Color.Lerp(nightColor,dayColor , skyLightMultiplier);
 
         if (chunksToUpdateMesh.Count > 0)
         {
