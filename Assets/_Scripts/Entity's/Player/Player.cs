@@ -380,9 +380,8 @@ public class Player : BaseEntity
             blockPos.y += targetedBlock.section.yOffset;
             Gizmos.Draw<CubeDrawer>(Color.black, false, blockPos+ new Vector3(0.5f,0.5f,0.5f),Quaternion.identity, Vector3.one*1.01f);
         }
-
     }
-    
+
     // When the body is rotated, the head needs to be rotated as well to keep the head in the same position
     private void RotateBody(float bodyYawRotation)
     {
@@ -464,22 +463,41 @@ public class Player : BaseEntity
         
         if (Input.GetMouseButtonUp(0))
         {
-            StopCoroutine(breakCoroutine);
+            if (breakCoroutine != null)
+            {
+                StopCoroutine(breakCoroutine);
+                breakCoroutine = null;
+            }
         }
         if (Input.GetMouseButtonDown(0))
         {
-            breakCoroutine = BreakLoop();
-            StartCoroutine(breakCoroutine);
+            RaycastHit ray;
+            if (Physics.Raycast(objects.cam.position, objects.cam.forward, out ray, reach, LayerMask.GetMask("Default")))
+            {
+                ray.transform.GetComponentInParent<Player>().CmdAddForce(ray.transform.position -transform.position + Vector3.up, 12);
+            }
+            else if(breakCoroutine == null)
+            {
+                breakCoroutine = BreakLoop();
+                StartCoroutine(breakCoroutine);
+            }
         }
 
         if (Input.GetMouseButtonUp(1))
         {
-            StopCoroutine(placeCoroutine);
+            if (placeCoroutine != null)
+            {
+                StopCoroutine(placeCoroutine);
+                placeCoroutine = null;
+            }
         }
         if (Input.GetMouseButtonDown(1))
         {
-            placeCoroutine = PlaceLoop();
-            StartCoroutine(placeCoroutine);
+            if (placeCoroutine == null)
+            {
+                placeCoroutine = PlaceLoop();
+                StartCoroutine(placeCoroutine);
+            }
         }
         
 

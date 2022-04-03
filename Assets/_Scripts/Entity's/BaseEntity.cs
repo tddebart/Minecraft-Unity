@@ -41,6 +41,7 @@ public abstract class BaseEntity : NetworkBehaviour
     protected float mouseY;
     
     protected Vector3 velocity;
+    protected Vector3 extraForce;
     protected float verticalMomentum;
     protected bool jumpRequest;
     protected bool isWaitingOnJumpDelay;
@@ -51,6 +52,13 @@ public abstract class BaseEntity : NetworkBehaviour
     {
         world = World.Instance;
         direction = transform;
+
+        var rayColl = GetComponentInChildren<BoxCollider>();
+        if (rayColl != null)
+        {
+            rayColl.center = new Vector3(0, entityHeight / 2, 0);
+            rayColl.size = new Vector3(entityWidth*2, entityHeight, entityWidth*2);
+        }
     }
 
     public virtual void FixedUpdate()
@@ -68,11 +76,42 @@ public abstract class BaseEntity : NetworkBehaviour
         }
 
         Move();
+        MoveForces();
     }
 
     public virtual void Move()
     {
         transform.Translate(velocity, Space.World);
+    }
+
+    public virtual void MoveForces()
+    {
+        CheckAroundCollision(ref extraForce);
+        
+        if (extraForce.magnitude > 0.05)
+        {
+            transform.Translate(extraForce*Time.fixedDeltaTime, Space.World);
+        }
+        extraForce = Vector3.Lerp(extraForce, Vector3.zero, 5*Time.fixedDeltaTime);
+    }
+
+    public virtual void AddForce(Vector3 dir, float force)
+    {
+        dir.Normalize();
+        if (dir.y < 0) dir.y = -dir.y; // reflect down force on the ground
+        extraForce += dir * force;
+    }
+    
+    [Command(requiresAuthority = false)]
+    public void CmdAddForce(Vector3 dir, float force)
+    {
+        RpcAddForce(netIdentity.connectionToClient, dir,force);
+    }
+    
+    [TargetRpc]
+    public void RpcAddForce(NetworkConnection netConn, Vector3 dir, float force)
+    {
+        AddForce(dir,force);
     }
 
     public virtual void Update()
@@ -99,7 +138,7 @@ public abstract class BaseEntity : NetworkBehaviour
         isWaitingOnJumpDelay = false;
     }
 
-    public void CalculateVelocity()
+    public virtual void CalculateVelocity()
     {
         // Apply gravity
         if (!isGrounded && !isFlying)
@@ -130,6 +169,41 @@ public abstract class BaseEntity : NetworkBehaviour
         velocity += Vector3.up * verticalMomentum * Time.fixedDeltaTime;
 
 
+        // Check collisions
+        CheckAroundCollision(ref velocity);
+
+        if (velocity.y == 0 && !isFlying)
+        {
+            var yLerp = Mathf.Lerp(transform.position.y, Mathf.Floor(transform.position.y), Time.deltaTime * -gravity);
+            transform.SetYPosition(yLerp);
+        }
+
+        // If velocity y has more than 3 decimals, round it to 0
+        if (Mathf.Abs(velocity.y) < 0.001f)
+        {
+            velocity.y = 0;
+        }
+
+        if((velocity.y) <= 0)
+        {
+            velocity.y = CheckDownCollision(velocity.y);
+        } else if((velocity.y > 0))
+        {
+            velocity.y = CheckUpCollision(velocity.y);
+        }
+        
+        // If our feet are in a block we we shouldn't fall
+        if (world.GetBlock(transform.position).BlockData.generateCollider)
+        {
+            velocity.y = 0;
+            isGrounded = true;
+            verticalMomentum = 0;
+        }
+        
+    }
+
+    public void CheckAroundCollision(ref Vector3 velocity)
+    {
         // Check collisions
         if(velocity.z > 0 && front())
         {
@@ -195,35 +269,6 @@ public abstract class BaseEntity : NetworkBehaviour
             }
             velocity.x = 0;
         }
-
-        if (velocity.y == 0 && !isFlying)
-        {
-            var yLerp = Mathf.Lerp(transform.position.y, Mathf.Floor(transform.position.y), Time.deltaTime * -gravity);
-            transform.SetYPosition(yLerp);
-        }
-
-        // If velocity y has more than 3 decimals, round it to 0
-        if (Mathf.Abs(velocity.y) < 0.001f)
-        {
-            velocity.y = 0;
-        }
-
-        if((velocity.y) <= 0)
-        {
-            velocity.y = CheckDownCollision(velocity.y);
-        } else if((velocity.y > 0))
-        {
-            velocity.y = CheckUpCollision(velocity.y);
-        }
-        
-        // If our feet are in a block we we shouldn't fall
-        if (world.GetBlock(transform.position).BlockData.generateCollider)
-        {
-            velocity.y = 0;
-            isGrounded = true;
-            verticalMomentum = 0;
-        }
-        
     }
     
     
