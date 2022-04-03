@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -379,6 +380,28 @@ public class PlayerInventory : MonoBehaviour
         {
             BlockHelper.GetFaceDataIn(direction, Vector3Int.zero, meshData, type,
                 BlockDataManager.blockTypeDataDictionary[(int)type], null);
+
+            switch (direction)
+            {
+                case Direction.backwards:
+                    meshData.skyLight.Add(13);
+                    meshData.skyLight.Add(13);
+                    meshData.skyLight.Add(13);
+                    meshData.skyLight.Add(13);
+                    break;
+                case Direction.right:
+                    meshData.skyLight.Add(10);
+                    meshData.skyLight.Add(10);
+                    meshData.skyLight.Add(10);
+                    meshData.skyLight.Add(10);
+                    break;
+                default:
+                    meshData.skyLight.Add(14);
+                    meshData.skyLight.Add(14);
+                    meshData.skyLight.Add(14);
+                    meshData.skyLight.Add(14);
+                    break;
+            }
         }
         
         var mesh = new Mesh();
@@ -386,6 +409,13 @@ public class PlayerInventory : MonoBehaviour
         mesh.SetTriangles(meshData.triangles, 0);
         mesh.SetUVs(0, meshData.uv);
         mesh.RecalculateNormals();
+        var lighArray = new Vector2[meshData.skyLight.Count];
+        for (int i = 0; i < meshData.skyLight.Count; i++)
+        {
+            lighArray[i] = new Vector2(meshData.skyLight[i], 0);
+        }
+
+        mesh.SetUVs(1, lighArray);
         blockItem.GetComponent<MeshFilter>().mesh = mesh;
     }
     

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections;
+using Mirror;
 using Popcron;
 using UnityEngine;
 using Gizmos = Popcron.Gizmos;
 
 [ExecuteAlways]
-public abstract class BaseEntity : MonoBehaviour
+public abstract class BaseEntity : NetworkBehaviour
 {
     public float crouchSpeed = 1.31f;
     public float walkSpeed = 4.317f;
@@ -19,7 +20,7 @@ public abstract class BaseEntity : MonoBehaviour
     
     public float entityWidth = 0.32f;
     public float entityHeight = 1.8f;
-    public float eyeHeight =1.578f;
+    public float eyeHeight = 1.578f;
 
     [Space] 
     

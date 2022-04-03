@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Mirror;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -30,10 +31,17 @@ public class GameManager : MonoBehaviour
         {
             if (world.GetBlock(new Vector3Int(0, i, 0)).type != BlockType.Air)
             {
-                var player = Instantiate(playerPrefab, new Vector3(world.chunkSize/2, i + 1, world.chunkSize/2), Quaternion.identity);
-                localPlayer = player.GetComponent<Player>();
-                playerSpawned = true;
-                StartCheckingForChunks();
+                if (NetworkManager.singleton != null)
+                {
+                    NetworkClient.Send(new MinecraftNetworkManager.CreatePlayerMessage(new Vector3(world.chunkSize/2, i + 1, world.chunkSize/2), Quaternion.identity));
+                }
+                else
+                {
+                    var player = Instantiate(playerPrefab, new Vector3(world.chunkSize/2, i + 1, world.chunkSize/2), Quaternion.identity);
+                    localPlayer = player.GetComponent<Player>();
+                    playerSpawned = true;
+                    StartCheckingForChunks();
+                }
                 break;
             }
         }

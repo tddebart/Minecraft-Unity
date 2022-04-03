@@ -73,6 +73,11 @@ public class ChunkRenderer : MonoBehaviour
         RenderMesh(meshData);
     }
     
+    public struct MeshChunkObject
+    {
+        public ChunkRenderer chunk;
+        public MeshData meshData;
+    }
     #if UNITY_EDITOR
 
     private void OnDrawGizmos()
@@ -95,12 +100,7 @@ public class ChunkRenderer : MonoBehaviour
         }
         
     }
+    #endif
 
-    public struct MeshChunkObject
-    {
-        public ChunkRenderer chunk;
-        public MeshData meshData;
-    }
 
-#endif
 }

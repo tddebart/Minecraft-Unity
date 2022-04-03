@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using Popcron;
 using UnityEditor;
 using UnityEngine;
@@ -27,9 +28,15 @@ public class Player : BaseEntity
     private IEnumerator placeCoroutine;
     [HideInInspector]
     public bool f3KeyComboUsed;
+
+    private MeshFilter[] meshFilters;
+    private int blockLightLastFrame;
+    private int skyLightLastFrame;
     
     private static readonly int Speed = Animator.StringToHash("speed");
     private static readonly int Sneaking = Animator.StringToHash("sneaking");
+
+    private bool networkStarted => NetworkManager.singleton != null;
     
     // INFO:
     // 530ms from jumping to landing on the ground
@@ -38,13 +45,30 @@ public class Player : BaseEntity
     public override void Start()
     {
         base.Start();
+        
         Cursor.lockState = CursorLockMode.Locked;
         objects = GetComponent<PlayerObjects>();
         cam = objects.cam;
+        inventory = GetComponent<PlayerInventory>();
         direction = objects.moveDirection;
         animator = GetComponent<Animator>();
-        inventory = GetComponent<PlayerInventory>();
-        if (!Application.isPlaying) return; 
+        if (!Application.isPlaying) return;
+        meshFilters = GetComponentsInChildren<MeshFilter>();
+        SetMeshLight(15,15);
+
+        if (!isLocalPlayer && networkStarted)
+        {
+            inventory.enabled = false;
+            cam.gameObject.SetActive(false);
+            foreach (var obj in GetComponentsInChildren<Transform>())
+            {
+                obj.gameObject.layer = LayerMask.NameToLayer("Default");
+            }
+            return;
+        }
+        GameManager.Instance.localPlayer = this;
+        GameManager.Instance.playerSpawned = true;
+        GameManager.Instance.StartCheckingForChunks();
         
         GameObject.Find("Rendering/Camera").SetActive(false);
         
@@ -53,6 +77,30 @@ public class Player : BaseEntity
         {
             GameObject.Find("Rendering").transform.GetChild(2).gameObject.SetActive(true);
         });
+
+    }
+
+    public void SetMeshLight(int skyLight, int blockLight)
+    {
+        foreach (var meshFilter in meshFilters)
+        {
+            var orgMesh = meshFilter.mesh;
+            var vertexCount = orgMesh.vertexCount;
+            var lightArray = new Vector2[vertexCount];
+            for (var i = 0; i < vertexCount; i++)
+            {
+                lightArray[i] = new Vector2(skyLight,blockLight);
+            }
+
+            var mesh = new Mesh
+            {
+                vertices = orgMesh.vertices,
+                uv = orgMesh.uv,
+                triangles = orgMesh.triangles
+            };
+            mesh.SetUVs(1,lightArray);
+            meshFilter.mesh = mesh;
+        }
     }
 
     private void OnEnable()
@@ -74,6 +122,7 @@ public class Player : BaseEntity
             blockPos.y += targetedBlock.section.yOffset;
             inventory.AddItem(targetedBlock.type);
             world.SetBlock(blockPos, BlockType.Air);
+            if(networkStarted) NetworkClient.Send(new WorldServer.SetBlockMessage(blockPos,BlockType.Air));
             return true;
         }
         else
@@ -106,6 +155,7 @@ public class Player : BaseEntity
                 if (!IsPlayerStandingIn(blockPos))
                 {
                     world.SetBlock(blockPos, type);
+                    if(networkStarted) NetworkClient.Send(new WorldServer.SetBlockMessage(blockPos, type));
                     inventory.RemoveHeldItem();
                     return true;
                 }
@@ -260,7 +310,19 @@ public class Player : BaseEntity
     public override void Update()
     {
         base.Update();
-        if (!Application.isPlaying) return;
+        var blockLight = World.Instance.GetBlock(transform.position).GetBlockLight();
+        var skyLight = World.Instance.GetBlock(transform.position).GetSkyLight();
+        
+        // Do mesh lighting
+        if (blockLightLastFrame != blockLight || skyLightLastFrame != skyLight)
+        {
+            SetMeshLight(skyLight,blockLight);
+        }
+
+        blockLightLastFrame = blockLight;
+        skyLightLastFrame = skyLight;   
+        
+        if (!Application.isPlaying || !isLocalPlayer && networkStarted) return;
         GetPlayerInput();
         var vel = new Vector3(velocity.x, 0, velocity.z);
         animator.SetFloat(Speed, (vel.magnitude/Time.fixedDeltaTime)/walkSpeed);
@@ -277,6 +339,7 @@ public class Player : BaseEntity
             blockPos.y += targetedBlock.section.yOffset;
             Gizmos.Draw<CubeDrawer>(Color.black, false, blockPos+ new Vector3(0.5f,0.5f,0.5f),Quaternion.identity, Vector3.one*1.01f);
         }
+
     }
     
     // When the body is rotated, the head needs to be rotated as well to keep the head in the same position
