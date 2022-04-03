@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Mirror;
 using Popcron;
+using Steamworks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -33,6 +34,9 @@ public class Player : BaseEntity
     private int blockLightLastFrame;
     private int skyLightLastFrame;
     
+    [SyncVar] 
+    public string PlayerName;
+    
     private static readonly int Speed = Animator.StringToHash("speed");
     private static readonly int Sneaking = Animator.StringToHash("sneaking");
 
@@ -53,8 +57,16 @@ public class Player : BaseEntity
         direction = objects.moveDirection;
         animator = GetComponent<Animator>();
         if (!Application.isPlaying) return;
+        
         meshFilters = GetComponentsInChildren<MeshFilter>();
         SetMeshLight(15,15);
+
+        if (isLocalPlayer)
+        {
+            CmdSetPlayerName(SteamClient.Name);
+        }
+        
+        objects.playerName.text = PlayerName;
 
         if (!isLocalPlayer && networkStarted)
         {
@@ -66,6 +78,7 @@ public class Player : BaseEntity
             }
             return;
         }
+
         GameManager.Instance.localPlayer = this;
         GameManager.Instance.playerSpawned = true;
         GameManager.Instance.StartCheckingForChunks();
@@ -103,6 +116,19 @@ public class Player : BaseEntity
         }
     }
 
+    [Command]
+    public void CmdSetPlayerName(string name)
+    {
+        PlayerName = name;
+        RpcUpdatePlayerNameText();
+    }
+
+    [ClientRpc]
+    public void RpcUpdatePlayerNameText()
+    {
+        objects.playerName.text = PlayerName;
+    }
+
     private void OnEnable()
     {
         Gizmos.CameraFilter += cam => cam.transform == this.cam;
@@ -121,8 +147,14 @@ public class Player : BaseEntity
             var blockPos = targetedBlock.section.dataRef.GetGlobalBlockCoords(targetedBlock.position);
             blockPos.y += targetedBlock.section.yOffset;
             inventory.AddItem(targetedBlock.type);
-            world.SetBlock(blockPos, BlockType.Air);
-            if(networkStarted) NetworkClient.Send(new WorldServer.SetBlockMessage(blockPos,BlockType.Air));
+            if (networkStarted)
+            {
+                NetworkClient.Send(new WorldServer.SetBlockMessage(blockPos,BlockType.Air));
+            }
+            else
+            {
+                world.SetBlock(blockPos, BlockType.Air);
+            }
             return true;
         }
         else
@@ -154,8 +186,14 @@ public class Player : BaseEntity
                 // Check if the block is not in the player
                 if (!IsPlayerStandingIn(blockPos))
                 {
-                    world.SetBlock(blockPos, type);
-                    if(networkStarted) NetworkClient.Send(new WorldServer.SetBlockMessage(blockPos, type));
+                    if (networkStarted)
+                    {
+                        NetworkClient.Send(new WorldServer.SetBlockMessage(blockPos, type));
+                    }
+                    else
+                    {
+                        world.SetBlock(blockPos, type);
+                    }
                     inventory.RemoveHeldItem();
                     return true;
                 }
@@ -279,8 +317,8 @@ public class Player : BaseEntity
 
         verticalRotation = verticalRotation switch
         {
-            > 90 and < 200 => 90,
-            < 270 and > 200 => 270,
+            > 89 and < 200 => 89,
+            < 271 and > 200 => 271,
             _ => verticalRotation
         };
 
@@ -310,17 +348,20 @@ public class Player : BaseEntity
     public override void Update()
     {
         base.Update();
-        var blockLight = World.Instance.GetBlock(transform.position).GetBlockLight();
-        var skyLight = World.Instance.GetBlock(transform.position).GetSkyLight();
-        
-        // Do mesh lighting
-        if (blockLightLastFrame != blockLight || skyLightLastFrame != skyLight)
+        if (Application.isPlaying)
         {
-            SetMeshLight(skyLight,blockLight);
+            var blockLight = World.Instance.GetBlock(transform.position).GetBlockLight();
+            var skyLight = World.Instance.GetBlock(transform.position).GetSkyLight();
+            
+            // Do mesh lighting
+            if (blockLightLastFrame != blockLight || skyLightLastFrame != skyLight)
+            {
+                SetMeshLight(skyLight,blockLight);
+            }
+            blockLightLastFrame = blockLight;
+            skyLightLastFrame = skyLight;   
         }
 
-        blockLightLastFrame = blockLight;
-        skyLightLastFrame = skyLight;   
         
         if (!Application.isPlaying || !isLocalPlayer && networkStarted) return;
         GetPlayerInput();

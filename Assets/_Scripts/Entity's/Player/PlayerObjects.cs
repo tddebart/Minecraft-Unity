@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 
 public class PlayerObjects : MonoBehaviour
 {
@@ -10,4 +11,5 @@ public class PlayerObjects : MonoBehaviour
     public Transform leftLeg;
     public Transform rightLeg;
     public Transform moveDirection;
+    public TextMeshProUGUI playerName;
 }
