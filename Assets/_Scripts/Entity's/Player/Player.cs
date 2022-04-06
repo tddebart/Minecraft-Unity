@@ -40,7 +40,7 @@ public class Player : BaseEntity
     private static readonly int Speed = Animator.StringToHash("speed");
     private static readonly int Sneaking = Animator.StringToHash("sneaking");
 
-    private bool networkStarted => NetworkManager.singleton != null;
+    private bool networkStarted => NetworkClient.active;
     
     // INFO:
     // 530ms from jumping to landing on the ground
@@ -77,6 +77,11 @@ public class Player : BaseEntity
                 obj.gameObject.layer = LayerMask.NameToLayer("Default");
             }
             return;
+        }
+
+        if (SettingsManager.instance != null)
+        {
+            cam.GetComponent<Camera>().fieldOfView = SettingsManager.instance.fov;
         }
 
         GameManager.Instance.localPlayer = this;

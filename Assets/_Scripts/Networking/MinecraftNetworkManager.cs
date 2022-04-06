@@ -1,8 +1,16 @@
-﻿using Mirror;
+﻿using kcp2k;
+using Mirror;
 using Steamworks;
+#if UNITY_EDITOR
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
+#endif
 using UnityEngine;
 
-public class MinecraftNetworkManager : NetworkManager
+public class MinecraftNetworkManager : NetworkManager 
+#if UNITY_EDITOR
+    ,IPreprocessBuildWithReport
+#endif
 {
     public override void OnStartServer()
     {
@@ -25,7 +33,7 @@ public class MinecraftNetworkManager : NetworkManager
     public override void OnClientDisconnect()
     {
         base.OnClientDisconnect();
-        MainLobbyManager.currentLobby.Leave();
+        if (LobbyManager.instance.currentLobby.HasValue) LobbyManager.instance.currentLobby.Value.Leave();
     }
 
     public struct CreatePlayerMessage : NetworkMessage
@@ -39,4 +47,17 @@ public class MinecraftNetworkManager : NetworkManager
             this.rotation = rotation;
         }
     }
+
+#if UNITY_EDITOR
+    public int callbackOrder => 0;
+
+    public void OnPreprocessBuild(BuildReport report)
+    {
+        if(transport is KcpTransport)
+        {
+            Debug.LogError("KcpTransport does not work online make sure to set the transport to FizzyTransport");
+        }
+    }
+    
+    #endif
 }

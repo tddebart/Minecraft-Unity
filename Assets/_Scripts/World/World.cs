@@ -15,7 +15,7 @@ using Debug = UnityEngine.Debug;
 public partial class World : MonoBehaviour
 {
     public static World Instance;
-    public byte renderDistance = 6;
+    public int renderDistance = 6;
     [Space]
     [Header("Sizes")]
     public byte chunkSize = 16; // 16x16 chunks
@@ -62,6 +62,10 @@ public partial class World : MonoBehaviour
     {
         Instance = this;
         validateDone = false;
+    }
+
+    private void Start()
+    {
         OnValidate();
         Clear();
         GenerateWorld();

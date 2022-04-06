@@ -31,7 +31,7 @@ public class GameManager : MonoBehaviour
         {
             if (world.GetBlock(new Vector3Int(0, i, 0)).type != BlockType.Air)
             {
-                if (NetworkManager.singleton != null)
+                if (NetworkClient.active)
                 {
                     NetworkClient.Send(new MinecraftNetworkManager.CreatePlayerMessage(new Vector3(world.chunkSize/2, i + 1, world.chunkSize/2), Quaternion.identity));
                 }

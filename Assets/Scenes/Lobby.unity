@@ -1759,7 +1759,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1212241213}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 61b93ff779f4ef84da855aef42076949, type: 3}
   m_Name: 
@@ -1848,7 +1848,7 @@ MonoBehaviour:
   serverTickRate: 60
   offlineScene: Assets/Scenes/Lobby.unity
   onlineScene: Assets/Scenes/World.unity
-  transport: {fileID: 1212241215}
+  transport: {fileID: 1212241214}
   networkAddress: localhost
   maxConnections: 100
   authenticator: {fileID: 0}
