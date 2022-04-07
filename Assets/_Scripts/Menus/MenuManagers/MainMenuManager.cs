@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Mirror;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -11,7 +12,7 @@ public class MainMenuManager : MonoBehaviour
         
         transform.Find("Layout/Singleplayer").GetComponent<Button>().onClick.AddListener(() =>
         {
-            SceneManager.LoadScene("World");
+            NetworkManager.singleton.StartHost();
         });
         transform.Find("Layout/Bottom/Quit").GetComponent<Button>().onClick.AddListener(Application.Quit);
     }

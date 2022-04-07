@@ -5,6 +5,7 @@ using Popcron;
 using Steamworks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Gizmos = Popcron.Gizmos;
 
@@ -29,6 +30,9 @@ public class Player : BaseEntity
     private IEnumerator placeCoroutine;
     [HideInInspector]
     public bool f3KeyComboUsed;
+    private Menu escapeMenu;
+    [HideInInspector]
+    public bool escapeMenuOpen;
 
     private MeshFilter[] meshFilters;
     private int blockLightLastFrame;
@@ -96,6 +100,7 @@ public class Player : BaseEntity
             GameObject.Find("Rendering").transform.GetChild(2).gameObject.SetActive(true);
         });
 
+        escapeMenu = GameObject.Find("PlayerCanvas/Menus/EscapeMenu").GetComponent<Menu>();
     }
 
     public void SetMeshLight(int skyLight, int blockLight)
@@ -436,10 +441,24 @@ public class Player : BaseEntity
 
     private void GetPlayerInput()
     {
-        if (inventory.isOpen)
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (inventory.isOpen)
+            {
+                inventory.CloseInventory();
+            }
+            else
+            {
+                escapeMenu.Toggle();
+                escapeMenuOpen = escapeMenu.opened;
+            }
+        }
+        
+        if (inventory.isOpen || escapeMenuOpen)
         {
             horizontal = 0;
             vertical = 0;
+            verticalMomentum = 0;
             mouseX = 0;
             mouseY = 0;
             
@@ -452,8 +471,12 @@ public class Player : BaseEntity
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
 
+
         mouseX = Input.GetAxis("Mouse X");
         mouseY = Input.GetAxis("Mouse Y");
+        
+
+        
         
         if (Input.GetButtonDown("Sprint"))
         {

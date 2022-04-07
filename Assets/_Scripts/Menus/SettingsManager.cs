@@ -43,10 +43,17 @@ public class SettingsManager : MonoBehaviour
             ApplySettings();
             SceneManager.sceneLoaded += (scene, mode) =>
             {
-                if (scene.name == "World")
+                foreach (var slider in UISlider.sliders.Values)
                 {
-                    ApplySettings();
+                    slider.SetValue(settings[slider.name]);
                 }
+
+                foreach (var toggleButton in UIToggleButton.toggleButtons)
+                {
+                    toggleButton.SetValue((int)settings[toggleButton.name]);
+                }
+
+                ApplySettings();
             };
         });
     }

@@ -14,7 +14,12 @@ public class UIToggleButton : MonoBehaviour
     {
         toggleButtons.Add(this);
     }
-    
+
+    private void OnDestroy()
+    {
+        toggleButtons.Remove(this);
+    }
+
     public void SetValue(int value)
     {
         for (int i = 0; i < values.Length; i++)

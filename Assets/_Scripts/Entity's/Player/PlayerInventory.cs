@@ -32,11 +32,11 @@ public class PlayerInventory : MonoBehaviour
     private void Start()
     {
         player = GetComponent<Player>();
-        hotbarRect = GameObject.Find("PlayerCanvas/Hotbar").GetComponent<RectTransform>();
+        hotbarRect = GameObject.Find("PlayerCanvas/GameUI/Hotbar").GetComponent<RectTransform>();
         selectedSlotRect = hotbarRect.GetChild(0).GetComponent<RectTransform>();
         
         
-        inventoryRect = GameObject.Find("PlayerCanvas/Inventory").GetComponent<RectTransform>();
+        inventoryRect = GameObject.Find("PlayerCanvas/GameUI/Inventory").GetComponent<RectTransform>();
         inventorySlotsRect = inventoryRect.GetChild(3).GetComponent<RectTransform>();
         inventoryHighlightRect = inventoryRect.GetChild(2).GetComponent<RectTransform>();
         inventoryHighlightRect.gameObject.SetActive(false);

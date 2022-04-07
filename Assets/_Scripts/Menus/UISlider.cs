@@ -18,10 +18,16 @@ public class UISlider : MonoBehaviour
     private void Awake()
     {
         slider = GetComponent<Slider>();
+        slider.onValueChanged.AddListener(OnValueChanged);
         text = GetComponentInChildren<TextMeshProUGUI>();
-        sliders.TryAdd(name, this);
+        sliders[name] = this;
     }
-    
+
+    private void OnDestroy()
+    {
+        sliders.Remove(name);
+    }
+
     public void SetValue(float value)
     {
         slider.value = value;
