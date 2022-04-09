@@ -20,6 +20,7 @@ public class PlayerInventory : MonoBehaviour
     public bool isOpen;
     private RectTransform inventoryRect;
     private RectTransform inventorySlotsRect;
+    private RectTransform canvasRect;
     [HideInInspector]
     public RectTransform inventoryHighlightRect;
     private RectTransform pickedUpItemRect;
@@ -35,7 +36,7 @@ public class PlayerInventory : MonoBehaviour
         hotbarRect = GameObject.Find("PlayerCanvas/GameUI/Hotbar").GetComponent<RectTransform>();
         selectedSlotRect = hotbarRect.GetChild(0).GetComponent<RectTransform>();
         
-        
+        canvasRect = GameObject.Find("PlayerCanvas").GetComponent<RectTransform>();
         inventoryRect = GameObject.Find("PlayerCanvas/GameUI/Inventory").GetComponent<RectTransform>();
         inventorySlotsRect = inventoryRect.GetChild(3).GetComponent<RectTransform>();
         inventoryHighlightRect = inventoryRect.GetChild(2).GetComponent<RectTransform>();
@@ -112,10 +113,10 @@ public class PlayerInventory : MonoBehaviour
             var position = Input.mousePosition;
             position.x /= Screen.width;
             position.y /= Screen.height;
-            position.x *= 255 * 2;
-            position.y *= 138 * 2;
+            position.x *= canvasRect.sizeDelta.x;
+            position.y *= canvasRect.sizeDelta.y;
             position.z = -50;
-            pickedUpItemRect.localPosition = position - new Vector3(255, 138,0);
+            pickedUpItemRect.anchoredPosition = position;
         }
         else
         {

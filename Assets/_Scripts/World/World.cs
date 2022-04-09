@@ -7,9 +7,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Profiling;
+using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 
 public partial class World : MonoBehaviour
@@ -331,6 +333,8 @@ public partial class World : MonoBehaviour
             if (GUILayout.Button("Clear World"))
             {
                 world.Clear();
+                EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+                EditorSceneManager.SaveOpenScenes();
             }
             
             base.OnInspectorGUI();

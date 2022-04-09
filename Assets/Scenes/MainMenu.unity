@@ -1852,7 +1852,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -152.5, y: 48561.06}
+  m_AnchoredPosition: {x: -152.5, y: 50330.37}
   m_SizeDelta: {x: 305, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &845042230
@@ -5330,7 +5330,7 @@ MonoBehaviour:
   serverTickRate: 60
   offlineScene: Assets/Scenes/MainMenu.unity
   onlineScene: Assets/Scenes/World.unity
-  transport: {fileID: 1923040921}
+  transport: {fileID: 1923040920}
   networkAddress: localhost
   maxConnections: 100
   authenticator: {fileID: 0}
