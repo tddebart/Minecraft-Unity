@@ -9,6 +9,7 @@ public class MeshData
     public List<Color> colors = new List<Color>();
     public List<float> skyLight = new List<float>();
     public List<float> blockLight = new List<float>();
+    public List<Vector3> sides = new List<Vector3>();
 
     public int subMeshCount;
 

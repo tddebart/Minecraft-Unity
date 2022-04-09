@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 
@@ -73,6 +74,7 @@ public static class BlockHelper
         if (chunk != null)
         {
             GetFaceColors(dir,pos,meshData,chunk);
+            GetVertexAOSides(dir,pos,meshData,chunk);
         }
         meshData.AddQuadTriangles();
         var uvs = FaceUVs(dir, type, blockTypeData);
@@ -97,41 +99,41 @@ public static class BlockHelper
         switch (direction)
         {
             case Direction.backwards:
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z - 0.5f));
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z - 0.5f));
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z - 0.5f));
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y - 0.50001f, pos.z - 0.50001f)); // ---
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y + 0.50001f, pos.z - 0.50001f)); // -+-
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y + 0.50001f, pos.z - 0.50001f)); // ++-
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y - 0.50001f, pos.z - 0.50001f)); // +--
                 break;
             case Direction.forwards:
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z + 0.5f));
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f));
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z + 0.5f));
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y - 0.50001f, pos.z + 0.50001f)); // +-+
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y + 0.50001f, pos.z + 0.50001f)); // +++
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y + 0.50001f, pos.z + 0.50001f)); // -++
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y - 0.50001f, pos.z + 0.50001f)); // --+
                 break;
             case Direction.left:
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z + 0.5f));
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z + 0.5f));
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z - 0.5f));
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y - 0.50001f, pos.z + 0.50001f)); // --+
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y + 0.50001f, pos.z + 0.50001f)); // -++
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y + 0.50001f, pos.z - 0.50001f)); // -+-
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y - 0.50001f, pos.z - 0.50001f)); // ---
                 break;
 
             case Direction.right:
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z - 0.5f));
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z - 0.5f));
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f));
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y - 0.50001f, pos.z - 0.50001f)); // +--
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y + 0.50001f, pos.z - 0.50001f)); // ++-
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y + 0.50001f, pos.z + 0.50001f)); // +++
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y - 0.50001f, pos.z + 0.50001f)); // +-+
                 break;
             case Direction.down:
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z - 0.5f));
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z - 0.5f));
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y - 0.5f, pos.z + 0.5f));
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y - 0.5f, pos.z + 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y - 0.50001f, pos.z - 0.50001f)); // --
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y - 0.50001f, pos.z - 0.50001f)); // +-
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y - 0.50001f, pos.z + 0.50001f)); // ++
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y - 0.50001f, pos.z + 0.50001f)); // -+
                 break;
             case Direction.up:
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z + 0.5f));
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f));
-                meshData.AddVertex(new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z - 0.5f));
-                meshData.AddVertex(new Vector3(pos.x - 0.5f, pos.y + 0.5f, pos.z - 0.5f));
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y + 0.50001f, pos.z + 0.50001f)); // -+
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y + 0.50001f, pos.z + 0.50001f)); // ++
+                meshData.AddVertex(new Vector3(pos.x + 0.50001f, pos.y + 0.50001f, pos.z - 0.50001f)); // +-
+                meshData.AddVertex(new Vector3(pos.x - 0.50001f, pos.y + 0.50001f, pos.z - 0.50001f)); // --
                 break;
         }
     }
@@ -152,6 +154,149 @@ public static class BlockHelper
         meshData.blockLight.Add(blockLightLevel);
         meshData.blockLight.Add(blockLightLevel);
         meshData.blockLight.Add(blockLightLevel);
+    }
+
+    public static void GetVertexAOSides(Direction direction, Vector3Int pos, MeshData meshData, ChunkData chunk)
+    {
+        switch (direction)
+        {
+            case Direction.up:
+                meshData.sides.Add(new Vector3(// -+
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x - 1, pos.y+1, pos.z)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x, pos.y+1, pos.z + 1)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x - 1, pos.y+1, pos.z + 1)).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// ++
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x, pos.y+1, pos.z+1)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x+1, pos.y+1, pos.z)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x + 1, pos.y+1, pos.z + 1)).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// +-
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x+1, pos.y+1, pos.z)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x, pos.y+1, pos.z-1)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x + 1, pos.y+1, pos.z - 1)).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// --
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x, pos.y+1, pos.z-1)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x-1, pos.y+1, pos.z)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x - 1, pos.y+1, pos.z - 1)).BlockData.opacity != 0)));
+                break;
+            case Direction.down:
+                // ---
+                // +--
+                // +-+
+                // --+
+                meshData.sides.Add(new Vector3(// --
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x, pos.y-1, pos.z-1)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x-1, pos.y-1, pos.z)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x - 1, pos.y-1, pos.z - 1)).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// +-
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x+1, pos.y-1, pos.z)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x, pos.y-1, pos.z-1)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x + 1, pos.y-1, pos.z - 1)).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// ++
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x, pos.y-1, pos.z+1)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x+1, pos.y-1, pos.z)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x + 1, pos.y-1, pos.z + 1)).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// -+
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x - 1, pos.y-1, pos.z)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x, pos.y-1, pos.z + 1)).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(new Vector3Int(pos.x - 1, pos.y-1, pos.z + 1)).BlockData.opacity != 0)));
+                break;
+            case Direction.left:
+                // --+
+                // -++
+                // -+-
+                // ---
+                meshData.sides.Add(new Vector3(// -+
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.left.GetVector() + Direction.down.GetVector() ).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.left.GetVector() + Direction.forwards.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock( pos + Direction.left.GetVector() + Direction.down.GetVector() + Direction.forwards.GetVector()).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// ++
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.left.GetVector() + Direction.forwards.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.left.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.left.GetVector() + Direction.forwards.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// +-
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.left.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.left.GetVector() + Direction.backwards.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.left.GetVector() + Direction.forwards.GetVector() + Direction.backwards.GetVector()).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// --
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.left.GetVector() + Direction.backwards.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.left.GetVector() + Direction.down.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.left.GetVector() + Direction.backwards.GetVector() + Direction.down.GetVector()).BlockData.opacity != 0)));
+                break;
+            case Direction.right:
+                // +--
+                // ++-
+                // +++
+                // +-+
+                meshData.sides.Add(new Vector3(// --
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.right.GetVector() + Direction.down.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.right.GetVector() + Direction.backwards.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.right.GetVector() + Direction.backwards.GetVector() + Direction.down.GetVector()).BlockData.opacity != 0)));   
+                meshData.sides.Add(new Vector3(// +-
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.right.GetVector() + Direction.backwards.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.right.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.right.GetVector() + Direction.forwards.GetVector() + Direction.backwards.GetVector()).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// ++
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.right.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.right.GetVector() + Direction.forwards.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.right.GetVector() + Direction.forwards.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// -+
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.right.GetVector() + Direction.forwards.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.right.GetVector() + Direction.down.GetVector() ).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock( pos + Direction.right.GetVector() + Direction.down.GetVector() + Direction.forwards.GetVector()).BlockData.opacity != 0)));
+                break;
+            
+            case Direction.backwards:
+                // ---
+                // -+-
+                // ++-
+                // +--
+                meshData.sides.Add(new Vector3(// --
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.down.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.left.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.left.GetVector() + Direction.down.GetVector()).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// -+
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.left.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.up.GetVector() + Direction.left.GetVector()).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// ++
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.right.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.right.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// +-
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.right.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.down.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.backwards.GetVector() + Direction.down.GetVector() + Direction.right.GetVector()).BlockData.opacity != 0)));
+                break;
+            
+            case Direction.forwards:
+                // +-+
+                // +++
+                // -++
+                // --+
+                meshData.sides.Add(new Vector3(// +-
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.down.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.right.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.right.GetVector() + Direction.down.GetVector()).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// ++
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.right.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.up.GetVector() + Direction.right.GetVector()).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// -+
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.left.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.left.GetVector() + Direction.up.GetVector()).BlockData.opacity != 0)));
+                meshData.sides.Add(new Vector3(// --
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.left.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.down.GetVector()).BlockData.opacity != 0),
+                    Convert.ToSingle(chunk.GetBlock(pos + Direction.forwards.GetVector() + Direction.down.GetVector() + Direction.left.GetVector()).BlockData.opacity != 0)));
+                break;
+            default:
+                meshData.sides.Add(new Vector3(0,0,0));
+                meshData.sides.Add(new Vector3(0,0,0));
+                meshData.sides.Add(new Vector3(0,0,0));
+                meshData.sides.Add(new Vector3(0,0,0));
+                break;
+        }
     }
 
     public static int GetLightIndex(Vector3Int pos, ChunkData chunk)

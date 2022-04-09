@@ -53,6 +53,8 @@ public class ChunkRenderer : MonoBehaviour
         }
 
         mesh.SetUVs(1, lighArray);
+        MeshData.sides.AddRange(MeshData.transparentMesh.sides);
+        mesh.SetUVs(2,MeshData.sides);
 
         mesh.SetTriangles(meshData.triangles, 0);
         mesh.SetTriangles(meshData.transparentMesh.triangles.Select(val => val + (meshData.vertices.Count-meshData.transparentMesh.vertices.Count)).ToList(), 1);

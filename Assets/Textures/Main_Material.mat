@@ -167,6 +167,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AOOn: 1
     - _AORemapMax: 1
     - _AORemapMin: 0
     - _ATDistance: 1
@@ -243,6 +244,7 @@ Material:
     - _IridescenceMask: 1
     - _IridescenceThickness: 1
     - _Light: 1
+    - _LightingOn: 1
     - _LinkDetailsWithBase: 1
     - _MaterialID: 1
     - _Metallic: 0
@@ -288,6 +290,7 @@ Material:
     - _SurfaceType: 1
     - _TexWorldScale: 1
     - _TexWorldScaleEmissive: 1
+    - _TextureOn: 1
     - _Thickness: 1
     - _TransmissionEnable: 1
     - _TransparentBackfaceEnable: 0
