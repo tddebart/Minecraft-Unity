@@ -2405,7 +2405,7 @@ MonoBehaviour:
     noiseSettings: {fileID: 11400000, guid: 1a7d427598b59324e9262e091044b05b, type: 2}
   - blockType: 1
     minHeight: 1
-    maxHeight: 1
+    maxHeight: 40
     threshold: 0.5
     noiseSettings: {fileID: 11400000, guid: 1a7d427598b59324e9262e091044b05b, type: 2}
   extraTerrainHeightPercentage: 20
@@ -3729,7 +3729,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e113280f9ab044168541f6fef84d3095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 1
+  renderDistance: 2
   chunkSize: 16
   chunkHeight: 16
   worldHeight: 96
