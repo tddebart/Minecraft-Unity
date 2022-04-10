@@ -92,7 +92,7 @@ public class PlayerInventory : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.K))
         {
-            AddItem(BlockType.Stone, 64);
+            AddItem(BlockType.WoodenSlab, 64);
         }
 
         if (Input.GetKeyDown(KeyCode.E))
@@ -376,12 +376,13 @@ public class PlayerInventory : MonoBehaviour
         
         GameObject blockItem = Instantiate(UIBlockPrefab, parent);
         blockItem.transform.localScale = Vector3.one*10;
+        blockItem.GetComponent<RectTransform>().anchoredPosition = new Vector3(-7, -5, 0);
         var meshData = new MeshData(true);
+        var block = new Block(type, Vector3Int.zero, null);
+        block = BlockMapping.MapTypeToBlock(type, block);
         foreach (var direction in BlockHelper.directions)
         {
-            BlockHelper.GetFaceDataIn(direction, Vector3Int.zero, meshData, type,
-                BlockDataManager.blockTypeDataDictionary[(int)type], null);
-
+            BlockHelper.GetFaceDataIn(direction, Vector3Int.zero, meshData, block, BlockDataManager.blockTypeDataDictionary[(int)type], null);
             switch (direction)
             {
                 case Direction.backwards:
@@ -389,18 +390,30 @@ public class PlayerInventory : MonoBehaviour
                     meshData.skyLight.Add(13);
                     meshData.skyLight.Add(13);
                     meshData.skyLight.Add(13);
+                    meshData.sides.Add(Vector3.zero);
+                    meshData.sides.Add(Vector3.zero);
+                    meshData.sides.Add(Vector3.zero);
+                    meshData.sides.Add(Vector3.zero);
                     break;
                 case Direction.right:
                     meshData.skyLight.Add(10);
                     meshData.skyLight.Add(10);
                     meshData.skyLight.Add(10);
                     meshData.skyLight.Add(10);
+                    meshData.sides.Add(Vector3.zero);
+                    meshData.sides.Add(Vector3.zero);
+                    meshData.sides.Add(Vector3.zero);
+                    meshData.sides.Add(Vector3.zero);
                     break;
                 default:
                     meshData.skyLight.Add(14);
                     meshData.skyLight.Add(14);
                     meshData.skyLight.Add(14);
                     meshData.skyLight.Add(14);
+                    meshData.sides.Add(Vector3.zero);
+                    meshData.sides.Add(Vector3.zero);
+                    meshData.sides.Add(Vector3.zero);
+                    meshData.sides.Add(Vector3.zero);
                     break;
             }
         }
@@ -417,6 +430,7 @@ public class PlayerInventory : MonoBehaviour
         }
 
         mesh.SetUVs(1, lighArray);
+        mesh.SetUVs(2, meshData.sides);
         blockItem.GetComponent<MeshFilter>().mesh = mesh;
     }
     

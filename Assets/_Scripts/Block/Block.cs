@@ -15,12 +15,15 @@ public class Block
     
     [System.NonSerialized] public ChunkSection section;
     public ChunkData chunkData => section.dataRef;
+    
+    public BlockShape blockShape;
 
     public Block(BlockType type, Vector3Int position, ChunkSection section)
     {
         this.type = type;
         this.position = position;
         this.section = section;
+        blockShape = BlockShapes.FullBlock;
     }
 
     public Block(Block block)
@@ -28,6 +31,16 @@ public class Block
         this.type = block.type;
         this.position = block.position;
         this.section = block.section;
+        blockShape = BlockShapes.FullBlock;
+    }
+
+    public Block Reset(Block block)
+    {
+        this.type = block.type;
+        this.position = block.position;
+        this.section = block.section;
+        blockShape = BlockShapes.FullBlock;
+        return this;
     }
 
     public int GetBlockLight()
@@ -75,7 +88,6 @@ public class Block
         var brokeBlock = this.type != BlockType.Nothing && type == BlockType.Air;
         var oldType = this.type;
 
-        section.blocks[x, y, z] = BlockMapping.MapTypeToBlock(type, this);
         this.type = type;
 
         if (brokeBlock)
@@ -136,6 +148,7 @@ public class Block
             }
         }
 
+        section.blocks[x, y, z] = BlockMapping.MapTypeToBlock(type, this);
     }
     
     public Block[] GetNeighbors()

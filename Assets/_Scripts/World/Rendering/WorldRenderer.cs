@@ -12,11 +12,11 @@ public class WorldRenderer : MonoBehaviour
         if(chunkPool.Count > 0)
         {
             newChunk = chunkPool.Dequeue();
-            newChunk.transform.position = pos+new Vector3(0.5f,0.5f,0.5f);
+            newChunk.transform.position = pos;
         }
         else
         {
-            var chunkObj = Instantiate(chunkPrefab, pos+new Vector3(0.5f,0.5f,0.5f), Quaternion.identity, transform);
+            var chunkObj = Instantiate(chunkPrefab, pos, Quaternion.identity, transform);
             newChunk = chunkObj.GetComponent<ChunkRenderer>();
             
         }

@@ -16,4 +16,18 @@ public static class DirectionExtensions
             _ => throw new Exception("Invalid direction"),
         };
     }
+    
+    public static Direction GetOpposite(this Direction dir)
+    {
+        return dir switch
+        {
+            Direction.up => Direction.down,
+            Direction.down => Direction.up,
+            Direction.left => Direction.right,
+            Direction.right => Direction.left,
+            Direction.forwards => Direction.backwards,
+            Direction.backwards => Direction.forwards,
+            _ => throw new Exception("Invalid direction"),
+        };
+    }
 }

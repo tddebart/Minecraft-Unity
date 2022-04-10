@@ -10,5 +10,6 @@ public enum BlockType
     Sand,
     Water,
     Glass,
-    GlowStone
+    GlowStone,
+    WoodenSlab
 }

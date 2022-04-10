@@ -26,6 +26,9 @@ public static class BlockHelper
     };
     
     public static readonly Block NOTHING = new Block(BlockType.Nothing, Vector3Int.zero, null);
+    
+    
+    //NOTE: block vertices start from bottom left and go clockwise
 
     public static MeshData GetMeshData(ChunkData chunk, Vector3Int pos, MeshData meshData, BlockType blockType)
     {
@@ -35,12 +38,14 @@ public static class BlockHelper
         }
 
         BlockTypeData blockTypeData = BlockDataManager.blockTypeDataDictionary[(int)blockType];
+        Block block = chunk.GetBlock(pos);
 
         foreach (var dir in directions)
         {
             Vector3Int neighbourPos = pos + dir.GetVector();
 
-            BlockType neighbourBlockType = chunk.GetBlock(neighbourPos).type;
+            Block neighbourBlock = chunk.GetBlock(neighbourPos);
+            BlockType neighbourBlockType = neighbourBlock.type;
             if (true/*neighbourBlockType != BlockType.Nothing*/)
             {
                 BlockTypeData neighbourBlockTypeData = BlockDataManager.blockTypeDataDictionary[(int)neighbourBlockType];
@@ -51,33 +56,36 @@ public static class BlockHelper
                     {
                         if (neighbourBlockType != BlockType.Water && neighbourBlockTypeData.isTransparent)
                         {
-                            meshData.transparentMesh = GetFaceDataIn(dir, pos, meshData.transparentMesh, blockType,blockTypeData, chunk);
+                            meshData.transparentMesh = GetFaceDataIn(dir, pos, meshData.transparentMesh, block,blockTypeData, chunk);
                         }
                     }
                     else if (neighbourBlockTypeData.isTransparent)
                     {
-                        meshData.transparentMesh = GetFaceDataIn(dir, pos, meshData.transparentMesh, blockType,blockTypeData, chunk);
+                        meshData.transparentMesh = GetFaceDataIn(dir, pos, meshData.transparentMesh, block,blockTypeData, chunk);
                     }
                 }
-                else if(neighbourBlockTypeData.isTransparent)
+                else if(neighbourBlockTypeData.isTransparent || !neighbourBlock.blockShape.isFullBlock() && !neighbourBlock.blockShape.isSideFull(dir.GetOpposite()))
                 {
-                    meshData = GetFaceDataIn(dir, pos, meshData, blockType,blockTypeData, chunk);
+                    meshData = GetFaceDataIn(dir, pos, meshData, block,blockTypeData, chunk);
+                } else if (!block.blockShape.isFullBlock() && !block.blockShape.isSideFull(dir))
+                {
+                    meshData = GetFaceDataIn(dir, pos, meshData, block,blockTypeData, chunk);
                 }
             }
         }
         return meshData;
     }
 
-    public static MeshData GetFaceDataIn(Direction dir, Vector3Int pos, MeshData meshData, BlockType type, BlockTypeData blockTypeData, ChunkData chunk)
+    public static MeshData GetFaceDataIn(Direction dir, Vector3Int pos, MeshData meshData, Block block, BlockTypeData blockTypeData, ChunkData chunk)
     {
-        GetFaceVertices(dir, pos, meshData);
+        block.blockShape.SetFaceVertices(dir,pos,meshData);
         if (chunk != null)
         {
             GetFaceColors(dir,pos,meshData,chunk);
             GetVertexAOSides(dir,pos,meshData,chunk);
         }
         meshData.AddQuadTriangles();
-        var uvs = FaceUVs(dir, type, blockTypeData);
+        var uvs = FaceUVs(dir, block.type, blockTypeData);
         meshData.uv.AddRange(uvs);
 
         return meshData;
@@ -87,55 +95,20 @@ public static class BlockHelper
     {
         return dir switch
         {
-            Direction.up => blockTypeData.up,
-            Direction.down => blockTypeData.down,
-            _ => blockTypeData.side
+            Direction.up => blockTypeData.textureData.up,
+            Direction.down => blockTypeData.textureData.down,
+            _ => blockTypeData.textureData.side
         };
     }
 
-    public static void GetFaceVertices(Direction direction, Vector3Int pos, MeshData meshData)
+    public static Vector2 TextureExtends(Direction dir, BlockTypeData blockTypeData)
     {
-        //order of vertices matters for the normals and how we render the mesh
-        switch (direction)
+        return dir switch
         {
-            case Direction.backwards:
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y - 0.5001f, pos.z - 0.5001f)); // ---
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y + 0.5001f, pos.z - 0.5001f)); // -+-
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y + 0.5001f, pos.z - 0.5001f)); // ++-
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y - 0.5001f, pos.z - 0.5001f)); // +--
-                break;
-            case Direction.forwards:
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y - 0.5001f, pos.z + 0.5001f)); // +-+
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y + 0.5001f, pos.z + 0.5001f)); // +++
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y + 0.5001f, pos.z + 0.5001f)); // -++
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y - 0.5001f, pos.z + 0.5001f)); // --+
-                break;
-            case Direction.left:
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y - 0.5001f, pos.z + 0.5001f)); // --+
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y + 0.5001f, pos.z + 0.5001f)); // -++
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y + 0.5001f, pos.z - 0.5001f)); // -+-
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y - 0.5001f, pos.z - 0.5001f)); // ---
-                break;
-
-            case Direction.right:
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y - 0.5001f, pos.z - 0.5001f)); // +--
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y + 0.5001f, pos.z - 0.5001f)); // ++-
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y + 0.5001f, pos.z + 0.5001f)); // +++
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y - 0.5001f, pos.z + 0.5001f)); // +-+
-                break;
-            case Direction.down:
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y - 0.5001f, pos.z - 0.5001f)); // --
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y - 0.5001f, pos.z - 0.5001f)); // +-
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y - 0.5001f, pos.z + 0.5001f)); // ++
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y - 0.5001f, pos.z + 0.5001f)); // -+
-                break;
-            case Direction.up:
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y + 0.5001f, pos.z + 0.5001f)); // -+
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y + 0.5001f, pos.z + 0.5001f)); // ++
-                meshData.AddVertex(new Vector3(pos.x + 0.5001f, pos.y + 0.5001f, pos.z - 0.5001f)); // +-
-                meshData.AddVertex(new Vector3(pos.x - 0.5001f, pos.y + 0.5001f, pos.z - 0.5001f)); // --
-                break;
-        }
+            Direction.up => blockTypeData.textureData.upExtends,
+            Direction.down => blockTypeData.textureData.downExtends,
+            _ => blockTypeData.textureData.sideExtends
+        };
     }
 
     public static void GetFaceColors(Direction direction, Vector3Int pos, MeshData meshData, ChunkData chunk)
@@ -367,13 +340,14 @@ public static class BlockHelper
         Vector2[] UVs = new Vector2[4];
         blockTypeData ??= BlockDataManager.blockTypeDataDictionary[(int)type];
         var tilePos = TexturePosition(dir, blockTypeData);
+        var tileExtends = TextureExtends(dir, blockTypeData);
         var tileSizeX = BlockDataManager.tileSizeX;
         var tileSizeY = BlockDataManager.tileSizeY;
 
         UVs[0] = new Vector2(tilePos.x * tileSizeX, tilePos.y * tileSizeY);
-        UVs[1] = new Vector2(tilePos.x * tileSizeX, (tilePos.y + 1) * tileSizeY);
-        UVs[2] = new Vector2((tilePos.x + 1) * tileSizeX, (tilePos.y + 1) * tileSizeY);
-        UVs[3] = new Vector2((tilePos.x + 1) * tileSizeX, tilePos.y * tileSizeY);
+        UVs[1] = new Vector2(tilePos.x * tileSizeX, (tilePos.y + tileExtends.y) * tileSizeY);
+        UVs[2] = new Vector2((tilePos.x + tileExtends.x) * tileSizeX, (tilePos.y + tileExtends.y) * tileSizeY);
+        UVs[3] = new Vector2((tilePos.x + tileExtends.x) * tileSizeX, tilePos.y * tileSizeY);
 
         return UVs;
     }

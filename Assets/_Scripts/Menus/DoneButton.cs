@@ -5,6 +5,7 @@ public class DoneButton : MonoBehaviour
 {
     public void Start()
     {
-        GetComponent<Button>().onClick.AddListener(SettingsManager.instance.ApplySettings);
+        if (SettingsManager.instance != null)
+            GetComponent<Button>().onClick.AddListener(SettingsManager.instance.ApplySettings);
     }
 }

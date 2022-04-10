@@ -6,7 +6,8 @@ public static class BlockMapping
         return type switch
         {
             BlockType.Water => new WaterBlock(block),
-            _ => block
+            BlockType.WoodenSlab => new SlabBlock(block),
+            _ => block.Reset(block)
         };
     }
 }
