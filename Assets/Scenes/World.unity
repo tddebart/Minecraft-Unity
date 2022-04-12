@@ -785,7 +785,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 258169686}
-  m_Layer: 2
+  m_Layer: 5
   m_Name: HeldSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3744,7 +3744,9 @@ MonoBehaviour:
   blockLightMultiplier: 1.18
   dayColor: {r: 0.46666667, g: 0.8156863, b: 0.9137255, a: 1}
   nightColor: {r: 0.12591669, g: 0.22711694, b: 0.254717, a: 1}
+  worldName: house
   disabled: 0
+  compressSaves: 0
   OnWorldCreated:
     m_PersistentCalls:
       m_Calls:
@@ -3776,6 +3778,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   validateDone: 1
+  isSaving: 0
   chunksToUpdate: []
 --- !u!4 &1422854026
 Transform:
@@ -5063,14 +5066,15 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
 --- !u!21 &1748405311
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Sprites-Default (Instance)
   m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0

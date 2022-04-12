@@ -451,6 +451,11 @@ public class Player : BaseEntity
             {
                 escapeMenu.Toggle();
                 escapeMenuOpen = escapeMenu.opened;
+
+                if (escapeMenuOpen && !World.Instance.isSaving)
+                {
+                    World.Instance.SaveWorld();
+                }
             }
         }
         

@@ -64,10 +64,10 @@ public static class BlockHelper
                         meshData.transparentMesh = GetFaceDataIn(dir, pos, meshData.transparentMesh, block,blockTypeData, chunk);
                     }
                 }
-                else if(neighbourBlockTypeData.isTransparent || !neighbourBlock.blockShape.isFullBlock() && !neighbourBlock.blockShape.isSideFull(dir.GetOpposite()))
+                else if(neighbourBlockTypeData.isTransparent || !neighbourBlock.blockShape.GetShape().isFullBlock() && !neighbourBlock.blockShape.GetShape().isSideFull(dir.GetOpposite()))
                 {
                     meshData = GetFaceDataIn(dir, pos, meshData, block,blockTypeData, chunk);
-                } else if (!block.blockShape.isFullBlock() && !block.blockShape.isSideFull(dir))
+                } else if (!block.blockShape.GetShape().isFullBlock() && !block.blockShape.GetShape().isSideFull(dir))
                 {
                     meshData = GetFaceDataIn(dir, pos, meshData, block,blockTypeData, chunk);
                 }
@@ -78,7 +78,7 @@ public static class BlockHelper
 
     public static MeshData GetFaceDataIn(Direction dir, Vector3Int pos, MeshData meshData, Block block, BlockTypeData blockTypeData, ChunkData chunk)
     {
-        block.blockShape.SetFaceVertices(dir,pos,meshData);
+        block.blockShape.GetShape().SetFaceVertices(dir,pos,meshData);
         if (chunk != null)
         {
             GetFaceColors(dir,pos,meshData,chunk);

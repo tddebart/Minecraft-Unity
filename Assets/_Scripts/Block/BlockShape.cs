@@ -72,17 +72,17 @@ public class BlockShape
         switch (dir)
         {
             case Direction.backwards:
-                return zMin == 0;
+                return zMin == 0 && yMin == 0 && yMax == 16;
             case Direction.forwards:
-                return zMax == 15;
+                return zMax == 16 && yMin == 0 && yMax == 16;
             case Direction.left:
-                return xMin == 0;
+                return xMin == 0 && yMin == 0 && yMax == 16;
             case Direction.right:
-                return xMax == 15;
+                return xMax == 16 && yMin == 0 && yMax == 16;
             case Direction.down:
                 return yMin == 0;
             case Direction.up:
-                return yMax == 15;
+                return yMax == 16;
         }
         return false;
     }

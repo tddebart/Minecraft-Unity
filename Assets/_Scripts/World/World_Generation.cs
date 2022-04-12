@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Debug = UnityEngine.Debug;
@@ -55,14 +56,42 @@ public partial class World
         
         Profiler.BeginThreadProfiling("GenerateWorld", "GenerateData");
 
-        try
+        if (worldGenerationData.chunkPositionsToCreate.Count > 0)
         {
-            dataDict = await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate);
+            try
+            {
+                dataDict.AddRange(await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate));
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.Log("Task cancelled");
+                return;
+            }
         }
-        catch (OperationCanceledException)
+        dataStopWatch.Stop();
+        if (!Application.isPlaying)
         {
-            Debug.Log("Task cancelled");
-            return;
+            Debug.Log($"Data generation took {dataStopWatch.ElapsedMilliseconds}ms");
+        }
+
+        var loadStopWatch = Stopwatch.StartNew();
+        if (worldGenerationData.chunkDataPositionsToLoad.Count > 0)
+        {
+            try
+            {
+                dataDict.AddRange(await LoadChunksAsync(worldGenerationData.chunkDataPositionsToLoad, worldName));
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.Log("Task cancelled");
+                return;
+            }
+        }
+        
+        loadStopWatch.Stop();
+        if (!Application.isPlaying)
+        {
+            Debug.Log($"Loading took {loadStopWatch.ElapsedMilliseconds}ms");
         }
 
         foreach (var calculatedData in dataDict)
@@ -72,11 +101,6 @@ public partial class World
         
         Profiler.EndThreadProfiling();
 
-        dataStopWatch.Stop();
-        if (!Application.isPlaying)
-        {
-            Debug.Log($"Data generation took {dataStopWatch.ElapsedMilliseconds}ms");
-        }
 
 
         var featureStopWatch = new Stopwatch();
@@ -109,7 +133,7 @@ public partial class World
         ConcurrentDictionary<Vector3Int, MeshData> meshDataDict;
         
         List<ChunkData> dataToRender = worldData.chunkDataDict
-            .Where(x => worldGenerationData.chunkPositionsToCreate.Contains(x.Key))
+            .Where(x => worldGenerationData.chunkPositionsToCreate.Contains(x.Key) || worldGenerationData.chunkPositionsToLoad.Contains(x.Key))
             .Select(x => x.Value)
             .ToList();
 

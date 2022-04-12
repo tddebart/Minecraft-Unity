@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using UnityEngine;
 using Random = System.Random;
 
@@ -10,17 +9,39 @@ public class ChunkSection
     public int yOffset;
     public ChunkData dataRef;
 
-    public ChunkSection(ChunkData dataRef, int yOffset)
+    public ChunkSection(ChunkData dataRef, int yOffset, BlockType populate = BlockType.Nothing)
     {
         this.dataRef = dataRef;
         this.yOffset = yOffset;
         blocks = new Block[dataRef.chunkSize, dataRef.chunkHeight, dataRef.chunkSize];
         lightMap = new char[dataRef.chunkSize, dataRef.chunkHeight, dataRef.chunkSize];
-        Populate();
+        Populate(populate);
+    }
+
+    public static ChunkSection Deserialize(ChunkSectionSaveData saveData, ChunkData dataRef)
+    {
+        var chunkSection = new ChunkSection(dataRef, saveData.yOffset, BlockType.Air);
+        
+        foreach (var block in saveData.blocks)
+        {
+            try
+            {
+                var pos = block.position;
+                block.section = chunkSection;
+                chunkSection.blocks[pos.x, pos.y, pos.z] = block;
+                chunkSection.blocks[pos.x, pos.y, pos.z].Loaded();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+        }
+
+        return chunkSection;
     }
     
     // This will populate the chunk with nothing blocks
-    private void Populate()
+    private void Populate(BlockType type)
     {
         for (int x = 0; x < dataRef.chunkSize; x++)
         {
@@ -28,7 +49,7 @@ public class ChunkSection
             {
                 for (int z = 0; z < dataRef.chunkSize; z++)
                 {
-                    blocks[x, y, z] = new Block(BlockType.Nothing, new Vector3Int(x, y, z), this);
+                    blocks[x, y, z] = new Block(type, new Vector3Int(x, y, z), this);
                 }
             }
         }

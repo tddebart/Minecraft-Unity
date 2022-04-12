@@ -1,22 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class Block
 {
     public Vector3Int position;
     public Vector3Int localChunkPosition => position + new Vector3Int(0, section.yOffset, 0);
     public Vector3Int globalWorldPosition => section.dataRef.GetGlobalBlockCoords(localChunkPosition);
-    
-    public BlockType type { get; private set; }
+
+    /// <summary>
+    /// Note: never set this directly, use <see cref="SetType(BlockType)"/> instead
+    /// </summary>
+    public BlockType type;
     public BlockTypeData BlockData => BlockDataManager.blockTypeDataDictionary[(int)type];
     
     [System.NonSerialized] public ChunkSection section;
     public ChunkData chunkData => section.dataRef;
     
-    public BlockShape blockShape;
+    public BlockShapes blockShape;
 
     public Block(BlockType type, Vector3Int position, ChunkSection section)
     {
@@ -41,6 +46,15 @@ public class Block
         this.section = block.section;
         blockShape = BlockShapes.FullBlock;
         return this;
+    }
+
+    public void Loaded()
+    {
+        if (BlockData.lightEmission > 0)
+        {
+            SetBlockLight(BlockData.lightEmission);
+            chunkData.blockLightUpdateQueue.Enqueue(new BlockLightNode(this, BlockData.lightEmission));
+        }
     }
 
     public int GetBlockLight()
@@ -92,63 +106,73 @@ public class Block
 
         if (brokeBlock)
         {
-            if (BlockDataManager.blockTypeDataDictionary[(int)oldType].opacity == 15)
+            BrokeBlock(oldType);
+        }
+        else
+        {
+            PlacedBlock();
+        }
+
+        section.blocks[x, y, z] = BlockMapping.MapTypeToBlock(type, this);
+    }
+
+    public void PlacedBlock()
+    {
+        if (BlockData.opacity == 15)
+        {
+            if (GetSkyLight() > 0)
             {
-                // Block
-                if(GetNeighbors().Any(n => n.GetBlockLight() > 0))
+                if (GetSkyLight() == 15)
                 {
-                    chunkData.blockLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetBlockLight()));
-                    SetBlockLight(0);
-                }
-
-
-                if (localChunkPosition.y == World.Instance.worldHeight - 1 || chunkData.GetBlock(localChunkPosition + Vector3Int.up).GetSkyLight() == 15)
-                {
-                    SetSkyLight(15);
-                    chunkData.skyExtendList.Insert(chunkData.skyExtendList.Count, this);
+                    SetSkyLight(0);
+                    chunkData.skyRemoveList.Insert(chunkData.skyRemoveList.Count, this);
                 }
                 else
                 {
                     chunkData.skyLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetSkyLight()));
                     SetSkyLight(0);
                 }
+            }
                 
+                
+            if (GetBlockLight() > 0)
+            {
+                chunkData.blockLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetBlockLight()));
+                SetBlockLight(0);
             }
         }
-        else
+
+        if (BlockData.lightEmission > 0)
         {
-            if (BlockData.opacity == 15)
-            {
-                if (GetSkyLight() > 0)
-                {
-                    if (GetSkyLight() == 15)
-                    {
-                        SetSkyLight(0);
-                        chunkData.skyRemoveList.Insert(chunkData.skyRemoveList.Count, this);
-                    }
-                    else
-                    {
-                        chunkData.skyLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetSkyLight()));
-                        SetSkyLight(0);
-                    }
-                }
-                
-                
-                if (GetBlockLight() > 0)
-                {
-                    chunkData.blockLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetBlockLight()));
-                    SetBlockLight(0);
-                }
-            }
-
-            if (BlockData.lightEmission > 0)
-            {
-                SetBlockLight(BlockData.lightEmission);
-                chunkData.blockLightUpdateQueue.Enqueue(new BlockLightNode(this, BlockData.lightEmission));
-            }
+            SetBlockLight(BlockData.lightEmission);
+            chunkData.blockLightUpdateQueue.Enqueue(new BlockLightNode(this, BlockData.lightEmission));
         }
+    }
 
-        section.blocks[x, y, z] = BlockMapping.MapTypeToBlock(type, this);
+    public void BrokeBlock(BlockType oldType)
+    {
+        if (BlockDataManager.blockTypeDataDictionary[(int)oldType].opacity == 15)
+        {
+            // Block
+            if(GetNeighbors().Any(n => n.GetBlockLight() > 0))
+            {
+                chunkData.blockLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetBlockLight()));
+                SetBlockLight(0);
+            }
+
+
+            if (localChunkPosition.y == World.Instance.worldHeight - 1 || chunkData.GetBlock(localChunkPosition + Vector3Int.up).GetSkyLight() == 15)
+            {
+                SetSkyLight(15);
+                chunkData.skyExtendList.Insert(chunkData.skyExtendList.Count, this);
+            }
+            else
+            {
+                chunkData.skyLightRemoveQueue.Enqueue(new BlockLightNode(this, (byte)GetSkyLight()));
+                SetSkyLight(0);
+            }
+                
+        }
     }
     
     public Block[] GetNeighbors()

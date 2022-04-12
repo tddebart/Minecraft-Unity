@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -10,9 +8,6 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Profiling;
-using UnityEngine.SceneManagement;
-using Debug = UnityEngine.Debug;
 
 public partial class World : MonoBehaviour
 {
@@ -42,15 +37,17 @@ public partial class World : MonoBehaviour
     [Space]
     public Color dayColor;
     public Color nightColor;
+    public string worldName;
     [HideInInspector]
     public bool disabled;
+    public bool compressSaves = true;
 
     private CancellationTokenSource taskTokenSource = new CancellationTokenSource();
 
     public UnityEvent OnWorldCreated;
     public UnityEvent OnNewChunksGenerated;
-
-    public WorldData worldData { get; private set; }
+    
+    public WorldData worldData;
     public bool IsWorldCreated { get; private set; }
     
     private Stopwatch fullStopwatch = new Stopwatch();
@@ -81,7 +78,8 @@ public partial class World : MonoBehaviour
             worldData = new WorldData
             {
                 chunkDataDict = new Dictionary<Vector3Int, ChunkData>(),
-                chunkDict = new Dictionary<Vector3Int, ChunkRenderer>()
+                chunkDict = new Dictionary<Vector3Int, ChunkRenderer>(),
+                worldName = worldName,
             };
             Instance = this;
             
@@ -103,6 +101,9 @@ public partial class World : MonoBehaviour
         var chunkPositionsToCreate = WorldDataHelper.GetPositionsToCreate(worldData, allChunkPositionsNeeded,playerPos);
         var chunkDataPositionsToCreate = WorldDataHelper.GetDataPositionsToCreate(worldData, allChunkDataPositionsNeeded,playerPos);
         
+        var chunkPositionsToLoad = WorldDataHelper.GetPositionsToLoad(worldData, allChunkPositionsNeeded,playerPos);
+        var chunkDataPositionsToLoad = WorldDataHelper.GetDataPositionsToLoad(worldData, allChunkDataPositionsNeeded,playerPos);
+        
         var chunkPositionsToRemove = WorldDataHelper.GetUnneededChunkPositions(worldData, allChunkPositionsNeeded);
         var chunkDataToRemove = WorldDataHelper.GetUnneededDataPositions(worldData, allChunkDataPositionsNeeded);
         
@@ -111,6 +112,8 @@ public partial class World : MonoBehaviour
         {
             chunkPositionsToCreate = chunkPositionsToCreate,
             chunkDataPositionsToCreate = chunkDataPositionsToCreate,
+            chunkPositionsToLoad = chunkPositionsToLoad,
+            chunkDataPositionsToLoad = chunkDataPositionsToLoad,
             chunkPositionsToRemove = chunkPositionsToRemove,
             chunkDataToRemove = chunkDataToRemove
         };
@@ -132,7 +135,7 @@ public partial class World : MonoBehaviour
             return dict;
         });
     }
-    
+
     // public void UpdateChunk(Vector3Int chunkPos)
     // {
     //     UpdateChunks(new [] {chunkPos});
@@ -173,6 +176,7 @@ public partial class World : MonoBehaviour
         var chunk = WorldDataHelper.GetChunk(this, chunkPos);
         if (chunk == null) return;
         chunk.ModifiedByPlayer = true;
+        chunk.ChunkData.modifiedAfterSave = true;
         SetBlock(chunk, blockPos, blockType);
     }
 
@@ -284,6 +288,7 @@ public partial class World : MonoBehaviour
         {
             chunkDataDict = new Dictionary<Vector3Int, ChunkData>(),
             chunkDict = new Dictionary<Vector3Int, ChunkRenderer>(),
+            worldName = worldName
         };
         worldData.chunkDataDict?.Clear();
         worldData.chunkDict?.Clear();
@@ -302,7 +307,7 @@ public partial class World : MonoBehaviour
 
     public void OnDisable()
     {
-        updateThread.Abort();
+        updateThread?.Abort();
         taskTokenSource.Cancel();
         disabled = true;
     }
@@ -311,6 +316,8 @@ public partial class World : MonoBehaviour
     {
         public HashSet<Vector3Int> chunkPositionsToCreate;
         public HashSet<Vector3Int> chunkDataPositionsToCreate;
+        public HashSet<Vector3Int> chunkPositionsToLoad;
+        public HashSet<Vector3Int> chunkDataPositionsToLoad;
         public HashSet<Vector3Int> chunkPositionsToRemove;
         public HashSet<Vector3Int> chunkDataToRemove;
     }
@@ -336,7 +343,12 @@ public partial class World : MonoBehaviour
                 EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
                 EditorSceneManager.SaveOpenScenes();
             }
-            
+
+            if (GUILayout.Button("Save World"))
+            {
+                world.SaveWorld();
+            }
+
             base.OnInspectorGUI();
         }
     }
@@ -345,6 +357,7 @@ public partial class World : MonoBehaviour
 
 public struct WorldData
 {
+    public string worldName;
     public Dictionary<Vector3Int, ChunkData> chunkDataDict;
     public Dictionary<Vector3Int, ChunkRenderer> chunkDict;
 }

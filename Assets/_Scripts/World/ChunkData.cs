@@ -14,7 +14,9 @@ public class ChunkData
     
     public bool modifiedByPlayer = false;
     public bool isGenerated = false;
-    public TreeData treeData;
+    public bool modifiedAfterSave = true;
+    
+    public TreeData treeData = new TreeData();
     [CanBeNull] public ChunkRenderer renderer => WorldDataHelper.GetChunk(worldRef, worldPos);
     
     public readonly Queue<BlockLightNode> blockLightUpdateQueue = new(); 
@@ -37,6 +39,21 @@ public class ChunkData
             sections[i] = new ChunkSection(this, i*this.chunkHeight);
         }
     }
+
+    public static ChunkData Deserialize(ChunkSaveData saveData)
+    {
+        var chunkData = new ChunkData(World.Instance.chunkSize, World.Instance.chunkSize, World.Instance, saveData.position);
+        var sections = new ChunkSection[saveData.sections.Length];
+        // sections = saveData.sections.Select(s => new ChunkSection(s, this)).ToArray();
+        for (var i = 0; i < sections.Length; i++)
+        {
+            sections[i] = ChunkSection.Deserialize(saveData.sections[i], chunkData);
+        }
+        chunkData.sections = sections;
+        chunkData.modifiedAfterSave = false;
+        
+        return chunkData;
+    } 
     
     public static void LoopThroughTheBlocks(ChunkData chunkData, Action<int, int, int, BlockType> actionToPerform)
     {

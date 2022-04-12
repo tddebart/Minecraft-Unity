@@ -7,6 +7,7 @@ using UnityEngine;
 public partial class World
 {
     public Queue<Block> blockToUpdate = new Queue<Block>();
+    [HideInInspector]
     public List<ChunkRenderer> chunksToUpdate = new List<ChunkRenderer>();
     public Queue<ChunkRenderer.MeshChunkObject> chunksToUpdateMesh = new();
     public object chunkUpdateThreadLock = new object();
