@@ -29,6 +29,7 @@ public partial class World
         isSaving = true;
         var stopwatch = Stopwatch.StartNew();
         var saveWatch = Stopwatch.StartNew();
+        // Create object with data to save
         var worldSaveData = new WorldSaveData
         {
             chunks = worldData.chunkDataDict.Values.Where(data => data.modifiedAfterSave).Select(ChunkSaveData.Serialize).ToArray(),
@@ -40,6 +41,7 @@ public partial class World
         
         Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraftUnity/saves/"+worldSaveData.worldName+"/chunks"));
         
+        // Save the chunks
         await Task.Run(() =>
         {
             Parallel.ForEach(worldSaveData.chunks,new ParallelOptions() {MaxDegreeOfParallelism = 8}, chunk =>
@@ -58,6 +60,7 @@ public partial class World
             });
         });
         
+        // Save the world data
         var savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraftUnity/saves/"+worldSaveData.worldName+"/world.json");
 
         string worldJson;
@@ -73,8 +76,23 @@ public partial class World
         
         await File.WriteAllTextAsync(savePath, worldJson);
         
+        // Save all the player data
+        
+        Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraftUnity/saves/"+worldSaveData.worldName+"/playerdata"));
+        
+        foreach (var player in GameManager.Instance.players)
+        {
+            SavePlayer(player.SavePlayer());
+        }
+
         Debug.Log("Saved world in " + stopwatch.ElapsedMilliseconds + "ms");
         isSaving = false;
+    }
+
+    public void SavePlayer(WorldServer.SavePlayerMessage message)
+    {
+        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraftUnity/saves/" + worldName + $"/playerdata/{message.steamId}.json");
+        File.WriteAllText(path, JsonUtility.ToJson(message));
     }
 
     public UniTask<ConcurrentDictionary<Vector3Int, ChunkData>> LoadChunksAsync(IEnumerable<Vector3Int> chunks, string worldName)

@@ -20,7 +20,8 @@ public class Player : BaseEntity
     public Transform cam;
     private PlayerObjects objects;
     private Animator animator;
-    private PlayerInventory inventory;
+    [HideInInspector]
+    public PlayerInventory inventory;
     
     private bool leftMouseDown;
     private bool rightMouseDown;
@@ -40,6 +41,8 @@ public class Player : BaseEntity
     
     [SyncVar] 
     public string PlayerName;
+    [SyncVar]
+    public ulong SteamId;
     
     private static readonly int Speed = Animator.StringToHash("speed");
     private static readonly int Sneaking = Animator.StringToHash("sneaking");
@@ -67,10 +70,11 @@ public class Player : BaseEntity
 
         if (isLocalPlayer)
         {
-            CmdSetPlayerName(SteamClient.Name);
+            CmdSetPlayerServerData(SteamClient.Name, SteamClient.SteamId);
         }
         
         objects.playerName.text = PlayerName;
+        GameManager.Instance.players.Add(this);
 
         if (!isLocalPlayer && networkStarted)
         {
@@ -127,9 +131,10 @@ public class Player : BaseEntity
     }
 
     [Command]
-    public void CmdSetPlayerName(string name)
+    public void CmdSetPlayerServerData(string name, ulong steamId)
     {
         PlayerName = name;
+        SteamId = steamId;
         RpcUpdatePlayerNameText();
     }
 
@@ -439,6 +444,35 @@ public class Player : BaseEntity
         }
     }
 
+    public WorldServer.SavePlayerMessage SavePlayer()
+    {
+        return new WorldServer.SavePlayerMessage(transform.position, objects.body.rotation, objects.head.rotation, inventory.slots, SteamId);
+    }
+    
+    [TargetRpc]
+    public void RpcLoadPlayer(NetworkConnection target, WorldServer.SavePlayerMessage message)
+    {
+        target.identity.GetComponent<Player>().LoadPlayer(message);   
+    }
+    
+    public void LoadPlayer(WorldServer.SavePlayerMessage message)
+    {
+        this.ExecuteAfterFrames(1, () =>
+        {
+            transform.position = message.position;
+            objects.body.rotation = message.bodyRotation;
+            objects.head.rotation = message.headRotation;
+            for (var i = 0; i < inventory.slots.Length; i++)
+            {
+                var slot = inventory.slots[i];
+                var saveSlot = message.inventory[i];
+                inventory.slots[i] = new PlayerInventory.Slot(slot, saveSlot.type, saveSlot.count, saveSlot.index);
+                inventory.SetSlotBlockType(i, saveSlot.type);
+                inventory.slots[i].SetCount(saveSlot.count);
+            }
+        });
+    }
+
     private void GetPlayerInput()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -452,7 +486,7 @@ public class Player : BaseEntity
                 escapeMenu.Toggle();
                 escapeMenuOpen = escapeMenu.opened;
 
-                if (escapeMenuOpen && !World.Instance.isSaving)
+                if (escapeMenuOpen && (isServer || !NetworkClient.active) && !World.Instance.isSaving)
                 {
                     World.Instance.SaveWorld();
                 }
@@ -598,6 +632,9 @@ public class Player : BaseEntity
             }
         }
     }
-    
-    
+
+    private void OnDestroy()
+    {
+        GameManager.Instance.players.Remove(this);
+    }
 }

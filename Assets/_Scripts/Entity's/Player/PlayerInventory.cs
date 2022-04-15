@@ -434,13 +434,16 @@ public class PlayerInventory : MonoBehaviour
         blockItem.GetComponent<MeshFilter>().mesh = mesh;
     }
     
+    [Serializable]
     public class Slot
     {
         public BlockType type;
-        public int count { get; private set; }
+        public int count;
         public int index;
+        [NonSerialized]
         public TextMeshProUGUI countText;
         // do a separate text for the hotbar
+        [NonSerialized]
         [CanBeNull] public TextMeshProUGUI hotbarCountText;
 
         public Slot(int index)
@@ -455,6 +458,24 @@ public class PlayerInventory : MonoBehaviour
             type = slot.type;
             count = slot.count;
             index = slot.index;
+        }
+
+        public Slot(Slot slot, BlockType type, int count, int index)
+        {
+            this.type = type;
+            this.count = count;
+            this.index = index;
+            
+            countText = slot.countText;
+            hotbarCountText = slot.hotbarCountText;
+        }
+
+
+        public Slot()
+        {
+            type = BlockType.Nothing;
+            count = 0;
+            index = 0;
         }
         
         public void SetCount(int count)

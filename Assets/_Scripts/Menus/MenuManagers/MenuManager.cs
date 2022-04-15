@@ -23,7 +23,7 @@ public class MenuManager : MonoBehaviour
     
     public void OnLobbyEntered(Lobby lobby)
     {
-        LobbyManager.instance.currentLobby = lobby;
+        LobbyManager.currentLobby = lobby;
         if (NetworkServer.active)
         {
             return;
@@ -43,7 +43,7 @@ public class MenuManager : MonoBehaviour
     
     public void CancelLobby()
     {
-        LobbyManager.instance.currentLobby?.Leave();
+        LobbyManager.currentLobby?.Leave();
         NetworkManager.singleton.StopHost();
         NetworkManager.singleton.StopClient();
     }

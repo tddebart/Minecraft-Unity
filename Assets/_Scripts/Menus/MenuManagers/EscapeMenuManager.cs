@@ -12,7 +12,7 @@ public class EscapeMenuManager : MonoBehaviour
     
     private void Quit()
     {
-        if(LobbyManager.instance.currentLobby.HasValue)  LobbyManager.instance.currentLobby.Value.Leave();
+        if(LobbyManager.currentLobby.HasValue)  LobbyManager.currentLobby.Value.Leave();
         NetworkManager.singleton.StopHost();
         NetworkManager.singleton.StopClient();
     }

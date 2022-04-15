@@ -7,6 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using Mirror;
+using Steamworks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -338,6 +340,7 @@ public partial class World
         {
             IsWorldCreated = true;
             OnWorldCreated?.Invoke();
+            NetworkClient.Send(new WorldServer.SpawnPlayerMessage(SteamClient.SteamId));
         }
 
         if (!Application.isPlaying)

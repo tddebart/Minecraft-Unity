@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using Mirror;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -10,6 +8,7 @@ public class GameManager : MonoBehaviour
     
     public GameObject playerPrefab;
     public Player localPlayer;
+    public List<Player> players = new List<Player>();
     public Vector3Int playerChunkPosition;
     private Vector3Int currentChunkCenter = Vector3Int.zero;
     public bool playerSpawned = false;
@@ -21,30 +20,6 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-    }
-
-    public void SpawnPlayer()
-    {
-        if (localPlayer != null) return;
-
-        for (var i = world.worldHeight - 1; i >= 0; i--)
-        {
-            if (world.GetBlock(new Vector3Int(0, i, 0)).type != BlockType.Air)
-            {
-                if (NetworkClient.active)
-                {
-                    NetworkClient.Send(new MinecraftNetworkManager.CreatePlayerMessage(new Vector3(world.chunkSize/2, i + 1, world.chunkSize/2), Quaternion.identity));
-                }
-                else
-                {
-                    var player = Instantiate(playerPrefab, new Vector3(world.chunkSize/2, i + 1, world.chunkSize/2), Quaternion.identity);
-                    localPlayer = player.GetComponent<Player>();
-                    playerSpawned = true;
-                    StartCheckingForChunks();
-                }
-                break;
-            }
-        }
     }
 
     public void StartCheckingForChunks()

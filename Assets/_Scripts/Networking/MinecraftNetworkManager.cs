@@ -1,63 +1,44 @@
-﻿using kcp2k;
+﻿using System;
+using System.IO;
+using kcp2k;
 using Mirror;
 using Steamworks;
-#if UNITY_EDITOR
-using UnityEditor.Build;
-using UnityEditor.Build.Reporting;
-#endif
+using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class MinecraftNetworkManager : NetworkManager 
-#if UNITY_EDITOR
-    ,IPreprocessBuildWithReport
-#endif
+public class MinecraftNetworkManager : NetworkManager
 {
+    [Space] 
+    public GameObject WorldServerPrefab; 
+    
     public override void OnStartServer()
     {
         base.OnStartServer();
-        NetworkServer.RegisterHandler<CreatePlayerMessage>(SpawnPlayer);
     }
 
-    public override void OnClientConnect()
+    public override void OnServerSceneChanged(string sceneName)
     {
-        base.OnClientConnect();
-    }
-
-    public void SpawnPlayer(NetworkConnectionToClient conn, CreatePlayerMessage message)
-    {
-        var player = Instantiate(playerPrefab, message.position, message.rotation);
-        NetworkServer.AddPlayerForConnection(conn, player);
-        conn.identity.AssignClientAuthority(conn);
+        if (sceneName.Contains("World"))
+        {
+            var worldServer = Instantiate(WorldServerPrefab);
+            NetworkServer.Spawn(worldServer);
+        }
     }
 
     public override void OnClientDisconnect()
     {
+        if (LobbyManager.currentLobby.HasValue)
+        {
+            LobbyManager.currentLobby.Value.Leave();
+        }
         base.OnClientDisconnect();
-        if (LobbyManager.instance.currentLobby.HasValue) LobbyManager.instance.currentLobby.Value.Leave();
     }
 
-    public struct CreatePlayerMessage : NetworkMessage
+    public override void OnServerDisconnect(NetworkConnectionToClient conn)
     {
-        public Vector3 position;
-        public Quaternion rotation;
+        WorldServer.instance.SavePlayerMessageHandler(conn, conn.identity.GetComponent<Player>().SavePlayer());
         
-        public CreatePlayerMessage(Vector3 position, Quaternion rotation)
-        {
-            this.position = position;
-            this.rotation = rotation;
-        }
+        base.OnServerDisconnect(conn);
     }
-
-#if UNITY_EDITOR
-    public int callbackOrder => 0;
-
-    public void OnPreprocessBuild(BuildReport report)
-    {
-        if(transport is KcpTransport)
-        {
-            Debug.LogError("KcpTransport does not work online make sure to set the transport to FizzyTransport");
-        }
-    }
-    
-    #endif
 }
