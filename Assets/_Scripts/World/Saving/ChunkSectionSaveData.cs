@@ -17,20 +17,23 @@ public class ChunkSectionSaveData
     public ChunkSectionSaveData(ChunkSection section)
     {
         var blocksL = new List<BlockSaveData>(); 
-        for (var x = 0; x < section.blocks.GetLength(0); x++)
+        // Here we iterate through all the blocks in the chunk section
+        // and save them with run length encoding
+        
+        for (var i = 0; i < section.blocks.Length; i++)
         {
-            for (var y = 0; y < section.blocks.GetLength(1); y++)
+            var count = 1;
+            while (i + count < section.blocks.Length &&
+                   section.blocks[i % section.dataRef.chunkSize, (i/section.dataRef.chunkSize) % section.dataRef.chunkHeight, i/ (section.dataRef.chunkSize * section.dataRef.chunkHeight)].type == 
+                   section.blocks[(i+count) % section.dataRef.chunkSize, ((i+count)/section.dataRef.chunkSize) % section.dataRef.chunkHeight, (i+count)/ (section.dataRef.chunkSize * section.dataRef.chunkHeight)].type)
             {
-                for (var z = 0; z < section.blocks.GetLength(2); z++)
-                {
-                    if(section.blocks[x,y,z].type is BlockType.Air or BlockType.Nothing)
-                        continue;
-
-                    var block = section.blocks[x, y, z];
-                    blocksL.Add(new BlockSaveData(block.position, block.type));
-                }
+                count++;
             }
+            
+            blocksL.Add(new BlockSaveData(section.blocks[i % section.dataRef.chunkSize, (i/section.dataRef.chunkSize) % section.dataRef.chunkHeight, i/ (section.dataRef.chunkSize * section.dataRef.chunkHeight)].type, count));
+            i += count - 1;
         }
+        
         blocks = blocksL.ToArray();
         yOffset = section.yOffset;
     }

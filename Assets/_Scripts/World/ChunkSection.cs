@@ -21,18 +21,22 @@ public class ChunkSection
     public static ChunkSection Deserialize(ChunkSectionSaveData saveData, ChunkData dataRef)
     {
         var chunkSection = new ChunkSection(dataRef, saveData.yOffset, BlockType.Air);
-        
-        foreach (var blockData in saveData.blocks)
+
+        var pos = new Vector3Int(0, 0, 0);
+        var posIndex = 0;
+        for (var i = 0; i < saveData.blocks.Length; i++)
         {
-            try
+            for (var j = 0; j < saveData.blocks[i].length; j++)
             {
-                var pos = blockData.position;
-                chunkSection.blocks[pos.x, pos.y, pos.z] =  new Block(blockData.type, blockData.position, chunkSection);
+                pos.x = posIndex % dataRef.chunkSize;
+                pos.z = posIndex / (dataRef.chunkSize * dataRef.chunkHeight);
+                pos.y = (posIndex / dataRef.chunkSize) % dataRef.chunkHeight;
+                
+                
+                var block = new Block(saveData.blocks[i].type, pos, chunkSection);
+                chunkSection.blocks[pos.x, pos.y, pos.z] = block;
                 chunkSection.blocks[pos.x, pos.y, pos.z].Loaded();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e);
+                posIndex++;
             }
         }
 

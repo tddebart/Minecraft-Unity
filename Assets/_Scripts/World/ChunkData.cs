@@ -124,6 +124,7 @@ public class ChunkData
         if (IsInRange(localPos))
         {
             GetSection(localPos.y).SetBlock(localPos, block);
+            modifiedAfterSave = true;
         }
         else
         {

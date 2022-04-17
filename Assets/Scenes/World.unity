@@ -3892,7 +3892,7 @@ MonoBehaviour:
   nightColor: {r: 0.12591669, g: 0.22711694, b: 0.254717, a: 1}
   worldName: house
   disabled: 0
-  compressSaves: 0
+  binaryCompressSaves: 0
   OnWorldCreated:
     m_PersistentCalls:
       m_Calls: []

@@ -4,13 +4,13 @@ using UnityEngine;
 [Serializable]
 public class BlockSaveData
 {
-    public Vector3Int position;
     public BlockType type;
+    public int length;
     
-    public BlockSaveData(Vector3Int position, BlockType type)
+    public BlockSaveData(BlockType type, int length)
     {
-        this.position = position;
         this.type = type;
+        this.length = length;
     }
     
     public BlockSaveData()

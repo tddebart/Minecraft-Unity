@@ -48,7 +48,7 @@ public partial class World
             {
                 var path = GetChunkPath(worldName, chunk.position);
                 string json;
-                if (compressSaves)
+                if (binaryCompressSaves)
                 {
                     json = Compress(JsonUtility.ToJson(chunk));
                 }
@@ -65,7 +65,7 @@ public partial class World
 
         string worldJson;
         
-        if (compressSaves)
+        if (binaryCompressSaves)
         {
             worldJson = Compress(JsonUtility.ToJson(worldSaveData));
         }
@@ -79,10 +79,13 @@ public partial class World
         // Save all the player data
         
         Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraftUnity/saves/"+worldSaveData.worldName+"/playerdata"));
-        
-        foreach (var player in GameManager.Instance.players)
+
+        if (GameManager.Instance != null)
         {
-            SavePlayer(player.SavePlayer());
+            foreach (var player in GameManager.Instance.players)
+            {
+                SavePlayer(player.SavePlayer());
+            }
         }
 
         Debug.Log("Saved world in " + stopwatch.ElapsedMilliseconds + "ms");
@@ -101,9 +104,9 @@ public partial class World
         {
             // TODO: for some reason when you use more than 1 thread it crashes because of type mismatch in chunkSection deserialize
             // this seems to be a bug in unity
-            // Parallel.ForEach(chunks, new ParallelOptions() {MaxDegreeOfParallelism = 2}, chunkPos =>
-            // {
             var dict = new ConcurrentDictionary<Vector3Int, ChunkData>();
+            // Parallel.ForEach(chunks, chunkPos =>
+            // {
             foreach (var chunkPos in chunks)
             {
                 if(taskTokenSource.IsCancellationRequested)
@@ -120,7 +123,7 @@ public partial class World
                 }
                 string json;
 
-                if (compressSaves)
+                if (binaryCompressSaves)
                 {
                     json = Decompress(File.ReadAllText(path));
                 }
@@ -133,8 +136,8 @@ public partial class World
                 dict.TryAdd(chunkPos, ChunkData.Deserialize(chunkSaveData));
             }
 
-            return dict;
             // });
+            return dict;
         }, cancellationToken: taskTokenSource.Token);
     }
 

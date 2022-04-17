@@ -44,7 +44,7 @@ public partial class World : MonoBehaviour
     public string worldName;
     [HideInInspector]
     public bool disabled;
-    public bool compressSaves = true;
+    public bool binaryCompressSaves = true;
 
     private CancellationTokenSource taskTokenSource = new CancellationTokenSource();
 
@@ -318,6 +318,7 @@ public partial class World : MonoBehaviour
         worldData.chunkDataDict?.Clear();
         worldData.chunkDict?.Clear();
         worldRenderer.chunkPool?.Clear();
+        isSaving = false;
         
         chunksToUpdate?.Clear();
         
