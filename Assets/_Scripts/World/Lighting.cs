@@ -249,7 +249,10 @@ public static class Lighting
             var chunks = data.GetNeighbourChunk(block.globalWorldPosition);
             foreach (var chunk in chunks)
             {
-                data.chunkToUpdateAfterLighting.Add(chunk.renderer);
+                if (chunk != null && chunk.renderer != null)
+                {
+                    data.chunkToUpdateAfterLighting.Add(chunk.renderer);
+                }
             }
         }
     }

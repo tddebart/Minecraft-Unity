@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
+using Mirror;
 using UnityEngine;
 
 public static class WorldDataHelper
@@ -68,7 +69,7 @@ public static class WorldDataHelper
     public static HashSet<Vector3Int> GetPositionsToCreate(WorldData worldData, List<Vector3Int> allChunkPositionsNeeded, Vector3Int playerPos)
     {
         return allChunkPositionsNeeded
-            .Where(pos => !worldData.chunkDict.ContainsKey(pos) && !File.Exists(World.GetChunkPath(worldData.worldName, pos)))
+            .Where(pos => !worldData.chunkDict.ContainsKey(pos) && !DoesChunkFileExist(worldData,pos))
             .OrderBy(pos => Vector3.Distance(playerPos, pos)).Take(World.Instance.IsWorldCreated ? World.Instance.chunksGenerationPerFrame : allChunkPositionsNeeded.Count)
             .ToHashSet();
     }
@@ -76,7 +77,7 @@ public static class WorldDataHelper
     public static HashSet<Vector3Int> GetDataPositionsToCreate(WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded, Vector3Int playerPos)
     {
         return allChunkDataPositionsNeeded
-            .Where(pos => !worldData.chunkDataDict.ContainsKey(pos) && !File.Exists(World.GetChunkPath(worldData.worldName, pos)))
+            .Where(pos => !worldData.chunkDataDict.ContainsKey(pos) && !DoesChunkFileExist(worldData,pos))
             .OrderBy(pos => Vector3.Distance(playerPos, pos)).Take(World.Instance.IsWorldCreated ? 9 + World.Instance.chunksGenerationPerFrame*3 : allChunkDataPositionsNeeded.Count)
             .ToHashSet();
     }
@@ -84,7 +85,7 @@ public static class WorldDataHelper
     public static HashSet<Vector3Int> GetPositionsToLoad(WorldData worldData, List<Vector3Int> allChunkPositionsNeeded, Vector3Int playerPos)
     {
         return allChunkPositionsNeeded
-            .Where(pos => !worldData.chunkDict.ContainsKey(pos) && File.Exists(World.GetChunkPath(worldData.worldName, pos)))
+            .Where(pos => !worldData.chunkDict.ContainsKey(pos) && DoesChunkFileExist(worldData,pos))
             .OrderBy(pos => Vector3.Distance(playerPos, pos)).Take(World.Instance.IsWorldCreated ? World.Instance.chunksGenerationPerFrame : allChunkPositionsNeeded.Count)
             .ToHashSet();
     }
@@ -92,11 +93,11 @@ public static class WorldDataHelper
     public static HashSet<Vector3Int> GetDataPositionsToLoad(WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded, Vector3Int playerPos)
     {
         return allChunkDataPositionsNeeded
-            .Where(pos => !worldData.chunkDataDict.ContainsKey(pos) && File.Exists(World.GetChunkPath(worldData.worldName, pos)))
+            .Where(pos => !worldData.chunkDataDict.ContainsKey(pos) && DoesChunkFileExist(worldData,pos))
             .OrderBy(pos => Vector3.Distance(playerPos, pos)).Take(World.Instance.IsWorldCreated ? 9 + World.Instance.chunksGenerationPerFrame*3 : allChunkDataPositionsNeeded.Count)
             .ToHashSet();
     }
-
+    
     public static HashSet<Vector3Int> GetUnneededChunkPositions(WorldData worldData, List<Vector3Int> allChunkPositionsNeeded)
     {
         var positionsToRemove = new HashSet<Vector3Int>();
@@ -107,10 +108,22 @@ public static class WorldDataHelper
         
         return positionsToRemove;
     }
-
+    
     public static HashSet<Vector3Int> GetUnneededDataPositions(WorldData worldData, List<Vector3Int> allChunkDataPositionsNeeded)
     {
         return worldData.chunkDataDict.Keys.Where(pos => !allChunkDataPositionsNeeded.Contains(pos) && !worldData.chunkDataDict[pos].modifiedAfterSave).ToHashSet();
+    }
+    
+    public static bool DoesChunkFileExist(WorldData worldData, Vector3Int chunkPos)
+    {
+        if (NetworkServer.active || !World.Instance.isInPlayMode)
+        {
+            return File.Exists(World.GetChunkPath(worldData.worldName, chunkPos));
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public static void RemoveChunk(World world, Vector3Int pos)

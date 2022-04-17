@@ -7,16 +7,10 @@ using UnityEngine.SceneManagement;
 
 public class WorldNetworkManager : MonoBehaviour
 {
-    private void Awake()
-    {
-        if (NetworkManager.singleton != null)
-        {
-            DestroyImmediate(this);
-        }
-    }
-
     private void Start()
     {
+        if (NetworkClient.active) return;
+        
         SteamClient.Init(480);
         GetComponent<NetworkManager>().StartHost();
 

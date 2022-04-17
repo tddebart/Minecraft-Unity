@@ -18,7 +18,7 @@ public class Block
     public BlockType type;
     public BlockTypeData BlockData => BlockDataManager.blockTypeDataDictionary[(int)type];
     
-    [System.NonSerialized] public ChunkSection section;
+    [NonSerialized] public ChunkSection section;
     public ChunkData chunkData => section.dataRef;
     
     public BlockShapes blockShape;

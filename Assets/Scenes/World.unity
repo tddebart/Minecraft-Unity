@@ -3912,6 +3912,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   validateDone: 1
+  isInPlayMode: 0
   isSaving: 0
   chunksToUpdate: []
 --- !u!4 &1422854026
@@ -6147,7 +6148,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2019228121}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 53.33, z: 0}
+  m_LocalPosition: {x: 15, y: 53, z: 15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

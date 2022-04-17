@@ -4,8 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Mirror;
 using UnityEngine;
 using UnityEngine.Events;
+using Debug = UnityEngine.Debug;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -57,19 +59,38 @@ public partial class World : MonoBehaviour
     public Dictionary<Vector3Int, BlockType> blocksToPlaceAfterGeneration = new Dictionary<Vector3Int, BlockType>();
 
     public bool validateDone;
+    [HideInInspector] public bool isInPlayMode;
 
 
     private void Awake()
     {
         Instance = this;
         validateDone = false;
+        isInPlayMode = Application.isPlaying;
     }
 
     private void Start()
     {
         OnValidate();
         Clear();
-        GenerateWorld();
+        // GenerateWorld();
+        
+        NetworkClient.RegisterHandler<StartWorldMessage>(message =>
+        {
+            StartWorld();
+            GenerateWorld(message.position);
+        });
+        
+        // NetworkClient.RegisterHandler<WorldServer.ChunkReceiveMessage>(message =>
+        // {
+        //     Debug.Log("Received chunk");
+        //     
+        //     var chunkData = ChunkData.Deserialize(message.chunkSaveData);
+        //
+        //     worldData.chunkDataDict[chunkData.worldPos] = chunkData;
+        //
+        //     GenerateOnlyMesh();
+        // });
     }
 
     private void OnValidate()
@@ -275,13 +296,15 @@ public partial class World : MonoBehaviour
         return GetBlock(Vector3Int.FloorToInt(globalPos));
     }
 
-    public async void LoadAdditionalChunks(GameObject localPlayer)
+    public void LoadAdditionalChunks(GameObject localPlayer)
     {
         if (!GenerateMoreChunks) return;
         
         // Debug.Log("Loading additional chunks");
-        await GenerateWorld(Vector3Int.RoundToInt(localPlayer.transform.position));
-        OnNewChunksGenerated?.Invoke();
+        GenerateWorld(Vector3Int.RoundToInt(localPlayer.transform.position), () =>
+        {
+            OnNewChunksGenerated?.Invoke();
+        });
     }
     
     private void Clear()
@@ -355,6 +378,16 @@ public partial class World : MonoBehaviour
         }
     }
 #endif
+}
+
+public struct StartWorldMessage : NetworkMessage
+{
+    public Vector3Int position;
+    
+    public StartWorldMessage(Vector3Int position)
+    {
+        this.position = position;
+    }
 }
 
 public struct WorldData

@@ -8,11 +8,20 @@ public class ChunkSaveData
     
     public ChunkSectionSaveData[] sections;
 
+    public ChunkSaveData()
+    {
+        
+    }
+    
+    public ChunkSaveData(Vector3Int position, ChunkSectionSaveData[] sections)
+    {
+        this.position = position;
+        this.sections = sections;
+    }
+
     public static ChunkSaveData Serialize(ChunkData chunk) 
     {
-        var chunkSaveData = new ChunkSaveData();
-        chunkSaveData.position = chunk.worldPos;
-        chunkSaveData.sections = new ChunkSectionSaveData[chunk.sections.Length];
+        var chunkSaveData = new ChunkSaveData(chunk.worldPos,new ChunkSectionSaveData[chunk.sections.Length]);
         for (int i = 0; i < chunkSaveData.sections.Length; i++)
         {
             chunkSaveData.sections[i] = new ChunkSectionSaveData(chunk.sections[i]);

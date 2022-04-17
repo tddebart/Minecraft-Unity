@@ -16,7 +16,13 @@ using Debug = UnityEngine.Debug;
 
 public partial class World
 {
-    public async void GenerateWorld()
+    public void GenerateWorld()
+    {
+        StartWorld();
+        GenerateWorld(Vector3Int.zero);
+    }
+
+    public void StartWorld()
     {
         OnValidate();
         IsWorldCreated = false;
@@ -24,11 +30,9 @@ public partial class World
         updateThread?.Abort();
         updateThread = new Thread(UpdateLoop);
         updateThread.Start();
-        
-        await GenerateWorld(Vector3Int.zero);
     }
 
-    private async Task GenerateWorld(Vector3Int position)
+    public async void GenerateWorld(Vector3Int position, Action onGenerateNewChunks = null)
     {
         Profiler.BeginThreadProfiling("GenerateWorld", "GenerateWorld");
         if (!Application.isPlaying)
@@ -161,8 +165,121 @@ public partial class World
 
         StartCoroutine(ChunkCreationCoroutine(meshDataDict, position));
         
+        onGenerateNewChunks?.Invoke();
+        
         Profiler.EndThreadProfiling();
     }
+    
+    public async void GenerateOnlyData(Vector3Int position, Action onDone = null)
+    {
+        terrainGenerator.GenerateBiomePoints(position, renderDistance, chunkSize, mapSeedOffset);
+        
+        WorldGenerationData worldGenerationData = await Task.Run(() => GetPositionsInRenderDistance(position), taskTokenSource.Token);
+
+        // Generate data chunks
+        ConcurrentDictionary<Vector3Int, ChunkData> dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
+
+        var dataStopWatch = new Stopwatch();
+        dataStopWatch.Start();
+        
+        Profiler.BeginThreadProfiling("GenerateWorld", "GenerateData");
+
+        if (worldGenerationData.chunkPositionsToCreate.Count > 0)
+        {
+            try
+            {
+                dataDict.AddRange(await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate));
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.Log("Task cancelled");
+                return;
+            }
+        }
+        dataStopWatch.Stop();
+        if (!Application.isPlaying)
+        {
+            Debug.Log($"Data generation took {dataStopWatch.ElapsedMilliseconds}ms");
+        }
+
+        var loadStopWatch = Stopwatch.StartNew();
+        if (worldGenerationData.chunkDataPositionsToLoad.Count > 0)
+        {
+            try
+            {
+                dataDict.AddRange(await LoadChunksAsync(worldGenerationData.chunkDataPositionsToLoad, worldName));
+            }
+            catch (OperationCanceledException)
+            {
+                Debug.Log("Task cancelled");
+                return;
+            }
+        }
+        
+        loadStopWatch.Stop();
+        if (!Application.isPlaying)
+        {
+            Debug.Log($"Loading took {loadStopWatch.ElapsedMilliseconds}ms");
+        }
+
+        foreach (var calculatedData in dataDict)
+        {
+            worldData.chunkDataDict.Add(calculatedData.Key, calculatedData.Value);
+        }
+        
+        Profiler.EndThreadProfiling();
+
+
+
+        var featureStopWatch = new Stopwatch();
+        featureStopWatch.Start();
+        
+        // Generate features like trees
+        await CalculateFeatures(worldGenerationData.chunkPositionsToCreate);
+        
+
+        await Task.Run(() =>
+        {
+            Parallel.ForEach(blocksToPlaceAfterGeneration, (block) =>
+            {
+                WorldDataHelper.SetBlock(this, block.Key, block.Value);
+            });
+        });
+
+        featureStopWatch.Stop();
+        if (!Application.isPlaying)
+        {
+            Debug.Log($"Feature generation took {featureStopWatch.ElapsedMilliseconds}ms");
+        }
+        
+        onDone?.Invoke();
+    }
+
+    // public async void GenerateOnlyMesh()
+    // {
+    //     // Generate visual chunks
+    //     // ConcurrentDictionary<Vector3Int, MeshData> meshDataDict = 
+    //     //     await CalculateChunkMeshData(worldGenerationData.chunkPositionsToCreate);
+    //     ConcurrentDictionary<Vector3Int, MeshData> meshDataDict;
+    //     
+    //     List<ChunkData> dataToRender = worldData.chunkDataDict
+    //         .Select(x => x.Value)
+    //         .ToList();
+    //
+    //     await CastLightFirstTime(dataToRender);
+    //
+    //     try
+    //     {
+    //         meshDataDict = await CreateMeshDataAsync(dataToRender);
+    //     }
+    //     catch (OperationCanceledException)
+    //     {
+    //         Debug.Log("Task cancelled");
+    //         return;
+    //     }
+    //
+    //     StartCoroutine(ChunkCreationCoroutine(meshDataDict, Vector3Int.zero));
+    // }
 
     public UniTask CastLightFirstTime(List<ChunkData> dataToCast)
     {

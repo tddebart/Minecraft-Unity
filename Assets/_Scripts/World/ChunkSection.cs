@@ -22,13 +22,12 @@ public class ChunkSection
     {
         var chunkSection = new ChunkSection(dataRef, saveData.yOffset, BlockType.Air);
         
-        foreach (var block in saveData.blocks)
+        foreach (var blockData in saveData.blocks)
         {
             try
             {
-                var pos = block.position;
-                block.section = chunkSection;
-                chunkSection.blocks[pos.x, pos.y, pos.z] = block;
+                var pos = blockData.position;
+                chunkSection.blocks[pos.x, pos.y, pos.z] =  new Block(blockData.type, blockData.position, chunkSection);
                 chunkSection.blocks[pos.x, pos.y, pos.z].Loaded();
             }
             catch (Exception e)

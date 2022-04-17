@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Mirror;
 using UnityEngine;
 
 public partial class World
@@ -56,6 +57,11 @@ public partial class World
     {
         //TODO: remove this because it is slow
         Camera.main.backgroundColor = Color.Lerp(nightColor,dayColor , skyLightMultiplier);
+        
+        // if (Input.GetKeyDown(KeyCode.L))
+        // {
+        //     WorldServer.instance.RequestChunk(Vector3Int.zero);
+        // }
 
         if (chunksToUpdateMesh.Count > 0)
         {

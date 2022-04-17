@@ -6,15 +6,29 @@ using Steamworks;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MinecraftNetworkManager : NetworkManager
 {
     [Space] 
-    public GameObject WorldServerPrefab; 
-    
+    public GameObject WorldServerPrefab;
+
+
+    public override void OnClientConnect()
+    {
+        base.OnClientConnect();
+        NetworkClient.Send(new WorldServer.StartPlayerMessage(SteamClient.SteamId));
+        
+        // NetworkClient.Send(new WorldServer.SpawnPlayerMessage(SteamClient.SteamId));
+    }
+
     public override void OnStartServer()
     {
         base.OnStartServer();
+        if (SceneManager.GetActiveScene().name == "World")
+        {
+            OnServerSceneChanged("World");
+        }
     }
 
     public override void OnServerSceneChanged(string sceneName)
