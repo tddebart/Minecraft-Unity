@@ -24,7 +24,7 @@ public static class WorldDataHelper
         var endX = playerPos.x + Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8) * world.chunkSize;
         var endZ = playerPos.z + Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8) * world.chunkSize;
         
-        return GetPositionsInRenderDistance(world,playerPos, startX, startZ, endX, endZ);
+        return GetPositionsInRenderDistance(world, startX, startZ, endX, endZ);
     }
 
     public static List<Vector3Int> GetDataPositionsInRenderDistance(World world, Vector3Int playerPos)
@@ -34,10 +34,10 @@ public static class WorldDataHelper
         var endX = playerPos.x +   (Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8)+1) * world.chunkSize;
         var endZ = playerPos.z +   (Mathf.Min(world.renderDistance, World.Instance.IsWorldCreated ? world.renderDistance : 8)+1) * world.chunkSize;
         
-        return GetPositionsInRenderDistance(world,playerPos, startX, startZ, endX, endZ);
+        return GetPositionsInRenderDistance(world, startX, startZ, endX, endZ);
     }
 
-    private static List<Vector3Int> GetPositionsInRenderDistance(World world, Vector3Int playerPos, int startX,
+    private static List<Vector3Int> GetPositionsInRenderDistance(World world, int startX,
         int startZ, int endX, int endZ)
     {
         var chunkPositionsToCreate = new List<Vector3Int>();
@@ -70,7 +70,7 @@ public static class WorldDataHelper
     {
         return allChunkPositionsNeeded
             .Where(pos => !worldData.chunkDict.ContainsKey(pos) && !DoesChunkFileExist(worldData,pos))
-            .OrderBy(pos => Vector3.Distance(playerPos, pos)).Take(World.Instance.IsWorldCreated ? World.Instance.chunksGenerationPerFrame : allChunkPositionsNeeded.Count)
+            .OrderBy(pos => Vector3.Distance(playerPos, pos))//.Take(World.Instance.IsWorldCreated ? World.Instance.chunksGenerationPerFrame : allChunkPositionsNeeded.Count)
             .ToHashSet();
     }
 
@@ -78,7 +78,7 @@ public static class WorldDataHelper
     {
         return allChunkDataPositionsNeeded
             .Where(pos => !worldData.chunkDataDict.ContainsKey(pos) && !DoesChunkFileExist(worldData,pos))
-            .OrderBy(pos => Vector3.Distance(playerPos, pos)).Take(World.Instance.IsWorldCreated ? 9 + World.Instance.chunksGenerationPerFrame*3 : allChunkDataPositionsNeeded.Count)
+            .OrderBy(pos => Vector3.Distance(playerPos, pos))//.Take(World.Instance.IsWorldCreated ? 9 + World.Instance.chunksGenerationPerFrame*3 : allChunkDataPositionsNeeded.Count)
             .ToHashSet();
     }
     
@@ -86,7 +86,7 @@ public static class WorldDataHelper
     {
         return allChunkPositionsNeeded
             .Where(pos => !worldData.chunkDict.ContainsKey(pos) && DoesChunkFileExist(worldData,pos))
-            .OrderBy(pos => Vector3.Distance(playerPos, pos)).Take(World.Instance.IsWorldCreated ? World.Instance.chunksGenerationPerFrame : allChunkPositionsNeeded.Count)
+            .OrderBy(pos => Vector3.Distance(playerPos, pos))//.Take(World.Instance.IsWorldCreated ? World.Instance.chunksGenerationPerFrame : allChunkPositionsNeeded.Count)
             .ToHashSet();
     }
     
@@ -94,7 +94,7 @@ public static class WorldDataHelper
     {
         return allChunkDataPositionsNeeded
             .Where(pos => !worldData.chunkDataDict.ContainsKey(pos) && DoesChunkFileExist(worldData,pos))
-            .OrderBy(pos => Vector3.Distance(playerPos, pos)).Take(World.Instance.IsWorldCreated ? 9 + World.Instance.chunksGenerationPerFrame*3 : allChunkDataPositionsNeeded.Count)
+            .OrderBy(pos => Vector3.Distance(playerPos, pos))//.Take(World.Instance.IsWorldCreated ? 9 + World.Instance.chunksGenerationPerFrame*3 : allChunkDataPositionsNeeded.Count)
             .ToHashSet();
     }
     
@@ -134,15 +134,15 @@ public static class WorldDataHelper
             world.worldRenderer.RemoveChunk(chunk);
             world.worldData.chunkDict.Remove(pos);
         }
-        else
-        { 
-            throw new Exception("Could not find chunk to remove");
-        }
+        // else
+        // { 
+        //     throw new Exception("Could not find chunk to remove");
+        // }
     }
 
     public static void RemoveChunkData(World world, Vector3Int pos)
     {
-        world.worldData.chunkDataDict.Remove(pos);
+        world.worldData.chunkDataDict.Remove(pos, out _);
     }
 
     public static void SetBlock(World world, Vector3Int worldBlockPos, BlockType blockType)
@@ -156,13 +156,18 @@ public static class WorldDataHelper
     }
 
     [CanBeNull]
-    public static ChunkRenderer GetChunk(World world, Vector3Int worldPos)
+    public static ChunkRenderer GetChunk(Vector3Int worldPos)
     {
-        if (world.worldData.chunkDict.ContainsKey(worldPos))
+        try
         {
-            return world.worldData.chunkDict[worldPos];
+            World.Instance.worldData.chunkDict.TryGetValue(worldPos, out var chunk);
+            return chunk;
         }
-
+        // This is so fucking stupid
+        // for some fucking reason trygetvalue null errors but that is not possible
+        catch(NullReferenceException)
+        {
+        }
         return null;
     }
     

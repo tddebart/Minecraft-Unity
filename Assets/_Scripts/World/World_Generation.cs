@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
-using Mirror;
 using Steamworks;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -16,6 +15,16 @@ using Debug = UnityEngine.Debug;
 
 public partial class World
 {
+    public readonly ConcurrentQueue<Vector3Int> doneDataQueue = new();
+    public readonly ConcurrentQueue<ChunkData> dataToMeshQueue = new();  
+    public readonly ConcurrentQueue<KeyValuePair<Vector3Int,MeshData>> meshToRenderQueue = new();
+    public readonly Dictionary<Vector3Int, Action> actionOnChunkDone = new();
+
+    public readonly Stopwatch dataStopwatch = new();
+    public readonly Stopwatch loadStopwatch = new();
+    public readonly Stopwatch featureStopwatch = new();
+    public readonly Stopwatch meshStopwatch = new();
+
     public void GenerateWorld()
     {
         StartWorld();
@@ -32,14 +41,12 @@ public partial class World
         updateThread.Start();
     }
 
-    public async void GenerateWorld(Vector3Int position, Action onGenerateNewChunks = null)
+    public async void GenerateWorld(Vector3Int position)
     {
         Profiler.BeginThreadProfiling("GenerateWorld", "GenerateWorld");
-        if (!Application.isPlaying)
-        {
-            fullStopwatch.Start();
-        }
-        
+
+        fullStopwatch.Start();
+
         terrainGenerator.GenerateBiomePoints(position, renderDistance, chunkSize, mapSeedOffset);
         
         WorldGenerationData worldGenerationData = await Task.Run(() => GetPositionsInRenderDistance(position), taskTokenSource.Token);
@@ -55,18 +62,16 @@ public partial class World
         }
 
         // Generate data chunks
-        ConcurrentDictionary<Vector3Int, ChunkData> dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
-
-        var dataStopWatch = new Stopwatch();
-        dataStopWatch.Start();
+        
         
         Profiler.BeginThreadProfiling("GenerateWorld", "GenerateData");
 
-        if (worldGenerationData.chunkPositionsToCreate.Count > 0)
+        
+        if (worldGenerationData.chunkDataPositionsToCreate.Count > 0)
         {
             try
             {
-                dataDict.AddRange(await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate));
+                CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate);
             }
             catch (OperationCanceledException)
             {
@@ -74,18 +79,13 @@ public partial class World
                 return;
             }
         }
-        dataStopWatch.Stop();
-        if (!Application.isPlaying)
-        {
-            Debug.Log($"Data generation took {dataStopWatch.ElapsedMilliseconds}ms");
-        }
 
-        var loadStopWatch = Stopwatch.StartNew();
+        
         if (worldGenerationData.chunkDataPositionsToLoad.Count > 0)
         {
             try
             {
-                dataDict.AddRange(await LoadChunksAsync(worldGenerationData.chunkDataPositionsToLoad, worldName));
+                LoadChunksAsync(worldGenerationData.chunkDataPositionsToLoad, worldName);
             }
             catch (OperationCanceledException)
             {
@@ -93,202 +93,12 @@ public partial class World
                 return;
             }
         }
-        
-        loadStopWatch.Stop();
-        if (!Application.isPlaying)
-        {
-            Debug.Log($"Loading took {loadStopWatch.ElapsedMilliseconds}ms");
-        }
 
-        foreach (var calculatedData in dataDict)
-        {
-            worldData.chunkDataDict.Add(calculatedData.Key, calculatedData.Value);
-        }
-        
         Profiler.EndThreadProfiling();
-
-
-
-        var featureStopWatch = new Stopwatch();
-        featureStopWatch.Start();
-        
-        // Generate features like trees
-        await CalculateFeatures(worldGenerationData.chunkPositionsToCreate);
-        
-
-        await Task.Run(() =>
-        {
-            Parallel.ForEach(blocksToPlaceAfterGeneration, (block) =>
-            {
-                WorldDataHelper.SetBlock(this, block.Key, block.Value);
-            });
-        });
-
-        featureStopWatch.Stop();
-        if (!Application.isPlaying)
-        {
-            Debug.Log($"Feature generation took {featureStopWatch.ElapsedMilliseconds}ms");
-        }
-
-        var visualStopWatch = new Stopwatch();
-        visualStopWatch.Start();
-        
-        // Generate visual chunks
-        // ConcurrentDictionary<Vector3Int, MeshData> meshDataDict = 
-        //     await CalculateChunkMeshData(worldGenerationData.chunkPositionsToCreate);
-        ConcurrentDictionary<Vector3Int, MeshData> meshDataDict;
-        
-        List<ChunkData> dataToRender = worldData.chunkDataDict
-            .Where(x => worldGenerationData.chunkPositionsToCreate.Contains(x.Key) || worldGenerationData.chunkPositionsToLoad.Contains(x.Key))
-            .Select(x => x.Value)
-            .ToList();
-
-        await CastLightFirstTime(dataToRender);
-
-        try
-        {
-            meshDataDict = await CreateMeshDataAsync(dataToRender);
-        }
-        catch (OperationCanceledException)
-        {
-            Debug.Log("Task cancelled");
-            return;
-        }
-        
-        visualStopWatch.Stop();
-        if (!Application.isPlaying)
-        {
-            Debug.Log($"Mesh generation took {visualStopWatch.ElapsedMilliseconds}ms");
-            Debug.Log($"Time spent generating noise {MyNoise.noiseStopwatch.ElapsedMilliseconds}ms");
-            Debug.Log($"Time spent generating 3D noise {MyNoise.noise3DStopwatch.ElapsedMilliseconds}ms");
-        }
-
-        StartCoroutine(ChunkCreationCoroutine(meshDataDict, position));
-        
-        onGenerateNewChunks?.Invoke();
         
         Profiler.EndThreadProfiling();
     }
-    
-    public async void GenerateOnlyData(Vector3Int position, Action onDone = null)
-    {
-        terrainGenerator.GenerateBiomePoints(position, renderDistance, chunkSize, mapSeedOffset);
-        
-        WorldGenerationData worldGenerationData = await Task.Run(() => GetPositionsInRenderDistance(position), taskTokenSource.Token);
 
-        // Generate data chunks
-        ConcurrentDictionary<Vector3Int, ChunkData> dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
-
-        var dataStopWatch = new Stopwatch();
-        dataStopWatch.Start();
-        
-        Profiler.BeginThreadProfiling("GenerateWorld", "GenerateData");
-
-        if (worldGenerationData.chunkPositionsToCreate.Count > 0)
-        {
-            try
-            {
-                dataDict.AddRange(await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate));
-            }
-            catch (OperationCanceledException)
-            {
-                Debug.Log("Task cancelled");
-                return;
-            }
-        }
-        dataStopWatch.Stop();
-        if (!Application.isPlaying)
-        {
-            Debug.Log($"Data generation took {dataStopWatch.ElapsedMilliseconds}ms");
-        }
-
-        var loadStopWatch = Stopwatch.StartNew();
-        if (worldGenerationData.chunkDataPositionsToLoad.Count > 0)
-        {
-            try
-            {
-                dataDict.AddRange(await LoadChunksAsync(worldGenerationData.chunkDataPositionsToLoad, worldName));
-            }
-            catch (OperationCanceledException)
-            {
-                Debug.Log("Task cancelled");
-                return;
-            }
-        }
-        
-        loadStopWatch.Stop();
-        if (!Application.isPlaying)
-        {
-            Debug.Log($"Loading took {loadStopWatch.ElapsedMilliseconds}ms");
-        }
-
-        foreach (var calculatedData in dataDict)
-        {
-            worldData.chunkDataDict.Add(calculatedData.Key, calculatedData.Value);
-        }
-        
-        Profiler.EndThreadProfiling();
-
-
-
-        var featureStopWatch = new Stopwatch();
-        featureStopWatch.Start();
-        
-        // Generate features like trees
-        await CalculateFeatures(worldGenerationData.chunkPositionsToCreate);
-        
-
-        await Task.Run(() =>
-        {
-            Parallel.ForEach(blocksToPlaceAfterGeneration, (block) =>
-            {
-                WorldDataHelper.SetBlock(this, block.Key, block.Value);
-            });
-        });
-
-        featureStopWatch.Stop();
-        if (!Application.isPlaying)
-        {
-            Debug.Log($"Feature generation took {featureStopWatch.ElapsedMilliseconds}ms");
-        }
-        
-        onDone?.Invoke();
-    }
-
-    // public async void GenerateOnlyMesh()
-    // {
-    //     // Generate visual chunks
-    //     // ConcurrentDictionary<Vector3Int, MeshData> meshDataDict = 
-    //     //     await CalculateChunkMeshData(worldGenerationData.chunkPositionsToCreate);
-    //     ConcurrentDictionary<Vector3Int, MeshData> meshDataDict;
-    //     
-    //     List<ChunkData> dataToRender = worldData.chunkDataDict
-    //         .Select(x => x.Value)
-    //         .ToList();
-    //
-    //     await CastLightFirstTime(dataToRender);
-    //
-    //     try
-    //     {
-    //         meshDataDict = await CreateMeshDataAsync(dataToRender);
-    //     }
-    //     catch (OperationCanceledException)
-    //     {
-    //         Debug.Log("Task cancelled");
-    //         return;
-    //     }
-    //
-    //     StartCoroutine(ChunkCreationCoroutine(meshDataDict, Vector3Int.zero));
-    // }
-
-    public UniTask CastLightFirstTime(List<ChunkData> dataToCast)
-    {
-        return UniTask.RunOnThreadPool(() =>
-        {
-            Parallel.ForEach(dataToCast, Lighting.RecastSunLightFirstTime);
-        });
-    }
-    
     public UniTask<ConcurrentDictionary<Vector3Int, MeshData>> CreateMeshDataAsync(List<ChunkData> dataToRender)
     {
         return UniTask.RunOnThreadPool(() =>
@@ -342,29 +152,18 @@ public partial class World
         }, true, taskTokenSource.Token);
     }
 
-    // private Task<ConcurrentDictionary<Vector3Int, MeshData>> CalculateChunkMeshData(List<Vector3Int> chunkPositionsToCreate)
-    // {
-    //     return Task.Run(() =>
-    //     {
-    //         var meshDataDict = new ConcurrentDictionary<Vector3Int, MeshData>();
-    //         
-    //         Parallel.ForEach(chunkPositionsToCreate, pos =>
-    //         {
-    //             var data = worldData.chunkDataDict[pos];
-    //             var meshData = Chunk.GetChunkMeshData(data);
-    //             meshDataDict.TryAdd(pos, meshData);
-    //         });
-    //         
-    //         return meshDataDict;
-    //     });
-    // }
+    public void CreateMeshData(ChunkData dataToRender)
+    {
+        var meshData = dataToRender.GetMeshData();
+        meshToRenderQueue.Enqueue(new KeyValuePair<Vector3Int, MeshData>(dataToRender.worldPos,meshData));
+    }
 
-    private UniTask<ConcurrentDictionary<Vector3Int, ChunkData>> CalculateWorldChunkData(HashSet<Vector3Int> chunkDataPositionsToCreate)
+    private UniTask CalculateWorldChunkData(HashSet<Vector3Int> chunkDataPositionsToCreate)
     {
         return UniTask.RunOnThreadPool(() =>
         {
             Profiler.BeginThreadProfiling("MyThreads","CalculateWorldChunkData");
-            var dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
+            // var dataDict = new ConcurrentDictionary<Vector3Int, ChunkData>();
             // while (chunkDataPositionsToCreate.Count > 0)
             // {
             //     if(chunkDataPositionsToCreate.Count < chunksGenerationPerFrame)
@@ -388,8 +187,8 @@ public partial class World
             //     });
             //     UniTask.NextFrame();
             // }
-            
-            Parallel.ForEach(chunkDataPositionsToCreate, pos =>
+            dataStopwatch.Start();
+            Parallel.ForEach(chunkDataPositionsToCreate,new ParallelOptions {MaxDegreeOfParallelism = 8}, pos =>
             {
                 if(taskTokenSource.IsCancellationRequested)
                 {
@@ -398,10 +197,17 @@ public partial class World
 
                 var data = new ChunkData(chunkSize, chunkHeight, this, pos);
                 var newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
-                dataDict.TryAdd(pos, newData);
-
+                if (worldData.chunkDataDict.TryAdd(pos, newData))
+                {
+                    doneDataQueue.Enqueue(pos);
+                }
+                // else
+                // {
+                //     Debug.LogError($"Failed to add chunk data '{pos}' to doneData");
+                // }
             });
-            
+            dataStopwatch.Stop();
+
             // foreach(var pos in chunkDataPositionsToCreate)
             // {
             //     if(taskTokenSource.IsCancellationRequested)
@@ -416,7 +222,6 @@ public partial class World
             // };
 
             Profiler.EndThreadProfiling();
-            return dataDict;
         }, true, taskTokenSource.Token);
     }
 
@@ -438,7 +243,20 @@ public partial class World
         },true, taskTokenSource.Token);
     }
     
-    
+    private void CalculateFeature(Vector3Int pos)
+    {
+        var data = worldData.chunkDataDict[pos];
+        terrainGenerator.GenerateFeatures(data, mapSeedOffset);
+        data.isGenerated = true;
+        
+        actionOnChunkDone.TryGetValue(pos, out var action);
+        action?.Invoke();
+        
+        if (!isInPlayMode)
+        {
+            dataToMeshQueue.Enqueue(data);
+        }
+    }
 
     IEnumerator ChunkCreationCoroutine(ConcurrentDictionary<Vector3Int, MeshData> meshDataConDict, Vector3Int playerPos)
     {
@@ -457,7 +275,7 @@ public partial class World
         {
             IsWorldCreated = true;
             OnWorldCreated?.Invoke();
-            NetworkClient.Send(new WorldServer.SpawnPlayerMessage(SteamClient.SteamId));
+            // NetworkClient.Send(new WorldServer.SpawnPlayerMessage(SteamClient.SteamId));
         }
 
         if (!Application.isPlaying)

@@ -12,4 +12,6 @@ made by me
 - fix noise never going above 0.67
 
 - also change the inventory on the server instead of only on the client (so that the server can save the inventory)
+
+- broke generating more chunks than the initial ones
   

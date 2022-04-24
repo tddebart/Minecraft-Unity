@@ -19,7 +19,7 @@ public class MinecraftNetworkManager : NetworkManager
         base.OnClientConnect();
         NetworkClient.Send(new WorldServer.StartPlayerMessage(SteamClient.SteamId));
         
-        // NetworkClient.Send(new WorldServer.SpawnPlayerMessage(SteamClient.SteamId));
+        NetworkClient.Send(new WorldServer.ChunkRequestMessage(Vector3Int.zero, World.Instance.renderDistance));
     }
 
     public override void OnStartServer()
@@ -54,5 +54,11 @@ public class MinecraftNetworkManager : NetworkManager
         WorldServer.instance.SavePlayerMessageHandler(conn, conn.identity.GetComponent<Player>().SavePlayer());
         
         base.OnServerDisconnect(conn);
+    }
+
+    public override void OnStopServer()
+    {
+        World.Instance.SaveWorld();
+        base.OnStopServer();
     }
 }

@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 using Mirror;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
+[InitializeOnLoad]
 #endif
-
 public partial class World : MonoBehaviour
 {
     public static World Instance;
@@ -55,12 +56,16 @@ public partial class World : MonoBehaviour
     public bool IsWorldCreated { get; private set; }
     
     private Stopwatch fullStopwatch = new Stopwatch();
-    
-    public Dictionary<Vector3Int, BlockType> blocksToPlaceAfterGeneration = new Dictionary<Vector3Int, BlockType>();
 
     public bool validateDone;
     [HideInInspector] public bool isInPlayMode;
 
+    #if UNITY_EDITOR
+    static World()
+    {
+        EditorApplication.update += EditorUpdate;
+    }
+    #endif
 
     private void Awake()
     {
@@ -78,19 +83,25 @@ public partial class World : MonoBehaviour
         NetworkClient.RegisterHandler<StartWorldMessage>(message =>
         {
             StartWorld();
-            GenerateWorld(message.position);
+            // GenerateWorld(message.position);
         });
-        
-        // NetworkClient.RegisterHandler<WorldServer.ChunkReceiveMessage>(message =>
-        // {
-        //     Debug.Log("Received chunk");
-        //     
-        //     var chunkData = ChunkData.Deserialize(message.chunkSaveData);
-        //
-        //     worldData.chunkDataDict[chunkData.worldPos] = chunkData;
-        //
-        //     GenerateOnlyMesh();
-        // });
+
+        NetworkClient.RegisterHandler<WorldServer.ChunkDataMessage>(message =>
+        {
+            Debug.Log("Received chunk");
+            
+            var chunkData = ChunkData.Deserialize(message.chunkSaveData);
+
+            if (worldData.chunkDataDict.ContainsKey(chunkData.worldPos) && NetworkServer.active)
+            {
+                worldData.chunkDataDict[chunkData.worldPos] = chunkData;
+            }
+            else
+            {
+                worldData.chunkDataDict.TryAdd(chunkData.worldPos, chunkData);
+            }
+            dataToMeshQueue.Enqueue(chunkData);
+        });
     }
 
     private void OnValidate()
@@ -100,7 +111,7 @@ public partial class World : MonoBehaviour
         {
             worldData = new WorldData
             {
-                chunkDataDict = new Dictionary<Vector3Int, ChunkData>(),
+                chunkDataDict = new ConcurrentDictionary<Vector3Int, ChunkData>(),
                 chunkDict = new Dictionary<Vector3Int, ChunkRenderer>(),
                 worldName = worldName,
             };
@@ -116,7 +127,7 @@ public partial class World : MonoBehaviour
         Shader.SetGlobalVectorArray("lightColors", LightTextureCreator.lightColors);
     }
 
-    private WorldGenerationData GetPositionsInRenderDistance(Vector3Int playerPos)
+    public WorldGenerationData GetPositionsInRenderDistance(Vector3Int playerPos)
     {
         var allChunkPositionsNeeded = WorldDataHelper.GetChunkPositionsInRenderDistance(this, playerPos);
         var allChunkDataPositionsNeeded = WorldDataHelper.GetDataPositionsInRenderDistance(this, playerPos);
@@ -196,7 +207,7 @@ public partial class World : MonoBehaviour
     public void SetBlock(Vector3Int blockPos, BlockType blockType)
     {
         var chunkPos = WorldDataHelper.GetChunkPosition(this, blockPos);
-        var chunk = WorldDataHelper.GetChunk(this, chunkPos);
+        var chunk = WorldDataHelper.GetChunk(chunkPos);
         if (chunk == null) return;
         chunk.ModifiedByPlayer = true;
         chunk.ChunkData.modifiedAfterSave = true;
@@ -206,7 +217,7 @@ public partial class World : MonoBehaviour
     public void SetBlocks(IEnumerable<Vector3Int> blockPoss, BlockType blockType)
     {
         var chunkPos = WorldDataHelper.GetChunkPosition(this, blockPoss.First());
-        var chunk = WorldDataHelper.GetChunk(this, chunkPos);
+        var chunk = WorldDataHelper.GetChunk(chunkPos);
         SetBlocks(chunk, blockPoss, blockType);
     }
 
@@ -232,7 +243,7 @@ public partial class World : MonoBehaviour
                 {
                     if(neighChunkData == null) continue;
                     
-                    ChunkRenderer neighbourChunk = WorldDataHelper.GetChunk(neighChunkData.worldRef, neighChunkData.worldPos);
+                    ChunkRenderer neighbourChunk = WorldDataHelper.GetChunk(neighChunkData.worldPos);
                     if(neighbourChunk != null)
                     {
                         neightBourUpdates.Add(neighbourChunk);
@@ -301,17 +312,15 @@ public partial class World : MonoBehaviour
         if (!GenerateMoreChunks) return;
         
         // Debug.Log("Loading additional chunks");
-        GenerateWorld(Vector3Int.RoundToInt(localPlayer.transform.position), () =>
-        {
-            OnNewChunksGenerated?.Invoke();
-        });
+        GenerateWorld(Vector3Int.RoundToInt(localPlayer.transform.position));
+        OnNewChunksGenerated?.Invoke();
     }
     
     private void Clear()
     {
         worldData = new WorldData
         {
-            chunkDataDict = new Dictionary<Vector3Int, ChunkData>(),
+            chunkDataDict = new ConcurrentDictionary<Vector3Int, ChunkData>(),
             chunkDict = new Dictionary<Vector3Int, ChunkRenderer>(),
             worldName = worldName
         };
@@ -320,7 +329,16 @@ public partial class World : MonoBehaviour
         worldRenderer.chunkPool?.Clear();
         isSaving = false;
         
+        // Clear queues
+        doneDataQueue.Clear();
+        dataToMeshQueue.Clear();
+        meshToRenderQueue.Clear();
+
+        actionOnChunkDone.Clear();
+
         chunksToUpdate?.Clear();
+        
+        disabled = false;
         
         MyNoise.noiseStopwatch.Reset();
         MyNoise.noise3DStopwatch.Reset();
@@ -394,6 +412,6 @@ public struct StartWorldMessage : NetworkMessage
 public struct WorldData
 {
     public string worldName;
-    public Dictionary<Vector3Int, ChunkData> chunkDataDict;
+    public ConcurrentDictionary<Vector3Int, ChunkData> chunkDataDict;
     public Dictionary<Vector3Int, ChunkRenderer> chunkDict;
 }

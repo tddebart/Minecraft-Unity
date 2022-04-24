@@ -15,6 +15,8 @@ public class F3MenuManger : MonoBehaviour
 
     public void Update()
     {
+        if(WorldServer.IsDedicated) return;
+        
         if (Input.GetKeyUp(KeyCode.F3))
         {
             if (!GameManager.Instance.localPlayer.f3KeyComboUsed)

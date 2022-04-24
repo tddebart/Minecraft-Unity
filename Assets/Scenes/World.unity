@@ -3875,7 +3875,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e113280f9ab044168541f6fef84d3095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 2
+  renderDistance: 3
   chunkSize: 16
   chunkHeight: 16
   worldHeight: 96
@@ -3884,7 +3884,7 @@ MonoBehaviour:
   worldRenderer: {fileID: 1269315924}
   terrainGenerator: {fileID: 1658937128}
   mapSeedOffset: {x: -251, y: 150, z: 0}
-  GenerateMoreChunks: 1
+  GenerateMoreChunks: 0
   gamma: 0
   skyLightMultiplier: 0.9
   blockLightMultiplier: 1.18
