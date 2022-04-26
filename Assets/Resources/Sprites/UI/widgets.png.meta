@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ac14386da8cedd444a1c1555c5d098be
+guid: 9e884c727694821418f4149ac23f0392
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -175,7 +175,7 @@ TextureImporter:
         width: 200
         height: 20
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 2, y: 1, z: 1, w: 2}
       outline: []
       physicsShape: []
@@ -183,6 +183,27 @@ TextureImporter:
       bones: []
       spriteID: f072c117485e79b4085fda903fec644b
       internalID: -449236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: slider_background
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 190
+        width: 200
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 1, y: 1, z: 1, w: 1}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 80472e923e689e94fa83589bba1c8c85
+      internalID: 537754379
       vertices: []
       indices: 
       edges: []
@@ -203,6 +224,7 @@ TextureImporter:
       button: -666751232
       hotbar: -1925769885
       button_selected: -449236
+      slider_background: 537754379
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

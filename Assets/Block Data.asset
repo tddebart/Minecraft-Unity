@@ -16,9 +16,6 @@ MonoBehaviour:
   textureSizeY: 0.03125
   textureDataList:
   - blockType: 0
-    up: {x: 0, y: 0}
-    down: {x: 0, y: 0}
-    side: {x: 0, y: 0}
     textureData:
       up: {x: 0, y: 0}
       down: {x: 0, y: 0}
@@ -31,9 +28,6 @@ MonoBehaviour:
     opacity: 0
     lightEmission: 0
   - blockType: 1
-    up: {x: 0, y: 0}
-    down: {x: 0, y: 0}
-    side: {x: 0, y: 0}
     textureData:
       up: {x: 0, y: 0}
       down: {x: 0, y: 0}
@@ -46,9 +40,6 @@ MonoBehaviour:
     opacity: 0
     lightEmission: 0
   - blockType: 3
-    up: {x: 11, y: 1}
-    down: {x: 13, y: 6}
-    side: {x: 12, y: 30}
     textureData:
       up: {x: 11, y: 1}
       down: {x: 13, y: 6}
@@ -61,9 +52,6 @@ MonoBehaviour:
     opacity: 15
     lightEmission: 0
   - blockType: 2
-    up: {x: 13, y: 6}
-    down: {x: 13, y: 6}
-    side: {x: 13, y: 6}
     textureData:
       up: {x: 13, y: 6}
       down: {x: 13, y: 6}
@@ -76,24 +64,18 @@ MonoBehaviour:
     opacity: 15
     lightEmission: 0
   - blockType: 8
-    up: {x: 19, y: 16}
-    down: {x: 19, y: 16}
-    side: {x: 19, y: 16}
     textureData:
-      up: {x: 19, y: 16}
-      down: {x: 19, y: 16}
-      side: {x: 19, y: 16}
+      up: {x: 12, y: 21}
+      down: {x: 12, y: 21}
+      side: {x: 12, y: 21}
       upExtends: {x: 1, y: 1}
       downExtends: {x: 1, y: 1}
       sideExtends: {x: 1, y: 1}
     isTransparent: 1
-    generateCollider: 0
-    opacity: 15
+    generateCollider: 1
+    opacity: 13
     lightEmission: 0
   - blockType: 7
-    up: {x: 2, y: 3}
-    down: {x: 2, y: 3}
-    side: {x: 2, y: 3}
     textureData:
       up: {x: 2, y: 3}
       down: {x: 2, y: 3}
@@ -106,9 +88,6 @@ MonoBehaviour:
     opacity: 15
     lightEmission: 0
   - blockType: 4
-    up: {x: 1, y: 17}
-    down: {x: 1, y: 17}
-    side: {x: 1, y: 17}
     textureData:
       up: {x: 1, y: 17}
       down: {x: 1, y: 17}
@@ -121,9 +100,6 @@ MonoBehaviour:
     opacity: 15
     lightEmission: 0
   - blockType: 5
-    up: {x: 7, y: 21}
-    down: {x: 7, y: 21}
-    side: {x: 7, y: 20}
     textureData:
       up: {x: 7, y: 21}
       down: {x: 7, y: 21}
@@ -136,9 +112,6 @@ MonoBehaviour:
     opacity: 15
     lightEmission: 0
   - blockType: 6
-    up: {x: 7, y: 19}
-    down: {x: 7, y: 19}
-    side: {x: 7, y: 19}
     textureData:
       up: {x: 7, y: 19}
       down: {x: 7, y: 19}
@@ -151,9 +124,6 @@ MonoBehaviour:
     opacity: 14
     lightEmission: 0
   - blockType: 10
-    up: {x: 12, y: 25}
-    down: {x: 12, y: 25}
-    side: {x: 12, y: 25}
     textureData:
       up: {x: 12, y: 25}
       down: {x: 12, y: 25}
@@ -166,9 +136,6 @@ MonoBehaviour:
     opacity: 15
     lightEmission: 15
   - blockType: 11
-    up: {x: 7, y: 22}
-    down: {x: 7, y: 22}
-    side: {x: 7, y: 22}
     textureData:
       up: {x: 7, y: 22}
       down: {x: 7, y: 22}

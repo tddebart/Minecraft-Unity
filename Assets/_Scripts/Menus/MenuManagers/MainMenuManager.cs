@@ -10,10 +10,10 @@ public class MainMenuManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         
-        transform.Find("Layout/Singleplayer").GetComponent<Button>().onClick.AddListener(() =>
-        {
-            NetworkManager.singleton.StartHost();
-        });
+        // transform.Find("Layout/Singleplayer").GetComponent<Button>().onClick.AddListener(() =>
+        // {
+        //     NetworkManager.singleton.StartHost();
+        // });
         transform.Find("Layout/Bottom/Quit").GetComponent<Button>().onClick.AddListener(Application.Quit);
     }
 }

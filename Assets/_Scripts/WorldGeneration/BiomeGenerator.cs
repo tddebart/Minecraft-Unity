@@ -73,7 +73,7 @@ public class BiomeGenerator : MonoBehaviour
                     worldPos.y = y;
                     localPos.y = y;
                     
-                    if (data.GetBlock(localPos).type == BlockType.Air)
+                    if (data.GetBlock(localPos).type is BlockType.Air or BlockType.Water)
                     {
                         continue;
                     }

@@ -10,6 +10,7 @@ using Steamworks;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public partial class World
 {
@@ -165,7 +166,10 @@ public partial class World
         }
         catch (NullReferenceException e)
         {
-            Debug.LogError(e);
+            if (SceneManager.GetActiveScene().name == "World")
+            {
+                Debug.LogError(e);
+            }
             EditorApplication.update -= EditorUpdate;
         }
     }
