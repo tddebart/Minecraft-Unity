@@ -1857,6 +1857,7 @@ MonoBehaviour:
   autoCreatePlayer: 0
   playerSpawnMethod: 0
   spawnPrefabs: []
+  WorldServerPrefab: {fileID: 0}
 --- !u!114 &1212241221
 MonoBehaviour:
   m_ObjectHideFlags: 0

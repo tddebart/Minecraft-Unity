@@ -291,15 +291,14 @@ public partial class World : MonoBehaviour
     {
         var chunkPos = Chunk.ChunkPosFromBlockCoords(this, globalPos);
 
-        worldData.chunkDataDict.TryGetValue(chunkPos, out var containerChunk);
-        
-        if (containerChunk == null)
+        if (worldData.chunkDataDict.ContainsKey(chunkPos))
         {
-            return BlockHelper.NOTHING;
-        }
+            var containerChunk = worldData.chunkDataDict[chunkPos];
 
-        var blockPos = containerChunk.GetLocalBlockCoords(new Vector3Int(globalPos.x, globalPos.y, globalPos.z));
-        return containerChunk.GetBlock(blockPos);
+            var blockPos = containerChunk.GetLocalBlockCoords(new Vector3Int(globalPos.x, globalPos.y, globalPos.z));
+            return containerChunk.GetBlock(blockPos);
+        }
+        return BlockHelper.NOTHING;
     }
 
     public Block GetBlock(Vector3 globalPos)

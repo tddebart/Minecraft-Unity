@@ -57,7 +57,7 @@ GraphicsSettings:
       realtimeGICPUUsage: 25
       useReflectionProbeBoxProjection: 1
       useReflectionProbeBlending: 1
-      useHDR: 1
+      useHDR: 0
       useDetailNormalMap: 1
       useCascadedShadowMaps: 1
       prefer32BitShadowMaps: 0
@@ -71,10 +71,10 @@ GraphicsSettings:
       standardShaderQuality: 2
       renderingPath: 1
       hdrMode: 1
-      realtimeGICPUUsage: 75
+      realtimeGICPUUsage: 25
       useReflectionProbeBoxProjection: 1
       useReflectionProbeBlending: 1
-      useHDR: 1
+      useHDR: 0
       useDetailNormalMap: 1
       useCascadedShadowMaps: 1
       prefer32BitShadowMaps: 0
@@ -91,7 +91,7 @@ GraphicsSettings:
       realtimeGICPUUsage: 25
       useReflectionProbeBoxProjection: 1
       useReflectionProbeBlending: 1
-      useHDR: 1
+      useHDR: 0
       useDetailNormalMap: 1
       useCascadedShadowMaps: 1
       prefer32BitShadowMaps: 0
