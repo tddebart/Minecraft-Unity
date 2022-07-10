@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
-using Steamworks;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -97,19 +96,17 @@ public partial class World
     {
         var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraftUnity/saves/" + worldName + $"/playerdata/{message.steamId}.json");
         File.WriteAllText(path, JsonUtility.ToJson(message));
-        // get the steam username from the id
-        Debug.Log($"Saved player {message.steamId}");
     }
 
-    public UniTask LoadChunksAsync(IEnumerable<Vector3Int> chunks, string worldName)
+    public UniTask<ConcurrentDictionary<Vector3Int, ChunkData>> LoadChunksAsync(IEnumerable<Vector3Int> chunks, string worldName)
     {
         return UniTask.RunOnThreadPool(() =>
         {
             // TODO: for some reason when you use more than 1 thread it crashes because of type mismatch in chunkSection deserialize
             // this seems to be a bug in unity
+            var dict = new ConcurrentDictionary<Vector3Int, ChunkData>();
             // Parallel.ForEach(chunks, chunkPos =>
             // {
-            loadStopwatch.Start();
             foreach (var chunkPos in chunks)
             {
                 if(taskTokenSource.IsCancellationRequested)
@@ -136,24 +133,11 @@ public partial class World
                 }
                 
                 var chunkSaveData = JsonUtility.FromJson<ChunkSaveData>(json);
-                var chunkData = ChunkData.Deserialize(chunkSaveData);
-                if (worldData.chunkDataDict.TryAdd(chunkPos,chunkData))
-                {
-                    actionOnChunkDone.TryGetValue(chunkPos, out var action);
-                    action?.Invoke();
-                    if (!isInPlayMode)
-                    {
-                        dataToMeshQueue.Enqueue(chunkData);
-                    }
-                }
-                else
-                {
-                    Debug.LogError($"Failed to add chunk data '{chunkPos}' to doneData");
-                }
+                dict.TryAdd(chunkPos, ChunkData.Deserialize(chunkSaveData));
             }
-            loadStopwatch.Stop();
 
             // });
+            return dict;
         }, cancellationToken: taskTokenSource.Token);
     }
 

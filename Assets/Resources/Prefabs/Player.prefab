@@ -698,7 +698,7 @@ MonoBehaviour:
   isFlying: 0
   drawBounds: 0
   sensitivity: 5
-  checkIncrement: 0.1
+  checkIncrement: 0.05
   reach: 4.5
   cam: {fileID: 3114816152506633376}
   inventory: {fileID: 0}

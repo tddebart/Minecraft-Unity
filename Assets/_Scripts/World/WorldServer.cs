@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
 using Mirror;
 using Steamworks;
 using UnityEngine;
@@ -11,8 +8,6 @@ using UnityEngine;
 public class WorldServer : NetworkBehaviour
 {
     public static WorldServer instance;
-    
-    public static bool IsDedicated => !NetworkClient.active && NetworkServer.active;
 
     private void Start()
     {
@@ -26,94 +21,15 @@ public class WorldServer : NetworkBehaviour
         NetworkServer.RegisterHandler<SavePlayerMessage>(SavePlayerMessageHandler, false);
         NetworkServer.RegisterHandler<SpawnPlayerMessage>(SpawnPlayerMessageHandler, false);
         NetworkServer.RegisterHandler<StartPlayerMessage>(StartPlayerMessageHandler, false);
-        NetworkServer.RegisterHandler<ChunkRequestMessage>(ChunkRequestMessageHandler, false);
 
         StartCoroutine(SaveLoop());
     }
-    
-    #region Chunk Requests
-    
-    private async void ChunkRequestMessageHandler(NetworkConnectionToClient conn, ChunkRequestMessage message)
-    {
-        World.Instance.renderDistance = message.renderDistance;
-        var positions = WorldDataHelper.GetDataPositionsInRenderDistance(World.Instance, message.position);
-        //Sort by distance
-        positions = positions.OrderBy(x => Vector3.Distance(x, message.position)).ToList();
-
-        if (!World.Instance.worldData.chunkDataDict.ContainsKey(message.position))
-        {
-            World.Instance.GenerateWorld(message.position);
-            
-            // Create chunk actions
-            foreach (var pos in positions)
-            {
-                if (World.Instance.actionOnChunkDone.ContainsKey(pos))
-                {
-                    World.Instance.actionOnChunkDone[pos] += () => { SendChunkAtPos(pos, conn);};
-                } else
-                {
-                    World.Instance.actionOnChunkDone.Add(pos, () => { SendChunkAtPos(pos, conn);});
-                }
-            }
-        }
-        else
-        {
-            // Send the chunkData and all of its neighbors
-
-            foreach (var pos in positions)
-            {
-                SendChunkAtPos(pos, conn);
-                await UniTask.Delay(100);
-            }
-        }
-    }
-
-    private void SendChunkAtPos(Vector3Int pos, NetworkConnectionToClient conn)
-    {
-        if (World.Instance.worldData.chunkDataDict.TryGetValue(pos, out var chunkData))
-        {
-            var chunkDataMessage = new ChunkDataMessage
-            {
-                chunkSaveData = ChunkSaveData.Serialize(chunkData)
-            };
-            conn.Send(chunkDataMessage);
-        } else
-        {
-            Debug.LogError("Could not send chunk at " + pos);
-        }
-    }
-    
-    
-    public struct ChunkRequestMessage : NetworkMessage
-    {
-        public Vector3Int position;
-        public int renderDistance;
-
-        public ChunkRequestMessage(Vector3Int pos, int renderDistance)
-        {
-            position = pos;
-            this.renderDistance = renderDistance;
-        }
-    }
-    
-    public struct ChunkDataMessage : NetworkMessage
-    {
-        public ChunkSaveData chunkSaveData;
-        
-        public ChunkDataMessage(ChunkSaveData saveData)
-        {
-            chunkSaveData = saveData;
-        }
-    }
-    
-    #endregion
 
     #region Block
 
     public void SetBlockMessageHandler(NetworkConnectionToClient conn, SetBlockMessage message)
     {
         RpcSetBlock(message.position, message.blockType);
-        WorldDataHelper.SetBlock(World.Instance, message.position, message.blockType);
     }
 
     [ClientRpc]

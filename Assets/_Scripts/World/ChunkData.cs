@@ -17,7 +17,7 @@ public class ChunkData
     public bool modifiedAfterSave = true;
     
     public TreeData treeData = new TreeData();
-    [CanBeNull] public ChunkRenderer renderer => WorldDataHelper.GetChunk(worldPos);
+    [CanBeNull] public ChunkRenderer renderer => WorldDataHelper.GetChunk(worldRef, worldPos);
     
     public readonly Queue<BlockLightNode> blockLightUpdateQueue = new(); 
     public readonly Queue<BlockLightNode> blockLightRemoveQueue = new(); 
@@ -51,7 +51,6 @@ public class ChunkData
         }
         chunkData.sections = sections;
         chunkData.modifiedAfterSave = false;
-        chunkData.isGenerated = true;
         
         return chunkData;
     } 
