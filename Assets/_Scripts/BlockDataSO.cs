@@ -29,6 +29,7 @@ public class BlockTypeData
 public class TextureData
 {
     public Vector2Int up, down, side;
+    [Space]
     public Vector2 upExtends = Vector2.one;
     public Vector2 downExtends = Vector2.one;
     public Vector2 sideExtends = Vector2.one;

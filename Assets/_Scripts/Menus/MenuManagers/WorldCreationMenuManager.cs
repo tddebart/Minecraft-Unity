@@ -26,12 +26,7 @@ public class WorldCreationMenuManager : MonoBehaviour
     
     public async void CreateWorld()
     {
-        var savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),".minecraftUnity/saves/");
-        var countOfWorldsWithSameName = new DirectoryInfo(savePath).EnumerateDirectories().Count(d => d.Name == worldNameInputField.text);
-        if (countOfWorldsWithSameName != 0)
-        {
-            worldNameInputField.text += $" ({countOfWorldsWithSameName})";
-        }
+        CheckIfNameIsUsed();
         
         WorldSettingsManager.Instance.worldName = worldNameInputField.text;
         WorldSettingsManager.Instance.seedOffset = GenerateSeed(worldSeedInputField.text);
@@ -51,6 +46,22 @@ public class WorldCreationMenuManager : MonoBehaviour
                 lobby.SetData("minecraft", "TRUE");
                 NetworkManager.singleton.StartHost();
             }
+        }
+    }
+
+    private void CheckIfNameIsUsed()
+    {
+        while (true)
+        {
+            var savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraftUnity/saves/");
+            var countOfWorldsWithSameName = new DirectoryInfo(savePath).EnumerateDirectories().Count(d => d.Name == worldNameInputField.text);
+            if (countOfWorldsWithSameName != 0)
+            {
+                worldNameInputField.text += $" ({countOfWorldsWithSameName})";
+                continue; // Check if the new name is used again
+            }
+
+            break;
         }
     }
 

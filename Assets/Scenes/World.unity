@@ -3893,7 +3893,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e113280f9ab044168541f6fef84d3095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderDistance: 5
+  renderDistance: 2
   chunkSize: 16
   chunkHeight: 16
   worldHeight: 96
@@ -3902,13 +3902,13 @@ MonoBehaviour:
   worldRenderer: {fileID: 1269315924}
   terrainGenerator: {fileID: 1658937128}
   mapSeedOffset: {x: -251, y: 150, z: 0}
-  GenerateMoreChunks: 0
+  GenerateMoreChunks: 1
   gamma: 0
   skyLightMultiplier: 0.9
   blockLightMultiplier: 1.18
   dayColor: {r: 0.46666667, g: 0.8156863, b: 0.9137255, a: 1}
   nightColor: {r: 0.12591669, g: 0.22711694, b: 0.254717, a: 1}
-  worldName: rtfjfg1
+  worldName: gdfhdhd
   disabled: 0
   binaryCompressSaves: 0
   OnWorldCreated:

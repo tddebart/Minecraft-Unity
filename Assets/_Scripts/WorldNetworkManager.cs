@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Mirror;
@@ -10,8 +11,15 @@ public class WorldNetworkManager : MonoBehaviour
     private void Start()
     {
         if (NetworkClient.active) return;
-        
-        SteamClient.Init(480);
+
+        try
+        {
+            SteamClient.Init(480);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("Steam failed to initialize");
+        }
         GetComponent<NetworkManager>().StartHost();
 
         SceneManager.sceneUnloaded += scene =>

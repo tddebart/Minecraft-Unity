@@ -116,7 +116,7 @@ public class SettingsManager : MonoBehaviour
         {
             canvas.scaleFactor = guiScale;
         }
-        if (Camera.main != null) Camera.main.fieldOfView = fov;
+        if (World.Instance != null && Camera.main != null) Camera.main.fieldOfView = fov;
     }
     
 }

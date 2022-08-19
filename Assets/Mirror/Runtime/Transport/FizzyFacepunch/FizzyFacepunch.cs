@@ -56,7 +56,14 @@ namespace Mirror.FizzySteam
 
       if (InitFacepunch)
       {
-        SteamClient.Init(uint.Parse(SteamAppID), true);
+        try
+        {
+          SteamClient.Init(uint.Parse(SteamAppID), true);
+        }
+        catch (Exception e)
+        {
+          Debug.LogWarning("Steam failed to initialize");
+        }
       }
 
       Invoke(nameof(FetchSteamID), 1f);

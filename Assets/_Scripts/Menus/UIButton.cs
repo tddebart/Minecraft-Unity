@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UIButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class UIButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     private Sprite image;
     private Sprite hoverImage;
     private Sprite disabledImage;
+    private AudioClip clickSound;
     public bool isDisabled;
     
     private void Awake()
@@ -16,6 +17,7 @@ public class UIButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         image = GetComponent<Image>().sprite;
         hoverImage = Resources.LoadAll<Sprite>("Sprites/UI/widgets").First(s => s.name == "button_selected");
         disabledImage = Resources.LoadAll<Sprite>("Sprites/UI/widgets").First(s => s.name == "slider_background");
+        clickSound = Resources.Load<AudioClip>("Sounds/UI/click");
 
         if (isDisabled)
         {
@@ -40,6 +42,13 @@ public class UIButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         GetComponent<Image>().sprite = image;
     }
     
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if(isDisabled) return;
+        
+        AudioSource.PlayClipAtPoint(clickSound, Camera.main.transform.position, 0.20f);
+    }
+    
     public void Disable()
     {
         GetComponent<Button>().interactable = false;
@@ -60,4 +69,5 @@ public class UIButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         OnPointerExit(null);
     }
+
 }
