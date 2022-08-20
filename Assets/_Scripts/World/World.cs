@@ -109,6 +109,11 @@ public partial class World : MonoBehaviour
 
             validateDone = true;
         }
+        UpadteLightTexture();
+    }
+
+    public void UpadteLightTexture()
+    {
         LightTextureCreator.gamma = gamma;
         LightTextureCreator.skyLightMultiplier = skyLightMultiplier;
         LightTextureCreator.blockLightMultiplier = blockLightMultiplier;

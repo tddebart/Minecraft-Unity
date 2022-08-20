@@ -72,7 +72,7 @@ MonoBehaviour:
       downExtends: {x: 1, y: 1}
       sideExtends: {x: 1, y: 1}
     isTransparent: 1
-    generateCollider: 1
+    generateCollider: 0
     opacity: 13
     lightEmission: 0
   - blockType: 7

@@ -5,9 +5,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class F3MenuManger : MonoBehaviour
+public partial class F3MenuManger : MonoBehaviour
 {
     public RectTransform f3Container;
+    public RectTransform shiftF3Container;
     public GameObject f3TemplateText;
     public Dictionary<string, TextMeshProUGUI> f3Texts = new Dictionary<string, TextMeshProUGUI>();
     public Dictionary<string, ContentSizeFitter> f3Groups = new Dictionary<string, ContentSizeFitter>();
@@ -15,8 +16,17 @@ public class F3MenuManger : MonoBehaviour
 
     public void Update()
     {
-        if (Input.GetKeyUp(KeyCode.F3))
+        if (!CheckForDebugControls() && Input.GetKeyUp(KeyCode.F3))
         {
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                // Open debug keybindings menu
+                shiftF3Container.GetChild(0).gameObject.SetActive(true);
+
+                return;
+            }
+            
+
             if (!GameManager.Instance.localPlayer.f3KeyComboUsed)
             {
                 f3Container.gameObject.SetActive(!f3Container.gameObject.activeSelf);
@@ -24,7 +34,7 @@ public class F3MenuManger : MonoBehaviour
 
             GameManager.Instance.localPlayer.f3KeyComboUsed = false;
         }
-        
+
         if (GameManager.Instance.playerSpawned && f3Container.gameObject.activeSelf)
         {
             if (fpsCoroutine == null)
