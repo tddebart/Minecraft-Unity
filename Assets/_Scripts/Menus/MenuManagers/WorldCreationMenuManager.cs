@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Mirror;
+using Newtonsoft.Json;
 using Steamworks;
 using TMPro;
 using UnityEngine;
@@ -37,27 +38,36 @@ public class WorldCreationMenuManager : MonoBehaviour
         }
         else
         {
-            var lobbyNull = await SteamMatchmaking.CreateLobbyAsync();
-            if (lobbyNull.HasValue)
-            {
-                var lobby = lobbyNull.Value;
-                lobby.SetPublic();
-                lobby.SetData("name", $"{SteamClient.Name} playing on {worldNameInputField.text} ({LobbyCreationMenu.lobbyName})");
-                lobby.SetData("minecraft", "TRUE");
-                NetworkManager.singleton.StartHost();
-            }
+            CreateLobby(worldNameInputField.text, WorldSettingsManager.Instance.seedOffset);
+        }
+    }
+
+    public static async void CreateLobby(string worldName, Vector3Int seedOffset)
+    {
+        var lobbyNull = await SteamMatchmaking.CreateLobbyAsync();
+        if (lobbyNull.HasValue)
+        {
+            var lobby = lobbyNull.Value;
+            lobby.SetPublic();
+            lobby.SetData("name", $"{LobbyCreationMenu.lobbyName}\n<color=#808080>{SteamClient.Name} playing on {worldName}</color>");
+            lobby.SetData("seed", JsonConvert.SerializeObject(seedOffset));
+            lobby.SetData("minecraft", "TRUE");
+            NetworkManager.singleton.StartHost();
         }
     }
 
     private void CheckIfNameIsUsed()
     {
+        var worldName = worldNameInputField.text;
+        var count = 1;
         while (true)
         {
             var savePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".minecraftUnity/saves/");
             var countOfWorldsWithSameName = new DirectoryInfo(savePath).EnumerateDirectories().Count(d => d.Name == worldNameInputField.text);
             if (countOfWorldsWithSameName != 0)
             {
-                worldNameInputField.text += $" ({countOfWorldsWithSameName})";
+                worldNameInputField.text = $"{worldName} ({count})";
+                count++;
                 continue; // Check if the new name is used again
             }
 

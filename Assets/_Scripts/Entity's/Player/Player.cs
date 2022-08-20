@@ -46,6 +46,7 @@ public class Player : BaseEntity
     
     private static readonly int Speed = Animator.StringToHash("speed");
     private static readonly int Sneaking = Animator.StringToHash("sneaking");
+    private static readonly int DoZWrite = Shader.PropertyToID("_doZWrite");
 
     private bool networkStarted => NetworkClient.active;
     
@@ -74,6 +75,7 @@ public class Player : BaseEntity
         }
         
         objects.playerName.text = PlayerName;
+        objects.playerName2.text = PlayerName;
         GameManager.Instance.players.Add(this);
 
         if (!isLocalPlayer && networkStarted)
@@ -130,6 +132,7 @@ public class Player : BaseEntity
         }
     }
 
+    // Name plate name
     [Command]
     public void CmdSetPlayerServerData(string name, ulong steamId)
     {
@@ -142,7 +145,31 @@ public class Player : BaseEntity
     public void RpcUpdatePlayerNameText()
     {
         objects.playerName.text = PlayerName;
+        objects.playerName2.text = PlayerName;
     }
+    
+    // Name plate hidden
+    [Command]
+    public void CmdSetPlayerNamePlateHide(bool hidden)
+    {
+        RpcUpdatePlayerNamePlateHidden(hidden);
+    }
+
+    [ClientRpc]
+    public void RpcUpdatePlayerNamePlateHidden(bool hidden)
+    {
+        if (hidden)
+        {
+            objects.playerName2.gameObject.SetActive(false);
+            objects.playerNameBackground.material.SetFloat(DoZWrite, 2);
+        }
+        else
+        {
+            objects.playerName2.gameObject.SetActive(true);
+            objects.playerNameBackground.material.SetFloat(DoZWrite, 6);
+        }
+    }
+    
 
     private void OnEnable()
     {
@@ -375,6 +402,9 @@ public class Player : BaseEntity
             }
             blockLightLastFrame = blockLight;
             skyLightLastFrame = skyLight;   
+            
+            objects.playerName2.rectTransform.sizeDelta = objects.playerName.rectTransform.sizeDelta;
+            objects.playerName2.rectTransform.anchoredPosition = objects.playerName.rectTransform.anchoredPosition;
         }
 
         
@@ -575,11 +605,13 @@ public class Player : BaseEntity
             {
                 isSprinting = false;
             }
+            CmdSetPlayerNamePlateHide(true);
         }
         
         if (Input.GetButtonUp("Crouch"))
         {
             isCrouching = false;
+            CmdSetPlayerNamePlateHide(false);
         }
 
         if (Input.GetKeyDown(KeyCode.B))

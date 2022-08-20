@@ -20,6 +20,12 @@ public partial class World
     
     public async void SaveWorld()
     {
+        if(World.Instance.worldName == "")
+        {
+            Debug.Log("World name is empty - not saving");
+            return;
+        }
+        
         if (isSaving)
         {
             Debug.Log("Already saving");

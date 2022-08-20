@@ -10,7 +10,7 @@ public class SlowSpin : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        pitch = Mathf.Sin((Time.time*50) * 0.001f) * 5f + 25f;
+        pitch = Mathf.Sin((Time.time*50) * 0.001f) * 10f;
         yaw = (Time.time*20) * 0.1f;
         transform.localRotation = Quaternion.Euler(-pitch, 0, yaw);
     }

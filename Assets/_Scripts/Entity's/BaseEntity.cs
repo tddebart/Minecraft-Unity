@@ -26,7 +26,7 @@ public abstract class BaseEntity : NetworkBehaviour
     
     public bool isGrounded;
     public bool isSprinting;
-    public bool isCrouching;
+    [SyncVar] public bool isCrouching;
     public bool isFlying;
     public bool drawBounds;
     

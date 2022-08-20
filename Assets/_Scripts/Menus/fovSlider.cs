@@ -11,6 +11,6 @@ public class fovSlider : MonoBehaviour
     
     public void OnValueChanged(float value)
     {
-        if (Camera.main != null) Camera.main.fieldOfView = Mathf.Round(value);
+        if (World.Instance != null && Camera.main != null) Camera.main.fieldOfView = Mathf.Round(value);
     }
 }

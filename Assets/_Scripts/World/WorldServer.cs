@@ -107,7 +107,7 @@ public class WorldServer : NetworkBehaviour
             var world = World.Instance;
             for (var i = world.worldHeight - 1; i >= 0; i--)
             {
-                if (world.GetBlock(new Vector3Int(0, i, 0)).type != BlockType.Air)
+                if (world.GetBlock(new Vector3Int(8, i, 8)).type != BlockType.Air)
                 {
                     var player = Instantiate(NetworkManager.singleton.playerPrefab, new Vector3(world.chunkSize/2, i + 1, world.chunkSize/2), Quaternion.identity);
                     NetworkServer.AddPlayerForConnection(conn, player);

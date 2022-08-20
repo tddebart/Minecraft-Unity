@@ -804,7 +804,7 @@ PlayerSettings:
     Standalone: 1
   il2cppCompilerConfiguration: {}
   il2cppCodeGeneration:
-    Standalone: 0
+    Standalone: 1
   managedStrippingLevel: {}
   incrementalIl2cppBuild: {}
   suppressCommonWarnings: 1

@@ -67,15 +67,7 @@ public class WorldListMenuManager : MonoBehaviour
                 }
                 else
                 {
-                    var lobbyNull = await SteamMatchmaking.CreateLobbyAsync();
-                    if (lobbyNull.HasValue)
-                    {
-                        var lobby = lobbyNull.Value;
-                        lobby.SetPublic();
-                        lobby.SetData("name", $"{SteamClient.Name} playing on {worldSaveData.worldName} ({LobbyCreationMenu.lobbyName})");
-                        lobby.SetData("minecraft", "TRUE");
-                        NetworkManager.singleton.StartHost();
-                    }
+                    WorldCreationMenuManager.CreateLobby(worldSaveData.worldName, worldSaveData.seedOffset);
                 }
             };
         }

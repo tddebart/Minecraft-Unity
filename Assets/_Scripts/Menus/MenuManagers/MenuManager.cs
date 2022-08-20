@@ -1,5 +1,6 @@
 ﻿using Mirror;
 using Mirror.FizzySteam;
+using Newtonsoft.Json;
 using Steamworks;
 using Steamworks.Data;
 using UnityEngine;
@@ -28,6 +29,8 @@ public class MenuManager : MonoBehaviour
         {
             return;
         }
+
+        WorldSettingsManager.Instance.seedOffset = JsonConvert.DeserializeObject<Vector3Int>(lobby.GetData("seed"));
 
         if(NetworkManager.singleton.transport is FizzyFacepunch)
         {
