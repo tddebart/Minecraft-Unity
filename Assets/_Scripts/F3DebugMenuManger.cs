@@ -44,12 +44,12 @@ public partial class F3MenuManger : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.KeypadPlus))
             {
-                World.Instance.skyLightMultiplier = Mathf.Clamp(World.Instance.skyLightMultiplier+0.1f,0,0.9f);
+                World.Instance.skyLightMultiplier = Mathf.Clamp(World.Instance.skyLightMultiplier+0.1f,0.15F,1f);
                 World.Instance.UpadteLightTexture();
             }
             if (Input.GetKeyDown(KeyCode.KeypadMinus))
             {
-                World.Instance.skyLightMultiplier = Mathf.Clamp(World.Instance.skyLightMultiplier-0.1f,0,0.9f);;
+                World.Instance.skyLightMultiplier = Mathf.Clamp(World.Instance.skyLightMultiplier-0.1f,0.15F,1f);;
                 World.Instance.UpadteLightTexture();
             }
 

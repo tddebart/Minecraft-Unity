@@ -18,6 +18,8 @@ public static class LightTextureCreator
 
     public static void GenerateLightMapColors()
     {
+        Vector3 vector3f = new Vector3(skyLightMultiplier, skyLightMultiplier, 1f);
+        vector3f = WeirdLerp(vector3f, Vector3.one, 0.35f);
         for (var k = 0; k < 16; ++k) {
             for (var l = 0; l < 16; ++l) {
                 float n;
@@ -27,7 +29,7 @@ public static class LightTextureCreator
                 var q = n * (n * n * 0.6f + 0.4f);
                 var vector3f2 = new Vector3(o, p, q);
 
-                Vector3 vector3f3 = Vector3.one;
+                Vector3 vector3f3 = vector3f;
                 vector3f3 *= m;
                 vector3f2 += vector3f3;
                 vector3f2 = Vector3.Lerp(vector3f2, new Vector3(0.75f, 0.75f, 0.75f), 0.04f);
@@ -52,6 +54,16 @@ public static class LightTextureCreator
                 // this.image.setPixelColor(l, k, 0xFF000000 | w << 16 | v << 8 | u);
             }
         }
+    }
+
+    public static Vector3 WeirdLerp(Vector3 v1, Vector3 v2, float delta)
+    {
+        float f = 1 - delta;
+        v1.x = v1.x * f + v2.x * delta;
+        v1.y = v1.y * f + v2.y * delta;
+        v1.z = v1.z * f + v2.z * delta;
+        
+        return v1;
     }
 
     public static float modifyVector(float f)

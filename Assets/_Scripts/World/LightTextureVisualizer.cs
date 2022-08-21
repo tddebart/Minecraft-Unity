@@ -4,6 +4,7 @@ public class LightTextureVisualizer : MonoBehaviour
 {
     public Texture2D lightTexture;
     [Range(0, 1)] public float gamma;
+    [Range(0.15f, 1)]
     public float skyLightMultiplier = 0.75f;
     public float blockLightMultiplier = 1.5f;
 

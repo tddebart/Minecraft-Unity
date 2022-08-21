@@ -56,7 +56,7 @@ public partial class World
     private void Update()
     {
         //TODO: remove this because it is slow
-        Camera.main.backgroundColor = Color.Lerp(nightColor,dayColor , skyLightMultiplier);
+        Camera.main.backgroundColor = Color.Lerp(nightColor,dayColor , skyLightMultiplier*(1+1/9f));
         
         // if (Input.GetKeyDown(KeyCode.L))
         // {

@@ -36,8 +36,9 @@ public partial class World : MonoBehaviour
     [Header("Lighting")] 
     [Range(0, 1)]
     public float gamma = 0.0f;
+    [Range(0.15f, 1)]
     public float skyLightMultiplier = 0.75f;
-    public float blockLightMultiplier = 1.18f;
+    public float blockLightMultiplier = 1.5f;
     [Space]
     public Color dayColor;
     public Color nightColor;
